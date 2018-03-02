@@ -1,0 +1,23 @@
+{
+  "name": "shy",
+  "type": "project",
+  "keywords": [
+    "mini framework"
+  ],
+  "homepage": "https://github.com/lynncho/shy",
+  "require": {
+  },
+  "autoload": {
+    "classmap": [
+      "app"
+    ],
+    "psr-4": {
+      "app\\": "app/",
+      "app\\business\\": "app/business",
+      "config\\": "app/config/",
+      "controller\\": "app/controller",
+      "shy\\": "shy/",
+      "shy\\lib\\": "shy/lib"
+    }
+  }
+}
