@@ -1,5 +1,4 @@
 .DS_Store
-.htaccess
 .idea/*
-.cache/*
-.vendor/*
+cache/log/*
+vendor/*
