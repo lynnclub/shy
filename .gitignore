@@ -1,0 +1,5 @@
+.DS_Store
+.htaccess
+.idea/*
+.cache/*
+.vendor/*
