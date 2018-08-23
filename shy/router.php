@@ -9,69 +9,29 @@
 
 namespace shy;
 
-use config\app;
-
 class router
 {
-    public $controller = app::DEFAULT_CONTROLLER;
+    /**
+     * Controller
+     *
+     * @var string
+     */
+    public $controller = 'home';
+
+    /**
+     * Method of controller
+     *
+     * @var string
+     */
     public $method = 'index';
 
     public function __construct()
     {
+        if ($defaultController = config('default_controller')) {
+            $this->controller = $defaultController;
+        }
         $this->parseUrl();
         $this->runController();
-    }
-
-    //url带.php的情况没有考虑
-    private function parseUrl()
-    {
-        $complete_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https://' : 'http://';
-        $complete_url .= isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : getenv('HTTP_HOST');
-        $complete_url .= isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
-        if (!filter_var($complete_url, FILTER_VALIDATE_URL)) {
-            header('HTTP/1.1 400 Bad Request.', TRUE, 400);
-            echo 'url invalid.';
-            exit(1); // EXIT_ERROR
-        }
-        $rewrite_path = substr($complete_url, strlen(BASE_URL));
-        if (!empty($rewrite_path)) {
-            $path_param = explode('?', $rewrite_path);
-            if (!empty($path_param[0])) {
-                $path = explode('/', $path_param[0]);
-                if (!empty($path[0])) {
-                    $this->controller = lcfirst($path[0]);
-                    if (isset($path[1]) && !empty($path[1])) {
-                        $this->method = lcfirst($path[1]);
-                    }
-                }
-            }
-        }
-    }
-
-    private function runController()
-    {
-        if (file_exists(BASE_PATH . '/../app/controller/' . $this->controller . '.php')) {
-            $class = '\controller\\' . $this->controller;
-            if (class_exists($class)) {
-                $controller = new $class;
-                if (method_exists($controller, $this->method)) {
-                    $method = $this->method;
-                    $controller->$method();
-                } else {
-                    header('HTTP/1.1 404 Not Found.', TRUE, 404);
-                    echo 'Method not found.';
-                    exit(1); // EXIT_ERROR
-                }
-            } else {
-                header('HTTP/1.1 404 Not Found.', TRUE, 404);
-                echo 'Controller Class not found.';
-                exit(1); // EXIT_ERROR
-            }
-        } else {
-            header('HTTP/1.1 404 Not Found.', TRUE, 404);
-            echo 'Controller file not found.';
-            exit(1); // EXIT_ERROR
-        }
     }
 
     public function getController()
@@ -83,4 +43,50 @@ class router
     {
         return $this->method;
     }
+
+    private function parseUrl()
+    {
+        $pathString = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
+        if (empty($pathString)) {
+            showError(500, 'Url error.');
+        }
+        $path_param = explode('?', $pathString);
+        if (empty($path_param[0])) {
+            showError(500, 'Url error.');
+        }
+        $path = explode('/', $path_param[0]);
+        if (!empty($path[1])) {
+            $this->controller = lcfirst($path[1]);
+            if (isset($path[2]) && !empty($path[2])) {
+                $this->method = lcfirst($path[2]);
+            }
+        }
+    }
+
+    private function runController()
+    {
+        if (file_exists(BASE_PATH . 'app/controller/' . $this->controller . '.php')) {
+            $class = 'app\controller\\' . $this->controller;
+            if (class_exists($class)) {
+                $controller = new $class;
+                if (method_exists($controller, $this->method)) {
+                    $method = $this->method;
+                    $controller->$method();
+
+                    if (config('slow_log')) {
+                        global $startTime;
+                        $difference = time() - $startTime;
+                        if ($difference > config('slow_log_limit')) {
+                            logger('slowLog/log', json_encode(['controller' => $this->controller, 'method' => $this->method, 'difference' => $difference]));
+                        }
+                    }
+
+                    exit(0);
+                }
+            }
+        }
+
+        showError(404);
+    }
+
 }

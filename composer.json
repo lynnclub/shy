@@ -1,23 +1,19 @@
 {
   "name": "shy",
-  "type": "project",
+  "description": "Mini MVC Framework.",
   "keywords": [
-    "mini framework"
+    "framework",
+    "shy",
+    "mvc"
   ],
+  "license": "MIT",
+  "type": "project",
   "homepage": "https://github.com/lynncho/shy",
-  "require": {
-  },
+  "require": {},
   "autoload": {
-    "classmap": [
-      "app"
-    ],
     "psr-4": {
       "app\\": "app/",
-      "app\\business\\": "app/business",
-      "config\\": "app/config/",
-      "controller\\": "app/controller",
-      "shy\\": "shy/",
-      "shy\\lib\\": "shy/lib"
+      "shy\\": "shy/"
     }
   }
 }

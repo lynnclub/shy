@@ -6,17 +6,21 @@
  * @link      http://lynncho.cn/
  */
 
-define('BASE_PATH', dirname(__FILE__));
-require_once BASE_PATH . '/func/common.php';
-require_once BASE_PATH . '/../vendor/autoload.php';
+$startTime = time();
+$config = [];
 
-use config\app;
+define('CORE_PATH', dirname(__FILE__) . '/');
+define('BASE_PATH', dirname(CORE_PATH) . '/');
+
+require_once CORE_PATH . 'func/common.php';
+require_once BASE_PATH . 'vendor/autoload.php';
+
 use shy\router;
 
 /**
  * Error Reporting
  */
-switch (app::ENVIRONMENT) {
+switch (config('env')) {
     case 'development':
         error_reporting(-1);
         ini_set('display_errors', 1);
@@ -41,7 +45,7 @@ switch (app::ENVIRONMENT) {
 /**
  * Time Zone
  */
-date_default_timezone_set(app::TIMEZONE);
+date_default_timezone_set(config('timezone'));
 
 /**
  * Base information:
@@ -49,6 +53,6 @@ date_default_timezone_set(app::TIMEZONE);
  *   2. BASE_URL
  *   3. SOCKET
  */
-define('BASE_URL', get_base_url());
+define('BASE_URL', baseUrl());
 
 new router();

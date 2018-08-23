@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Shy framework</title>
-    <link type="text/css" href="<?php echo BASE_URL; ?>css/test.css" rel="stylesheet">
+    <link type="text/css" href="<?php echo BASE_URL; ?>css/home.css" rel="stylesheet">
 </head>
 <body>
 <div id="hello-world">
