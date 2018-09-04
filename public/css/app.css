@@ -11,18 +11,20 @@ body {
 }
 
 #hello-world {
-    margin: 50px auto;
+    margin: 100px auto;
     font-size: 50px;
-    color: green;
     text-align: center;
+    background: linear-gradient(to right, red, blue);
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
-#link {
+footer {
     margin: 50px auto;
     text-align: center;
 }
 
-#link > a {
+footer > a {
     color: black;
     text-decoration: none;
 }

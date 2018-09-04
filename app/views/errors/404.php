@@ -1,47 +1,15 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>404</title>
-
-        <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
-
-        <style>
-            html, body {
-                height: 100%;
-            }
-
-            body {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                color: #B0BEC5;
-                display: table;
-                font-weight: 100;
-                font-family: 'Lato', sans-serif;
-            }
-
-            .container {
-                text-align: center;
-                display: table-cell;
-                vertical-align: middle;
-            }
-
-            .content {
-                text-align: center;
-                display: inline-block;
-            }
-
-            .title {
-                font-size: 72px;
-                margin-bottom: 40px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="content">
-                <div class="title">Be right back.</div>
-            </div>
-        </div>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>404 not found</title>
+    <link type="text/css" rel="stylesheet" href="<?php echo config('base_url'); ?>css/app.css">
+    <script src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8"
+            homePageUrl="<?php echo config('base_url'); ?>" homePageName="Back"></script>
+</head>
+<body>
+<div>
+    <h1>404 not found</h1>
+</div>
+</body>
 </html>

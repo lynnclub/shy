@@ -4,7 +4,7 @@
  * zoom image
  */
 
-namespace shy\lib;
+namespace shy\library;
 
 class zoomImg
 {

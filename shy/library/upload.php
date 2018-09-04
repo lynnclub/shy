@@ -4,7 +4,7 @@
  * upload
  */
 
-namespace shy\lib;
+namespace shy\library;
 
 class upload
 {

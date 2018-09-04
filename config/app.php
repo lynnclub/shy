@@ -3,6 +3,14 @@
 return [
 
     /*
+    | Base Url
+    |
+    | main domain.
+    */
+
+    'base_url' => 'http://buffet.test/',
+
+    /*
     | Environment
     |
     | for error reporting.
@@ -34,8 +42,22 @@ return [
 
     /*
     | Slow Log Limit
+    |
+    | second
     */
 
-    'slow_log_limit' => 10
+    'slow_log_limit' => 10,
+
+    /*
+    | Route By Config
+    */
+
+    'route_by_config' => true,
+
+    /*
+    | Route By Path
+    */
+
+    'route_by_path' => true
 
 ];

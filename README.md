@@ -1,2 +1,2 @@
 # shy
-Mini mvc framework
+Mini laravel framework

@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Shy framework</title>
-    <link type="text/css" href="<?php echo BASE_URL; ?>css/home.css" rel="stylesheet">
-</head>
-<body>
+<?php
+
+$title = 'Shy Framework';
+
+?>
+
 <div id="hello-world">
-    <?php if (isset($info)) echo $info; ?>
+    <?php echo $info; ?>
 </div>
-<div id="link">
-    <a target="_blank" href="https://github.com/lynncho/shy">Shy framework</a>
-</div>
-</body>
-</html>

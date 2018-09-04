@@ -1,5 +1,5 @@
 {
-  "name": "shy",
+  "name": "lynncho/shy",
   "description": "Mini MVC Framework.",
   "keywords": [
     "framework",
@@ -9,11 +9,21 @@
   "license": "MIT",
   "type": "project",
   "homepage": "https://github.com/lynncho/shy",
-  "require": {},
+  "require": {
+    "php": "^7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.0"
+  },
   "autoload": {
     "psr-4": {
       "app\\": "app/",
       "shy\\": "shy/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "tests\\": "tests/"
     }
   }
 }

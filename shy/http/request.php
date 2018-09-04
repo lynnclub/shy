@@ -1,0 +1,291 @@
+<?php
+
+/**
+ * Shy Framework Router
+ *
+ * @author    lynn<admin@lynncho.cn>
+ * @link      http://lynncho.cn/
+ */
+
+namespace shy\http;
+
+use shy\http\bag\ParameterBag;
+use shy\http\bag\ServerBag;
+use shy\http\bag\HeaderBag;
+use Exception;
+use shy\http\exception\httpException;
+
+class request
+{
+    private $method;
+
+    protected $request;
+
+    protected $query;
+
+    protected $cookies;
+
+    protected $files;
+
+    protected $server;
+
+    protected $headers;
+
+    protected $acceptableContentTypes;
+
+    protected $baseUrl;
+
+    protected $pathInfo;
+
+    protected $requestUri;
+
+    protected $basePath;
+
+    protected $content;
+
+    protected $languages;
+
+    protected $charsets;
+
+    /**
+     * request constructor.
+     *
+     * @param array $query $_GET
+     * @param array $request $_POST
+     * @param array $cookies $_COOKIE
+     * @param array $files $_FILES
+     * @param array $server $_SERVER
+     * @param null $content
+     */
+    public function __construct(array $query = array(), array $request = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
+    {
+        $this->request = new ParameterBag($request);
+        $this->query = new ParameterBag($query);
+        $this->cookies = new ParameterBag($cookies);
+        //$this->files = new FileBag($files);
+        $this->server = new ServerBag($server);
+        $this->headers = new HeaderBag($this->server->getHeaders());
+
+        $this->content = $content;
+        $this->languages = null;
+        $this->charsets = null;
+        $this->encodings = null;
+        $this->acceptableContentTypes = null;
+        $this->pathInfo = null;
+        $this->requestUri = null;
+        $this->baseUrl = null;
+        $this->basePath = null;
+        $this->method = null;
+        $this->format = null;
+    }
+
+    /**
+     * Get a parameter
+     *
+     * @param $key
+     * @param null $default
+     * @return mixed|null
+     */
+    public function get($key, $default = null)
+    {
+        if ($this !== $result = $this->query->get($key, $this)) {
+            return $result;
+        }
+
+        if ($this !== $result = $this->request->get($key, $this)) {
+            return $result;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get all parameters
+     *
+     * @return array
+     */
+    public function all()
+    {
+        $query = $this->query->all();
+        $request = $this->request->all();
+
+        return array_merge($query, $request);
+    }
+
+    /**
+     * Is Https On
+     *
+     * @return bool
+     */
+    public function isSecure()
+    {
+        $https = $this->server->get('HTTPS');
+
+        return !empty($https) && 'off' !== strtolower($https);
+    }
+
+    /**
+     * Gets the request's scheme.
+     *
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->isSecure() ? 'https' : 'http';
+    }
+
+    /**
+     * Get Port
+     *
+     * @return int
+     */
+    public function getPort()
+    {
+        if (!$host = $this->headers->get('HOST')) {
+            return $this->server->get('SERVER_PORT');
+        }
+
+        if ('[' === $host[0]) {
+            $pos = strpos($host, ':', strrpos($host, ']'));
+        } else {
+            $pos = strrpos($host, ':');
+        }
+
+        if (false !== $pos) {
+            return (int)substr($host, $pos + 1);
+        }
+
+        return 'https' === $this->getScheme() ? 443 : 80;
+    }
+
+    /**
+     * Returns the host name.
+     *
+     * @return string
+     *
+     * @throws Exception when the host name is invalid or not trusted
+     */
+    public function getHost()
+    {
+        if (!$host = $this->headers->get('HOST')) {
+            if (!$host = $this->server->get('SERVER_NAME')) {
+                $host = $this->server->get('SERVER_ADDR', '');
+            }
+        }
+
+        // trim and remove port number from host
+        // host is lowercase as per RFC 952/2181
+        $host = strtolower(preg_replace('/:\d+$/', '', trim($host)));
+
+        // as the host can come from the user (HTTP_HOST and depending on the configuration, SERVER_NAME too can come from the user)
+        // check that it does not contain forbidden characters (see RFC 952 and RFC 2181)
+        // use preg_replace() instead of preg_match() to prevent DoS attacks with long host names
+        if ($host && '' !== preg_replace('/(?:^\[)?[a-zA-Z0-9-:\]_]+\.?/', '', $host)) {
+            throw new Exception(sprintf('Invalid Host "%s".', $host));
+        }
+
+        return $host;
+    }
+
+    /**
+     * Returns the HTTP host being requested.
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getHttpHost()
+    {
+        $scheme = $this->getScheme();
+        $port = $this->getPort();
+
+        if (('http' == $scheme && 80 == $port) || ('https' == $scheme && 443 == $port)) {
+            return $this->getHost();
+        }
+
+        return $this->getHost() . ':' . $port;
+    }
+
+    /**
+     * Gets the scheme and HTTP host.
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getSchemeAndHttpHost()
+    {
+        return $this->getScheme() . '://' . $this->getHttpHost();
+    }
+
+    /**
+     * Base Url
+     *
+     * @return string|null
+     */
+    public function getBaseUrl()
+    {
+        $pathString = $this->server->get('REQUEST_URI');
+        $path_param = explode('?', $pathString);
+        if (empty($path_param[0])) {
+            throw new httpException(404);
+        }
+
+        $this->baseUrl = $path_param[0];
+
+        return $this->baseUrl;
+    }
+
+    /**
+     * Get Method
+     *
+     * @return null|string
+     */
+    public function getMethod()
+    {
+        if (null === $this->method) {
+            $this->method = strtoupper($this->server->get('REQUEST_METHOD', 'GET'));
+        }
+
+        return $this->method;
+    }
+
+    /**
+     * Is Ajax
+     *
+     * @return bool
+     */
+    public function ajax()
+    {
+        return 'XMLHttpRequest' == $this->headers->get('X-Requested-With');
+    }
+
+    /**
+     * Is Pjax
+     *
+     * @return bool
+     */
+    public function pjax()
+    {
+        return $this->headers->get('X-PJAX') == true;
+    }
+
+    /**
+     * User Agent
+     *
+     * @return null|string|string[]
+     */
+    public function userAgent()
+    {
+        return $this->headers->get('User-Agent');
+    }
+
+    /**
+     * Expects Json
+     *
+     * @return bool
+     */
+    public function expectsJson()
+    {
+        return $this->ajax() && !$this->pjax();
+    }
+
+}

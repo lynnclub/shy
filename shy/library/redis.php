@@ -1,9 +1,7 @@
 <?php
 
-namespace shy\lib;
+namespace shy\library;
 
-use config\redis as DbConfig;
-use Exception;
 use redis as PhpRedis;
 
 /**
@@ -23,24 +21,29 @@ class redis
      *
      * @param string $config_name
      * @return Redis
-     * @throws Exception
      */
     public static function instance($config_name = 'default')
     {
-        if (!isset(DbConfig::$$config_name)) {
-            echo "\\Config\\Redis::$config_name not set\n";
-            throw new Exception("\\Config\\Redis::$config_name not set\n");
+        $config = config('redis', 'database');
+        if (!isset($config[$config_name])) {
+            showError(500, 'Redis Config ' . $config_name . ' not set');
+        }
+        if (!extension_loaded('redis')) {
+            showError(500, 'redis extension not find');
         }
 
         if (empty(self::$instance[$config_name])) {
-            $config = DbConfig::$$config_name;
+            $config = $config[$config_name];
             self::$instance[$config_name] = new PhpRedis();
             self::$instance[$config_name]->pconnect($config['host'], $config['port']);
-            if (isset($config['auth'])) {
-                self::$instance[$config_name]->auth($config['auth']);
+            if (isset($config['password'])) {
+                self::$instance[$config_name]->auth($config['password']);
             }
-            if (isset($config['select'])) {
-                self::$instance[$config_name]->select($config['select']);
+            if (isset($config['database'])) {
+                self::$instance[$config_name]->select($config['database']);
+            }
+            if (self::$instance[$config_name]->ping() !== '+PONG') {
+                showError(500, 'Redis Config ' . $config_name . ': connect failed');
             }
         }
         return self::$instance[$config_name];
@@ -51,7 +54,7 @@ class redis
      *
      * @param string $config_name
      */
-    public function close($config_name = 'default')
+    public static function close($config_name = 'default')
     {
         if (isset(self::$instance[$config_name])) {
             self::$instance[$config_name]->close();
@@ -62,11 +65,11 @@ class redis
     /**
      * 关闭所有数据库实例
      */
-    public function closeAll()
+    public static function closeAll()
     {
         foreach (self::$instance as $connection) {
-            $connection->closeConnection();
+            $connection->close();
         }
-        self::$instance = array();
+        self::$instance = [];
     }
 }
