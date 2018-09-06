@@ -7,6 +7,77 @@
  * @link      http://lynncho.cn/
  */
 
+if (!function_exists('config')) {
+    /**
+     * Get Config
+     *
+     * @param $key
+     * @param string $file
+     * @return bool
+     */
+    function config($key, $file = 'app')
+    {
+        $config = config_file($file);
+        if (isset($config[$key])) {
+            return $config[$key];
+        } else {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('config_all')) {
+    /**
+     * Get Config File
+     *
+     * @param string $file
+     * @return bool|array
+     */
+    function config_file($file = 'app')
+    {
+        static $config = [];
+        static $config_path = __DIR__ . '/../../config/';
+        if (isset($config[$file])) {
+            return $config[$file];
+        } else {
+            $config[$file] = require_config($config_path . $file);
+            return $config[$file];
+        }
+    }
+}
+
+if (!function_exists('require_config')) {
+    /**
+     * Require Config
+     *
+     * @param $filename
+     * @return bool|mixed
+     */
+    function require_config($filename)
+    {
+        $filename .= '.php';
+        if (file_exists($filename)) {
+
+            return require_once "$filename";
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('shy')) {
+    /**
+     * Get Or Make Object
+     *
+     * @param $abstract
+     * @return object
+     */
+    function shy($abstract)
+    {
+        return make($abstract);
+    }
+}
+
 if (!function_exists('bind')) {
     /**
      * bind object
@@ -24,7 +95,7 @@ if (!function_exists('bind')) {
 
 if (!function_exists('make')) {
     /**
-     * Make And Get Object
+     * Get Or Make Object
      *
      * @param $abstract
      * @param object|Closure|string $concrete
@@ -36,21 +107,6 @@ if (!function_exists('make')) {
     {
         global $_container;
         return $_container->make($abstract, $concrete, ...$parameters);
-    }
-}
-
-if (!function_exists('shy')) {
-    /**
-     * Get or Make Object
-     *
-     * @param $abstract
-     * @return object
-     * @throws
-     */
-    function shy($abstract)
-    {
-        global $_container;
-        return $_container->make($abstract);
     }
 }
 
@@ -77,6 +133,13 @@ if (!function_exists('view')) {
 }
 
 if (!function_exists('include_view')) {
+    /**
+     * include View
+     *
+     * @param $filename
+     * @param array $params
+     * @return bool|string
+     */
     function include_view($filename, $params = [])
     {
         $filename .= '.php';
@@ -94,33 +157,6 @@ if (!function_exists('include_view')) {
         }
 
         return false;
-    }
-}
-
-if (!function_exists('require_config')) {
-    function require_config($filename)
-    {
-        $filename .= '.php';
-        if (file_exists($filename)) {
-
-            return require_once "$filename";
-        }
-
-        return false;
-    }
-}
-
-if (!function_exists('config')) {
-    function config($key, $file = 'app')
-    {
-        return shy('config')->get($key, $file);
-    }
-}
-
-if (!function_exists('config_all')) {
-    function config_all($file = 'app')
-    {
-        return shy('config')->getAll($file);
     }
 }
 

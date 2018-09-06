@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Shy Framework Router
+ * Shy Framework Request
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -10,6 +10,7 @@
 namespace shy\http;
 
 use shy\http\bag\ParameterBag;
+use shy\http\bag\FileBag;
 use shy\http\bag\ServerBag;
 use shy\http\bag\HeaderBag;
 use Exception;
@@ -17,35 +18,58 @@ use shy\http\exception\httpException;
 
 class request
 {
+    /**
+     * Get Post
+     *
+     * @var $method
+     */
     private $method;
 
+    /**
+     * $_POST
+     *
+     * @var ParameterBag $request
+     */
     protected $request;
 
+    /**
+     * $_GET
+     *
+     * @var ParameterBag $query
+     */
     protected $query;
 
+    /**
+     * $_COOKIE
+     *
+     * @var ParameterBag $cookies
+     */
     protected $cookies;
 
+    /**
+     * $_FILES
+     *
+     * @var FileBag $files
+     */
     protected $files;
 
+    /**
+     * $_SERVER
+     *
+     * @var ServerBag $server
+     */
     protected $server;
 
+    /**
+     * Http Header
+     *
+     * @var HeaderBag $headers
+     */
     protected $headers;
-
-    protected $acceptableContentTypes;
 
     protected $baseUrl;
 
-    protected $pathInfo;
-
-    protected $requestUri;
-
-    protected $basePath;
-
     protected $content;
-
-    protected $languages;
-
-    protected $charsets;
 
     /**
      * request constructor.
@@ -67,16 +91,6 @@ class request
         $this->headers = new HeaderBag($this->server->getHeaders());
 
         $this->content = $content;
-        $this->languages = null;
-        $this->charsets = null;
-        $this->encodings = null;
-        $this->acceptableContentTypes = null;
-        $this->pathInfo = null;
-        $this->requestUri = null;
-        $this->baseUrl = null;
-        $this->basePath = null;
-        $this->method = null;
-        $this->format = null;
     }
 
     /**

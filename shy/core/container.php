@@ -43,7 +43,14 @@ class container
         return $this;
     }
 
-    public function bindObject(string $abstract, object $concrete)
+    /**
+     * Bind object And Return
+     *
+     * @param string $abstract
+     * @param object $concrete
+     * @return mixed
+     */
+    public function bindObjectAndReturn(string $abstract, object $concrete)
     {
         if (is_object($concrete)) {
             self::$binds[$abstract] = self::$instances[$abstract] = $concrete;
@@ -92,6 +99,12 @@ class container
         return self::$instances[$abstract];
     }
 
+    /**
+     * Make Closure
+     *
+     * @param $abstract
+     * @param array ...$parameters
+     */
     private function makeClosure($abstract, ...$parameters)
     {
         if (!empty($parameters) && count($parameters) === 1) {
@@ -101,6 +114,14 @@ class container
         }
     }
 
+    /**
+     * Make Class By Reflection
+     *
+     * @param $abstract
+     * @param array ...$parameters
+     * @return mixed
+     * @throws ReflectionException
+     */
     private function makeClassByReflection($abstract, ...$parameters)
     {
         $reflector = new ReflectionClass($abstract);
@@ -118,7 +139,7 @@ class container
     }
 
     /**
-     * Clear instance
+     * Clear Bind And Instance
      *
      * @param $abstract
      */
@@ -128,7 +149,7 @@ class container
     }
 
     /**
-     * Clear all instances
+     * Clear All Binds And Instances
      */
     public function clearAll()
     {
@@ -137,7 +158,7 @@ class container
     }
 
     /**
-     * get instances list
+     * Get Instances List
      *
      * @return array
      */

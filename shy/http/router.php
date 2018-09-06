@@ -77,9 +77,6 @@ class router
     public function handle(request $request, $next)
     {
         $this->baseUrl = $request->getBaseUrl();
-        if ($defaultController = config('default_controller')) {
-            $this->controller = $defaultController;
-        }
         if (config('route_by_config')) {
             $this->success = $this->configRoute();
         }
@@ -94,7 +91,10 @@ class router
             $next($this->runMethod());
         } else {
             foreach ($this->middleware as $key => $middleware) {
-                $this->middleware[$key] = 'app\\middleware\\' . $middleware;
+                $middleware = 'app\\middleware\\' . $middleware;
+                if (class_exists($middleware)) {
+                    $this->middleware[$key] = $middleware;
+                }
             }
             shy('pipeline')
                 ->send($request)
@@ -178,6 +178,9 @@ class router
             }
         } elseif (count($path) === 2) {
             //home page
+            if ($defaultController = config('default_controller')) {
+                $this->controller = $defaultController;
+            }
 
             return true;
         }

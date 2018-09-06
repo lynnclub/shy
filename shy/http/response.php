@@ -13,10 +13,25 @@ use RuntimeException;
 
 class response
 {
+    /**
+     * Http Code
+     *
+     * @var int $code
+     */
     private $code;
 
+    /**
+     * Header
+     *
+     * @var array $header
+     */
     private $header;
 
+    /**
+     * Response
+     *
+     * @var view|string $response
+     */
     private $response;
 
     /**

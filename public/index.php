@@ -23,14 +23,9 @@ require_once __DIR__ . '/../shy/function/helpers.php';
  */
 
 use shy\core\container;
-use shy\core\config;
 use shy\exception\webHandler;
-use shy\facade\exceptionHandler;
 use shy\web;
 
 $_container = new container();
-
-$_container->bindObject('config', new config());
-$_container->bindObject('exception\handler', new webHandler());
-$_container->setExceptionHandler(exceptionHandler::getInstance(), config('env'));
-$_container->bindObject('web', new web())->run();
+$_container->setExceptionHandler(new webHandler(), config('env'));
+$_container->bindObjectAndReturn('web', new web())->run();
