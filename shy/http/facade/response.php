@@ -1,6 +1,6 @@
 <?php
 
-namespace shy\facade;
+namespace shy\http\facade;
 
 use shy\core\facade;
 

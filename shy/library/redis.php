@@ -3,12 +3,23 @@
 namespace shy\library;
 
 use redis as PhpRedis;
+use shy\http\exception\httpException;
 
 /**
  * Redis数据库类
  */
 class redis
 {
+    private function __construct()
+    {
+        // not allow new outside
+    }
+
+    private function __clone()
+    {
+        // not allow clone outside
+    }
+
     /**
      * 实例数组
      *
@@ -26,10 +37,10 @@ class redis
     {
         $config = config('redis', 'database');
         if (!isset($config[$config_name])) {
-            showError(500, 'Redis Config ' . $config_name . ' not set');
+            throw new httpException(500, 'Redis Config ' . $config_name . ' not set');
         }
         if (!extension_loaded('redis')) {
-            showError(500, 'redis extension not find');
+            throw new httpException(500, 'Redis extension not find');
         }
 
         if (empty(self::$instance[$config_name])) {
@@ -43,7 +54,7 @@ class redis
                 self::$instance[$config_name]->select($config['database']);
             }
             if (self::$instance[$config_name]->ping() !== '+PONG') {
-                showError(500, 'Redis Config ' . $config_name . ': connect failed');
+                throw new httpException(500, 'Redis Config ' . $config_name . ': connect failed');
             }
         }
         return self::$instance[$config_name];

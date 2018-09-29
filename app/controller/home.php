@@ -12,10 +12,10 @@ namespace app\controller;
 use shy\library\session;
 use app\business\testBusiness;
 
-//use shy\lib\db;
-//use shy\lib\redis;
-//use shy\libraries\pdo;
-use shy\facade\request;
+use shy\library\mysqli;
+use shy\library\redis;
+use shy\library\pdo;
+use shy\http\facade\request;
 
 class home
 {
@@ -36,9 +36,9 @@ class home
 //        pdo::instance();
 //        pdo::close();
 //        pdo::closeAll();
-//        db::instance();
-//        db::close();
-//        db::closeAll();
+//        mysqli::instance();
+//        mysqli::close();
+//        mysqli::closeAll();
 //        redis::instance();
 //        redis::close();
 //        redis::closeAll();

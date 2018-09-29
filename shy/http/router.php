@@ -71,12 +71,14 @@ class router
     /**
      * Pipeline Call Method
      *
-     * @param request $request
      * @param $next
+     * @param \shy\http\request $request
      */
-    public function handle(request $request, $next)
+    public function handle($next, $request)
     {
         $this->baseUrl = $request->getBaseUrl();
+
+        // Parse Url
         if (config('route_by_config')) {
             $this->success = $this->configRoute();
         }
@@ -87,32 +89,42 @@ class router
             throw new httpException(404);
         }
 
+        // Run
+        $this->controller = 'app\\controller\\' . $this->controller;
+        if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
+            throw new httpException(404);
+        }
         if (empty($this->middleware)) {
-            $next($this->runMethod());
+            $response = $this->runController();
         } else {
             foreach ($this->middleware as $key => $middleware) {
-                $middleware = 'app\\middleware\\' . $middleware;
-                if (class_exists($middleware)) {
-                    $this->middleware[$key] = $middleware;
+                if (class_exists($namespaceMiddleware = 'app\\middleware\\' . $middleware)) {
+                    $this->middleware[$key] = $namespaceMiddleware;
+                } elseif (class_exists($namespaceMiddleware = 'shy\\http\\middleware\\' . $middleware)) {
+                    $this->middleware[$key] = $namespaceMiddleware;
                 }
             }
-            shy('pipeline')
-                ->send($request)
+            $response = shy('pipeline')
                 ->through($this->middleware)
-                ->then(function () use ($next) {
-                    $next($this->runMethod());
+                ->then(function () {
+                    return $this->runController();
                 });
         }
 
-        /**
-         * slow_log
-         */
-        if (config('slow_log')) {
-            $difference = microtime(true) - SHY_START;
-            if ($difference > config('slow_log_limit')) {
-                logger('slowLog/log', json_encode(['controller' => $this->controller, 'method' => $this->method, 'difference' => $difference]));
-            }
-        }
+        $next($response);
+    }
+
+    /**
+     * Run controller
+     *
+     * @return mixed
+     */
+    private function runController()
+    {
+        return shy('pipeline')
+            ->through($this->controller)
+            ->via($this->method)
+            ->run();
     }
 
     /**
@@ -184,25 +196,6 @@ class router
 
             return true;
         }
-    }
-
-    /**
-     * Run Method
-     *
-     * @return mixed
-     */
-    private function runMethod()
-    {
-        $class = 'app\\controller\\' . $this->controller;
-        if (class_exists($class)) {
-            $controller = new $class;
-            if (method_exists($controller, $this->method)) {
-                $method = $this->method;
-                return $controller->$method();
-            }
-        }
-
-        throw new httpException(404);
     }
 
 }

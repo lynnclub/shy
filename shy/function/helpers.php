@@ -17,7 +17,7 @@ if (!function_exists('config')) {
      */
     function config($key, $file = 'app')
     {
-        $config = config_file($file);
+        $config = config_all($file);
         if (isset($config[$key])) {
             return $config[$key];
         } else {
@@ -33,7 +33,7 @@ if (!function_exists('config_all')) {
      * @param string $file
      * @return bool|array
      */
-    function config_file($file = 'app')
+    function config_all($file = 'app')
     {
         static $config = [];
         static $config_path = __DIR__ . '/../../config/';

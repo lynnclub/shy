@@ -9,7 +9,7 @@
 
 namespace app\controller;
 
-use shy\facade\request;
+use shy\http\facade\request;
 
 class test2
 {

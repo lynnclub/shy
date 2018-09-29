@@ -74,9 +74,24 @@
                 }
             }
             ?>
-            <div class="file">[<?php echo $key; ?>] <?php echo $trace['file'] . ' ' . $trace['line']; ?></div>
-            <div class="function"><?php if (isset($trace['class'])) echo $trace['class'] . '->';
-                echo $trace['function'] . '(' . implode(', ', $trace['args']) . ')' ?></div>
+            <div class="file">
+                <?php
+                echo '[' . $key . '] ';
+                if (isset($trace['file'], $trace['line'])) {
+                    echo $trace['file'] . ' ' . $trace['line'];
+                } else {
+                    echo 'none';
+                }
+                ?>
+            </div>
+            <div class="function">
+                <?php
+                if (isset($trace['class'])) {
+                    echo $trace['class'] . '->';
+                }
+                echo $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
+                ?>
+            </div>
             <?php
         }
         ?>

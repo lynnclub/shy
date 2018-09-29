@@ -41,20 +41,37 @@ class web
 
     public function run()
     {
-        shy('pipeline')
+        $response = shy('pipeline')
             ->send(shy('request'))
             ->through('router')
             ->then(function ($response) {
                 if (!empty($response)) {
                     shy('response')->send($response);
                 }
-                $this->end($response);
+
+                return $response;
             });
+
+        $this->end($response);
     }
 
     public function end($response)
     {
-        //echo 'end';
+        /**
+         * slow_log
+         */
+        if (config('slow_log')) {
+            $difference = microtime(true) - SHY_START;
+            if ($difference > config('slow_log_limit')) {
+                logger('slowLog/log', json_encode([
+                    'controller' => shy('router')->getController(),
+                    'method' => shy('router')->getMethod(),
+                    'difference' => $difference
+                ]));
+            }
+        }
+
+        logger('response', json_encode($response));
     }
 
 }

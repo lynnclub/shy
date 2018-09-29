@@ -2,7 +2,7 @@
 
 return [
     'group' => [
-        ['middleware' => ['throttle'], 'path' => [
+        ['middleware' => ['example'], 'path' => [
             '/test2' => 'test2@test2',
             '/test3' => 'test2@test3'
         ]],

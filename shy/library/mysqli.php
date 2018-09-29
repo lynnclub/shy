@@ -2,53 +2,59 @@
 
 namespace shy\library;
 
-use mysqli;
-use Exception;
+use mysqli as phpMysqli;
+use shy\http\exception\httpException;
 
 /**
  * mysqli封装类
  */
-class db
+class mysqli
 {
+    private function __construct()
+    {
+        // not allow new outside
+    }
+
+    private function __clone()
+    {
+        // not allow clone outside
+    }
+
     /**
      * 实例数组
      *
      * @var array
      */
-    protected static $instance = array();
+    protected static $instance = [];
 
     /**
      * 获取实例
      *
      * @param string $config_name
-     * @return Redis
+     * @return mixed
      */
     public static function instance($config_name = 'default')
     {
         $config = config('mysql', 'database');
         if (!isset($config[$config_name])) {
-            showError(500, 'Mysql Config ' . $config_name . ' not set');
+            throw new httpException(500, 'Mysql Config ' . $config_name . ' not set');
         }
         if (!extension_loaded('mysqli')) {
-            showError(500, 'mysqli extension not find');
+            throw new httpException(500, 'Mysqli extension not find.');
         }
 
         if (empty(self::$instance[$config_name])) {
-            try {
-                $config = $config[$config_name];
-                self::$instance[$config_name] = new mysqli();
-                self::$instance[$config_name]->connect(
-                    $config['host'],
-                    $config['username'],
-                    $config['password'],
-                    $config['database'],
-                    $config['port']
-                );
-                if (self::$instance[$config_name]->connect_errno) {
-                    throw new Exception('Mysql Config ' . $config_name . ': connect failed');
-                }
-            } catch (Exception $e) {
-                showError(500, $e->getMessage());
+            $config = $config[$config_name];
+            self::$instance[$config_name] = new phpMysqli();
+            self::$instance[$config_name]->connect(
+                $config['host'],
+                $config['username'],
+                $config['password'],
+                $config['database'],
+                $config['port']
+            );
+            if (self::$instance[$config_name]->connect_errno) {
+                throw new httpException(500, 'Mysql Config ' . $config_name . ': connect failed.');
             }
         }
 

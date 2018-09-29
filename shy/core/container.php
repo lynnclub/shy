@@ -18,8 +18,18 @@ class container
 {
     use exceptionHandlerRegister;
 
+    /**
+     * Bind prepare to make
+     *
+     * @var mixed $binds
+     */
     private static $binds;
 
+    /**
+     * Instances container
+     *
+     * @var mixed $instances
+     */
     private static $instances;
 
     /**
@@ -91,27 +101,12 @@ class container
         }
 
         if (self::$binds[$abstract] instanceof Closure) {
-            $this->makeClosure($abstract, ...$parameters);
+            self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
         } elseif (is_object(self::$binds[$abstract])) {
             self::$instances[$abstract] = self::$binds[$abstract];
         }
 
         return self::$instances[$abstract];
-    }
-
-    /**
-     * Make Closure
-     *
-     * @param $abstract
-     * @param array ...$parameters
-     */
-    private function makeClosure($abstract, ...$parameters)
-    {
-        if (!empty($parameters) && count($parameters) === 1) {
-            self::$instances[$abstract] = call_user_func_array(self::$binds[$abstract], reset($parameters));
-        } else {
-            self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
-        }
     }
 
     /**

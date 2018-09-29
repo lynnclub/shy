@@ -1,10 +1,10 @@
 <?php
 
-namespace shy\facade;
+namespace app\facade;
 
 use shy\core\facade;
 
-class web extends facade
+class example extends facade
 {
     /**
      * Get the registered name of the component.
@@ -13,6 +13,6 @@ class web extends facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'web';
+        return 'example';
     }
 }

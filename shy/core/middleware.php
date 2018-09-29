@@ -9,9 +9,7 @@
 
 namespace shy\core;
 
-use Closure;
-
 interface middleware
 {
-    public function handle($request, Closure $next);
+    public function handle(...$passable);
 }

@@ -3,8 +3,8 @@
 namespace shy\exception;
 
 use Exception;
-use shy\facade\response;
-use shy\facade\request;
+use shy\http\facade\response;
+use shy\http\facade\request;
 
 class webHandler implements handler
 {
