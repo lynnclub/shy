@@ -25,14 +25,9 @@ require_once __DIR__ . '/shy/function/helpers.php';
  */
 
 use shy\core\container;
-use shy\core\pipeline;
-use shy\web;
-
-echo "接收到{$argc}个参数";
-print_r($argv);
+use shy\console\exception\handler;
+use shy\console;
 
 $_container = new container();
-$_container->bind('pipeline', new pipeline());
-$_container->bind('web', new web());
-
-shy('web')->run();
+$_container->setExceptionHandler(new handler(), config('env'));
+$_container->bindObjectAndReturn('console', new console())->run();

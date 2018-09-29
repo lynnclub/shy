@@ -3,6 +3,12 @@
 return [
 
     /*
+    | Version
+    */
+
+    'version' => 'v1.0',
+
+    /*
     | Base Url
     |
     | main domain.

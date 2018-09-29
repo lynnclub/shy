@@ -90,7 +90,7 @@ class router
         }
 
         // Run
-        $this->controller = 'app\\controller\\' . $this->controller;
+        $this->controller = 'app\\http\\controller\\' . $this->controller;
         if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
             throw new httpException(404);
         }
@@ -98,7 +98,7 @@ class router
             $response = $this->runController();
         } else {
             foreach ($this->middleware as $key => $middleware) {
-                if (class_exists($namespaceMiddleware = 'app\\middleware\\' . $middleware)) {
+                if (class_exists($namespaceMiddleware = 'app\\http\middleware\\' . $middleware)) {
                     $this->middleware[$key] = $namespaceMiddleware;
                 } elseif (class_exists($namespaceMiddleware = 'shy\\http\\middleware\\' . $middleware)) {
                     $this->middleware[$key] = $namespaceMiddleware;

@@ -30,7 +30,7 @@ class view
             throw new RuntimeException('Invalid view.');
         }
 
-        $view = config('app', 'path') . 'views/' . $view;
+        $view = config('app', 'path') . 'http/views/' . $view;
         if (file_exists($view . '.php')) {
             $this->view = $view;
         } else {
@@ -46,7 +46,7 @@ class view
             if (!is_string($layout)) {
                 throw new RuntimeException('Invalid layout.');
             }
-            $layout = config('app', 'path') . 'views/layout/' . $layout;
+            $layout = config('app', 'path') . 'http/views/layout/' . $layout;
             if (file_exists($layout . '.php')) {
                 $this->layout = $layout;
             } else {

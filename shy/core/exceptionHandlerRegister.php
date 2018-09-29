@@ -68,12 +68,11 @@ trait exceptionHandlerRegister
             $e = new fatalThrowableError($e);
         }
         try {
-            $this->handler->report($e);
-            $this->handler->response($e);
+            $this->handler->run($e);
         } catch (Throwable $e) {
-            echo 'File: ' . $e->getFile() . ' Line: ' . $e->getLine() . "\r\n" .
-                'Message:' . $e->getMessage() . ' Error Code: ' . $e->getCode() . "\r\n" .
-                $e->getTraceAsString() . "\r\n";
+            echo 'File: ' . $e->getFile() . ' Line: ' . $e->getLine() . PHP_EOL .
+                'Message:' . $e->getMessage() . ' Error Code: ' . $e->getCode() . PHP_EOL .
+                $e->getTraceAsString() . PHP_EOL;
         }
     }
 

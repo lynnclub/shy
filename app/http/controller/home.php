@@ -7,10 +7,10 @@
  * @link      http://lynncho.cn/
  */
 
-namespace app\controller;
+namespace app\http\controller;
 
 use shy\library\session;
-use app\business\testBusiness;
+use app\http\business\testBusiness;
 
 use shy\library\mysqli;
 use shy\library\redis;

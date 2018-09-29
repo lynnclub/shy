@@ -177,7 +177,7 @@ if (!function_exists('logger')) {
         if (!is_dir(dirname($filename))) {
             @mkdir(dirname($filename));
         }
-        @file_put_contents($filename, '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\r\n", FILE_APPEND);
+        @file_put_contents($filename, '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL, FILE_APPEND);
     }
 }
 

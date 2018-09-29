@@ -1,13 +1,26 @@
 <?php
 
-namespace shy\exception;
+namespace shy\http\exception;
 
+use shy\exception\handler as handlerInterface;
 use Exception;
 use shy\http\facade\response;
 use shy\http\facade\request;
 
-class webHandler implements handler
+class handler implements handlerInterface
 {
+    /**
+     * Run handler
+     *
+     * @param Exception $e
+     * @throws Exception
+     */
+    public function run(Exception $e)
+    {
+        $this->report($e);
+        $this->response($e);
+    }
+
     /**
      * Report or log an exception.
      *
@@ -26,9 +39,9 @@ class webHandler implements handler
 
     private function getErrorString(Exception $e)
     {
-        return 'File: ' . $e->getFile() . ' Line: ' . $e->getLine() . "\r\n" .
-            'Message:' . $e->getMessage() . ' Error Code: ' . $e->getCode() . "\r\n" .
-            $e->getTraceAsString() . "\r\n";
+        return 'File: ' . $e->getFile() . ' Line: ' . $e->getLine() . PHP_EOL .
+            'Message:' . $e->getMessage() . ' Error Code: ' . $e->getCode() . PHP_EOL .
+            $e->getTraceAsString() . PHP_EOL;
     }
 
     /**
@@ -50,6 +63,6 @@ class webHandler implements handler
             ? response::set($this->getErrorString($e))
             : response::set(view('errors/exception', compact('e')));
 
-        return response::send();
+        response::send();
     }
 }

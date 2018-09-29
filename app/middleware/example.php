@@ -9,21 +9,22 @@
 
 namespace app\middleware;
 
+use Closure;
 use shy\core\middleware;
+use shy\http\facade\request;
 
 class example implements middleware
 {
-    public function handle(...$passable)
+    public function handle(Closure $next)
     {
-        $next = reset($passable);
-        // request handle
-        $request = null;
+        // request
+        $request = request::getInstance();
 
         // run controller
-        $response = $next();
+        $response = $next($request);
 
-        // response handle
-        $response = ', example middleware, ' . json_encode($response);
+        // response
+        $response = 'example middleware' . json_encode($response);
         return $response;
     }
 }
