@@ -2,7 +2,7 @@
 
 The mini laravel framework
 
-Integrated:
+### Integrated
 
 1. IOC container, 
 2. facade, 
@@ -17,3 +17,11 @@ Integrated:
 11. command mode
 
 Can meet most needs.
+
+### Usage
+
+```
+composer install
+```
+
+Enjoy it.
