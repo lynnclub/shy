@@ -26,8 +26,7 @@ require_once __DIR__ . '/shy/function/helpers.php';
 
 use shy\core\container;
 use shy\console\exception\handler;
-use shy\console;
 
 $_container = new container();
-$_container->setExceptionHandler(new handler(), config('env'));
-$_container->bindObjectAndReturn('console', new console())->run();
+$_container->setExceptionHandler(new handler());
+shy('console', 'shy\console')->run();

@@ -14,16 +14,54 @@ use RuntimeException;
 class view
 {
 
+    /**
+     * View file
+     *
+     * @var string
+     */
     private $view;
 
+    /**
+     * View parse content
+     *
+     * @var string
+     */
     private $viewContent;
 
+    /**
+     * Subview parse content
+     *
+     * @var string
+     */
     private $subViewContent;
 
+    /**
+     * Layout file
+     *
+     * @var string
+     */
     private $layout;
 
+    /**
+     * Params pass by controller
+     *
+     * @var array
+     */
     private $params = [];
 
+    /**
+     * Error message
+     *
+     * @var string
+     */
+    private $errorMsg = '';
+
+    /**
+     * Set view file
+     *
+     * @param $view
+     * @return $this
+     */
     public function view($view)
     {
         if (empty($view) || !is_string($view)) {
@@ -40,6 +78,12 @@ class view
         return $this;
     }
 
+    /**
+     * Set layout file
+     *
+     * @param $layout
+     * @return $this
+     */
     public function layout($layout)
     {
         if (!empty($layout)) {
@@ -57,6 +101,12 @@ class view
         return $this;
     }
 
+    /**
+     * Params pass by controller
+     *
+     * @param array $params
+     * @return $this
+     */
     public function with(array $params)
     {
         $this->params = array_merge($this->params, $params);
@@ -64,31 +114,62 @@ class view
         return $this;
     }
 
+    /**
+     * Render view
+     *
+     * @return string
+     */
     public function render()
     {
+        ob_start();
         extract($this->params);
         if (isset($this->layout, $this->view)) {
-            ob_start();
-            include_once $this->view . '.php';
+            include $this->view . '.php';
             $this->subViewContent = ob_get_contents();
-            ob_end_clean();
-            ob_start();
-            include_once $this->layout . '.php';
+            ob_clean();
+            include $this->layout . '.php';
             $this->viewContent = ob_get_contents();
-            ob_end_clean();
-            return $this->viewContent;
         } elseif (isset($this->view)) {
-            ob_start();
-            include_once $this->view . '.php';
+            include $this->view . '.php';
             $this->viewContent = ob_get_contents();
-            ob_end_clean();
+        }
+        ob_end_clean();
+
+        if (empty($this->errorMsg)) {
             return $this->viewContent;
+        } else {
+            throw new RuntimeException($this->errorMsg);
         }
     }
 
+    /**
+     * Get subview content
+     *
+     * @return string
+     */
     public function getSubView()
     {
         return $this->subViewContent;
+    }
+
+    /**
+     * Get params pass by controller
+     *
+     * @return array
+     */
+    public function getParams()
+    {
+        return $this->params;
+    }
+
+    /**
+     * Error handle
+     *
+     * @param $msg
+     */
+    public function error($msg)
+    {
+        $this->errorMsg = $msg;
     }
 
 }

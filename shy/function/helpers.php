@@ -9,7 +9,7 @@
 
 if (!function_exists('config')) {
     /**
-     * Get Config
+     * Get config
      *
      * @param $key
      * @param string $file
@@ -28,7 +28,7 @@ if (!function_exists('config')) {
 
 if (!function_exists('config_all')) {
     /**
-     * Get Config File
+     * Get all config of the config file
      *
      * @param string $file
      * @return bool|array
@@ -48,7 +48,7 @@ if (!function_exists('config_all')) {
 
 if (!function_exists('require_config')) {
     /**
-     * Require Config
+     * Require file get config
      *
      * @param $filename
      * @return bool|mixed
@@ -57,30 +57,16 @@ if (!function_exists('require_config')) {
     {
         $filename .= '.php';
         if (file_exists($filename)) {
-
-            return require_once "$filename";
+            return require "$filename";
         }
 
         return false;
     }
 }
 
-if (!function_exists('shy')) {
-    /**
-     * Get Or Make Object
-     *
-     * @param $abstract
-     * @return object
-     */
-    function shy($abstract)
-    {
-        return make($abstract);
-    }
-}
-
 if (!function_exists('bind')) {
     /**
-     * bind object
+     * Bind instance or closure ready to join container
      *
      * @param string $abstract
      * @param object $concrete
@@ -93,35 +79,56 @@ if (!function_exists('bind')) {
     }
 }
 
-if (!function_exists('make')) {
+if (!function_exists('makeNew')) {
     /**
-     * Get Or Make Object
+     * Make new instance and join container
      *
      * @param $abstract
      * @param object|Closure|string $concrete
      * @param array ...$parameters
      * @return object
-     * @throws
+     * @throws RuntimeException|ReflectionException
      */
-    function make($abstract, $concrete = null, ...$parameters)
+    function makeNew($abstract, $concrete = null, ...$parameters)
     {
         global $_container;
-        return $_container->make($abstract, $concrete, ...$parameters);
+        return $_container->makeNew($abstract, $concrete, ...$parameters);
+    }
+}
+
+if (!function_exists('shy')) {
+    /**
+     * Get instance or make new
+     *
+     * @param $abstract
+     * @param object|Closure|string $concrete
+     * @param array ...$parameters
+     * @return object
+     */
+    function shy($abstract, $concrete = null, ...$parameters)
+    {
+        $make = function ($abstract, $concrete = null, ...$parameters) {
+            global $_container;
+            return $_container->getOrMakeNew($abstract, $concrete, ...$parameters);
+        };
+
+        return $make($abstract, $concrete, ...$parameters);
     }
 }
 
 if (!function_exists('view')) {
     /**
-     * make view
+     * New view
      *
      * @param $view
      * @param array $params
      * @param string $layout
      * @return mixed
+     * @throws ReflectionException
      */
     function view($view, $params = [], $layout = '')
     {
-        $view = shy('view')->view($view);
+        $view = makeNew('view', 'shy\http\view')->view($view);
         if (isset($params)) {
             $view->with($params);
         }
@@ -134,11 +141,10 @@ if (!function_exists('view')) {
 
 if (!function_exists('include_view')) {
     /**
-     * include View
+     * Include View
      *
      * @param $filename
      * @param array $params
-     * @return bool|string
      */
     function include_view($filename, $params = [])
     {
@@ -150,13 +156,25 @@ if (!function_exists('include_view')) {
 
             ob_start();
             require_once "$filename";
-            $_content = ob_get_contents();
-            ob_end_clean();
-
-            return $_content;
+            ob_end_flush();
+        } else {
+            shy('view')->error('[view] Include view ' . $filename . ' is not exist.');
         }
+    }
+}
 
-        return false;
+if (!function_exists('include_sub_view')) {
+    /**
+     * Include sub view
+     */
+    function include_sub_view()
+    {
+        $subViewContent = shy('view')->getSubView();
+        if (empty($subViewContent) || !is_string($subViewContent)) {
+            shy('view')->error('[view] Include sub view failed.');
+        } else {
+            echo $subViewContent;
+        }
     }
 }
 
@@ -183,7 +201,7 @@ if (!function_exists('logger')) {
 
 if (!function_exists('dd')) {
     /**
-     * development debug
+     * Development output
      *
      * @param mixed $msg
      */
@@ -193,6 +211,23 @@ if (!function_exists('dd')) {
             var_dump($item);
         }
 
-        exit;
+        exit(0);
+    }
+}
+
+if (!function_exists('param')) {
+    /**
+     * output param
+     *
+     * @param $key
+     */
+    function param($key)
+    {
+        $params = shy('view')->getParams();
+        if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
+            echo $params[$key];
+        } else {
+            shy('view')->error('[view] Param ' . $key . ' is not exist.');
+        }
     }
 }

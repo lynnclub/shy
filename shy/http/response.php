@@ -77,6 +77,7 @@ class response
      * Send Response
      *
      * @param view|string $view
+     * @return bool
      */
     public function send($view = null)
     {
@@ -99,6 +100,8 @@ class response
         } else {
             throw new RuntimeException('Invalid response');
         }
+
+        return true;
     }
 
     /**

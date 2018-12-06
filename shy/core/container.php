@@ -19,7 +19,7 @@ class container
     use exceptionHandlerRegister;
 
     /**
-     * Bind prepare to make
+     * Bind ready to make
      *
      * @var mixed $binds
      */
@@ -33,10 +33,11 @@ class container
     private static $instances;
 
     /**
-     * Bind object or closure to make object.
+     * Bind instance or closure ready to join container
      *
      * @param string $abstract
      * @param object $concrete
+     * @throws RuntimeException
      * @return $this
      */
     public function bind(string $abstract, object $concrete)
@@ -54,50 +55,31 @@ class container
     }
 
     /**
-     * Bind object And Return
-     *
-     * @param string $abstract
-     * @param object $concrete
-     * @return mixed
-     */
-    public function bindObjectAndReturn(string $abstract, object $concrete)
-    {
-        if (is_object($concrete)) {
-            self::$binds[$abstract] = self::$instances[$abstract] = $concrete;
-        } else {
-            throw new RuntimeException('bind concrete type invalid');
-        }
-
-        return self::$binds[$abstract];
-    }
-
-    /**
-     * Make object instance after bind
+     * Make new instance and join container
      *
      * @param string $abstract
      * @param object|string $concrete
      * @param array ...$parameters
-     * @return mixed
+     * @return object
      * @throws RuntimeException|ReflectionException
      */
-    public function make(string $abstract, $concrete = null, ...$parameters)
+    public function makeNew(string $abstract, $concrete = null, ...$parameters)
     {
-        if (isset(self::$instances[$abstract])) {
-            return self::$instances[$abstract];
-        }
-
         if (isset(self::$binds[$abstract])) {
-            array_push($parameters, $concrete);
+            array_unshift($parameters, $concrete);
         } else {
             if (class_exists($abstract)) {
                 array_unshift($parameters, $concrete);
-                return $this->makeClassByReflection($abstract, ...$parameters);
+                $concrete = $abstract;
             }
+
             if (empty($concrete)) {
                 throw new RuntimeException('No concrete to make');
-            } else {
-                $this->bind($abstract, $concrete);
+            } elseif (is_string($concrete) && class_exists($concrete)) {
+                return $this->makeClassByReflection($abstract, $concrete, ...$parameters);
             }
+
+            $this->bind($abstract, $concrete);
         }
 
         if (self::$binds[$abstract] instanceof Closure) {
@@ -110,16 +92,35 @@ class container
     }
 
     /**
-     * Make Class By Reflection
+     * Get instance or make new
      *
-     * @param $abstract
+     * @param string $abstract
+     * @param object|string $concrete
      * @param array ...$parameters
      * @return mixed
      * @throws ReflectionException
      */
-    private function makeClassByReflection($abstract, ...$parameters)
+    public function getOrMakeNew(string $abstract, $concrete = null, ...$parameters)
     {
-        $reflector = new ReflectionClass($abstract);
+        if (isset(self::$instances[$abstract])) {
+            return self::$instances[$abstract];
+        }
+
+        return $this->makeNew($abstract, $concrete, ...$parameters);
+    }
+
+    /**
+     * Make class by reflection
+     *
+     * @param string $abstract
+     * @param string $concrete
+     * @param array ...$parameters
+     * @return mixed
+     * @throws ReflectionException
+     */
+    private function makeClassByReflection($abstract, $concrete, ...$parameters)
+    {
+        $reflector = new ReflectionClass($concrete);
         if (!$reflector->isInstantiable()) {
             throw new RuntimeException('class is not instantiable');
         }
@@ -134,7 +135,7 @@ class container
     }
 
     /**
-     * Clear Bind And Instance
+     * Clear bind and instance
      *
      * @param $abstract
      */
@@ -144,7 +145,7 @@ class container
     }
 
     /**
-     * Clear All Binds And Instances
+     * Clear all binds and instances
      */
     public function clearAll()
     {
@@ -153,7 +154,7 @@ class container
     }
 
     /**
-     * Get Instances List
+     * Get the list of instances
      *
      * @return array
      */

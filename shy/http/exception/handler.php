@@ -48,7 +48,8 @@ class handler implements handlerInterface
      * Response an exception.
      *
      * @param Exception $e
-     * @return mixed
+     * @throws \ReflectionException
+     * @return bool
      */
     public function response(Exception $e)
     {
@@ -57,11 +58,16 @@ class handler implements handlerInterface
             if ($e->getStatusCode() === 404) {
                 return response::set(view('errors/404'))->send();
             }
+        } else {
+            response::setCode(500);
         }
 
-        request::expectsJson()
-            ? response::set($this->getErrorString($e))
-            : response::set(view('errors/exception', compact('e')));
+        response::set('');
+        if (config('env') !== 'production') {
+            request::expectsJson()
+                ? response::set($this->getErrorString($e))
+                : response::set(view('errors/exception', compact('e')));
+        }
 
         response::send();
     }

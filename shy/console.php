@@ -59,7 +59,7 @@ class console
             throw new Exception('method not find');
         }
 
-        $result = make('pipeline', new pipeline())
+        $result = shy('pipeline', new pipeline())
             ->send(...$this->params)
             ->through($namespaceClass)
             ->via($this->method)

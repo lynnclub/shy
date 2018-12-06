@@ -15,7 +15,7 @@ class shyExceptionTest extends TestCase
         $_container = new container();
         $_container->make('config', new config());
         $handler = $_container->make('exception\handler', new handlerWeb());
-        $_container->setExceptionHandler($handler, config('env'));
+        $_container->setExceptionHandler($handler);
     }
 
     /**

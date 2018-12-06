@@ -41,7 +41,7 @@ class web
 
     public function run()
     {
-        $response = shy('pipeline')
+        shy('pipeline')
             ->send(shy('request'))
             ->through('router')
             ->then(function ($response) {
@@ -49,10 +49,8 @@ class web
                     shy('response')->send($response);
                 }
 
-                return $response;
+                $this->end($response);
             });
-
-        $this->end($response);
     }
 
     public function end($response)

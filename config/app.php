@@ -3,24 +3,18 @@
 return [
 
     /*
-    | Version
-    */
-
-    'version' => 'v1.0',
-
-    /*
     | Base Url
     |
     | main domain.
     */
 
-    'base_url' => 'http://buffet.test/',
+    'base_url' => 'http://shy.test/',
 
     /*
     | Environment
     |
     | for error reporting.
-    | options: development, testing, production.
+    | options: development, production.
     */
 
     'env' => 'development',

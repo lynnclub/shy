@@ -33,6 +33,8 @@ class home
             session::instance()->set('user', 1);
         }
 
+        $title = 'Shy Framework';
+
 //        pdo::instance();
 //        pdo::close();
 //        pdo::closeAll();
@@ -43,7 +45,7 @@ class home
 //        redis::close();
 //        redis::closeAll();
 
-        return view('home', compact('info'))->layout('main');
+        return view('home', compact('title', 'info'))->layout('main');
     }
 
     public function test()

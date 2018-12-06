@@ -17,9 +17,8 @@ trait exceptionHandlerRegister
      * Initialize
      *
      * @param handler $handler
-     * @param string $env
      */
-    public function setExceptionHandler(handler $handler, $env = '')
+    public function setExceptionHandler(handler $handler)
     {
         $this->handler = $handler;
 
@@ -28,7 +27,7 @@ trait exceptionHandlerRegister
         set_exception_handler([$this, 'handleException']);
         register_shutdown_function([$this, 'handleShutdown']);
 
-        if ($env !== 'testing') {
+        if (config('env') === 'production') {
             ini_set('display_errors', 'Off');
         }
     }
