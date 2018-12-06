@@ -67,7 +67,12 @@ class request
      */
     protected $headers;
 
-    protected $baseUrl;
+    /**
+     * Base url path
+     *
+     * @var string
+     */
+    protected $baseUrlPath = '';
 
     protected $content;
 
@@ -79,7 +84,7 @@ class request
      * @param array $cookies $_COOKIE
      * @param array $files $_FILES
      * @param array $server $_SERVER
-     * @param null $content
+     * @param string $content php://input
      */
     public function __construct(array $query = array(), array $request = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
     {
@@ -89,7 +94,6 @@ class request
         //$this->files = new FileBag($files);
         $this->server = new ServerBag($server);
         $this->headers = new HeaderBag($this->server->getHeaders());
-
         $this->content = $content;
     }
 
@@ -231,21 +235,19 @@ class request
     }
 
     /**
-     * Base Url
+     * Base Url Path
      *
      * @return string|null
      */
-    public function getBaseUrl()
+    public function getBaseUrlPath()
     {
         $pathString = $this->server->get('REQUEST_URI');
         $path_param = explode('?', $pathString);
-        if (empty($path_param[0])) {
-            throw new httpException(404);
+        if (!empty($path_param[0])) {
+            $this->baseUrlPath = $path_param[0];
         }
 
-        $this->baseUrl = $path_param[0];
-
-        return $this->baseUrl;
+        return $this->baseUrlPath;
     }
 
     /**

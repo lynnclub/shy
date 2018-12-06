@@ -39,7 +39,7 @@ class router
      *
      * @var string
      */
-    private $baseUrl = '';
+    private $baseUrlPath = '';
 
     /**
      * Middleware
@@ -76,7 +76,7 @@ class router
      */
     public function handle($next, $request)
     {
-        $this->baseUrl = $request->getBaseUrl();
+        $this->baseUrlPath = $request->getBaseUrlPath();
 
         // Parse Url
         if (config('route_by_config')) {
@@ -86,7 +86,7 @@ class router
             $this->success = $this->pathRoute();
         }
         if (!$this->success) {
-            throw new httpException(404);
+            throw new httpException(404, 'page not find');
         }
 
         // Run
@@ -134,43 +134,60 @@ class router
      */
     private function configRoute()
     {
-        $fasterRouter = [];
-        $router = config_all('router');
-        if (isset($router['path'])) {
-            foreach ($router['path'] as $path => $handle) {
-                $fasterRouter[$path] = ['handle' => $handle];
+        $fasterRouter = json_decode(@file_get_contents(CACHE_PATH . 'app/router'), true);
+        if (config('env') === 'development' || empty($fasterRouter) || !is_array($fasterRouter)) {
+            /**
+             * build faster router
+             */
+            $fasterRouter = [];
+            $router = config_all('router');
+            /**
+             * path router
+             */
+            if (isset($router['path'])) {
+                foreach ($router['path'] as $path => $handle) {
+                    $fasterRouter[$path] = ['handle' => $handle];
+                }
             }
-        }
-        if (isset($router['group'])) {
-            foreach ($router['group'] as $group) {
-                if (isset($group['path']) && is_array($group['path'])) {
-                    $groupPath = $group['path'];
-                    unset($group['path']);
-                    $prefix = '';
-                    if (isset($group['prefix']) && !empty($group['prefix'])) {
-                        $prefix = '/' . $group['prefix'];
-                    }
-                    foreach ($groupPath as $path => $handle) {
-                        $fasterRouter[$prefix . $path] = array_merge($group, ['handle' => $handle]);
+            /**
+             * group router
+             */
+            if (isset($router['group'])) {
+                foreach ($router['group'] as $group) {
+                    if (isset($group['path']) && is_array($group['path'])) {
+                        $groupPath = $group['path'];
+                        unset($group['path']);
+
+                        /**
+                         * prefix
+                         */
+                        $prefix = '';
+                        if (isset($group['prefix']) && !empty($group['prefix'])) {
+                            $prefix = '/' . $group['prefix'];
+                        }
+
+                        foreach ($groupPath as $path => $handle) {
+                            $fasterRouter[$prefix . $path] = array_merge($group, ['handle' => $handle]);
+                        }
                     }
                 }
             }
+            file_put_contents(CACHE_PATH . 'app/router', json_encode($fasterRouter));
         }
-        //dd(isset($fasterRouter[$this->baseUrl]));
 
-        if (isset($fasterRouter[$this->baseUrl])) {
-            $handle = $fasterRouter[$this->baseUrl]['handle'];
-            if (isset($fasterRouter[$this->baseUrl]['middleware'])) {
-                $this->middleware = $fasterRouter[$this->baseUrl]['middleware'];
+        /**
+         * parse router
+         */
+        if (isset($fasterRouter[$this->baseUrlPath])) {
+            $handle = $fasterRouter[$this->baseUrlPath]['handle'];
+            if (isset($fasterRouter[$this->baseUrlPath]['middleware'])) {
+                $this->middleware = $fasterRouter[$this->baseUrlPath]['middleware'];
             }
 
             list($this->controller, $this->method) = explode('@', $handle);
 
             return true;
         }
-
-        //$fasterRouterJson = json_encode($fasterRouter);
-        //$signature = md5($fasterRouterJson);
     }
 
     /**
@@ -180,7 +197,7 @@ class router
      */
     private function pathRoute()
     {
-        $path = explode('/', $this->baseUrl);
+        $path = explode('/', $this->baseUrlPath);
         if (!empty($path[1])) {
             $this->controller = lcfirst($path[1]);
             if (isset($path[2]) && !empty($path[2])) {
