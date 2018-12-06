@@ -19,6 +19,15 @@ body {
     color: transparent;
 }
 
+#system {
+    margin: 10px auto;
+    text-align: center;
+}
+
+#system p {
+    padding: 5px;
+}
+
 footer {
     margin: 50px auto;
     text-align: center;
