@@ -29,21 +29,13 @@ return [
     'timezone' => 'PRC',
 
     /*
-    | Default Controller
-    */
-
-    'default_controller' => 'home',
-
-    /*
     | Slow Log
     */
 
     'slow_log' => true,
 
     /*
-    | Slow Log Limit
-    |
-    | second
+    | Slow Log Limit (second)
     */
 
     'slow_log_limit' => 10,
@@ -58,6 +50,12 @@ return [
     | Route By Path
     */
 
-    'route_by_path' => true
+    'route_by_path' => true,
+
+    /*
+    | Default Controller
+    */
+
+    'default_controller' => 'home'
 
 ];

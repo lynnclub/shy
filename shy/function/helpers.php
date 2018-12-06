@@ -87,12 +87,15 @@ if (!function_exists('makeNew')) {
      * @param object|Closure|string $concrete
      * @param array ...$parameters
      * @return object
-     * @throws RuntimeException|ReflectionException
      */
     function makeNew($abstract, $concrete = null, ...$parameters)
     {
-        global $_container;
-        return $_container->makeNew($abstract, $concrete, ...$parameters);
+        $make = function ($abstract, $concrete = null, ...$parameters) {
+            global $_container;
+            return $_container->makeNew($abstract, $concrete, ...$parameters);
+        };
+
+        return $make($abstract, $concrete, ...$parameters);
     }
 }
 
@@ -124,7 +127,6 @@ if (!function_exists('view')) {
      * @param array $params
      * @param string $layout
      * @return mixed
-     * @throws ReflectionException
      */
     function view($view, $params = [], $layout = '')
     {
@@ -148,7 +150,7 @@ if (!function_exists('include_view')) {
      */
     function include_view($filename, $params = [])
     {
-        $filename .= '.php';
+        $filename = APP_PATH . 'http/views/' . $filename . '.php';
         if (file_exists($filename)) {
             if (!empty($params)) {
                 extract($params);

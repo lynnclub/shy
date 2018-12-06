@@ -1,3 +1,3 @@
 <div id="hello-world">
-    <?php param('info'); ?>
+    <?php param('info') ?>
 </div>

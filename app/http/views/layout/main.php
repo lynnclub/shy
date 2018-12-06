@@ -7,6 +7,6 @@
 </head>
 <body>
 <?php include_sub_view() ?>
-<?php include_view(APP_PATH . 'http/views/component/footer') ?>
+<?php include_view('component/footer') ?>
 </body>
 </html>
