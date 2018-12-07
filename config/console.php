@@ -6,5 +6,6 @@
 
 return [
     'list' => 'shy@list',
-    'version' => 'shy@version'
+    'version' => 'shy@version',
+    'test' => 'example@test'
 ];
