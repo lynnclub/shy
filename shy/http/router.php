@@ -92,7 +92,7 @@ class router
         // Run
         $this->controller = 'app\\http\\controller\\' . $this->controller;
         if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-            throw new httpException(404);
+            throw new httpException(404, 'page not find');
         }
         if (empty($this->middleware)) {
             $response = $this->runController();

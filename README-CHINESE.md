@@ -35,21 +35,17 @@ git clone https://github.com/lynncho/shy.git
 composer install
 ```
 
-### 2. 核心
-
-#### 2.1 容器
+### 2. 容器
 
 几乎所有实例都在容器里面，包括框架核心类。你可以对实例随意绑定、加入、取出、替换或清除。
 
-**注意：本框架提供了十分开放的容器、提升了开发可能性。但是，开发者在操作核心类的时候，一定要仔细梳理运行流程，以免产生bug。**
+##### 2.1 绑定实例
 
-##### 2.1.1 绑定实例
-
-###### 2.1.1.1 用法模式
+###### 2.1.1 用法模式
 
 bind(抽象名称, 实例或闭包)
 
-###### 2.1.1.2 代码示例
+###### 2.1.2 代码示例
 
 ```php
 
@@ -73,24 +69,26 @@ bind('web', new shy\web())->shy('web')->run();
 bind('web', function ($param1, $param2) {
     return new shy\web($param1, $param2);
 });
+
 ```
 
 bind函数只是绑定实例或闭包，并没有将实例加入到容器，所以也无法从容器中获取绑定的实例。
 
 bind函数返回容器实例以便链式调用。
 
-##### 2.1.2 加入、取出实例
+##### 2.2 加入、取出实例
 
-###### 2.1.2.1 用法模式
+###### 2.2.1 用法模式
 
 1. shy(抽象名称, 0-N个参数)
 2. shy(抽象名称, 实例或闭包, 0-N个参数)
 3. shy(命名空间类名, 0-N个参数)
 4. shy(抽象名称, 命名空间类名, 0-N个参数)
 
-###### 2.1.2.2 代码示例
+###### 2.2.2 代码示例
 
 ```php
+
 /**
  * 运行绑定的闭包，将实例加入容器
  * shy函数，如果名称被占用，只返回已存在的实例
@@ -107,7 +105,14 @@ shy('web');
 shy('web', $parma1, $param2);
 
 /**
- * 带参直接运行闭包，将实例加入容器
+ * 直接将实例加入容器
+ * 
+ * 返回 web实例
+ */
+shy('web', new shy\web());
+
+/**
+ * 直接带参运行闭包，将实例加入容器
  * 
  * 返回 web实例
  */
@@ -128,6 +133,7 @@ shy('shy\web');
  * 返回 web实例
  */
 shy('web','shy\web');
+
 ```
 
 shy函数是框架的核心函数之一，可以运行闭包实例化对象、将实例加入容器。函数的返回值为加入的实例。
@@ -136,9 +142,10 @@ shy函数是框架的核心函数之一，可以运行闭包实例化对象、�
 
 实例加入容器之后，会清除绑定以免占用内存。
 
-##### 2.1.3 替换实例
+##### 2.3 替换实例
 
 ```php
+
 /**
  * 如果名称被占用，替换成新实例
  * 
@@ -151,12 +158,18 @@ makeNew('web', new shy\web());
  * 
  * 返回 web实例
  */
-makeNew('web', new shy\web());
+makeNew('web', function ($param1, $param2) {
+    return new shy\web($param1, $param2);
+});
+
 ```
 
-##### 2.1.3 清除实例
+如果需要替换容器中的实例，不应该使用shy函数，应该用makeNew函数。这两个函数的用法是一样的，这里没有给出完整的代码示例。
+
+##### 2.4 清除实例
 
 ```php
+
 /**
  * 清除抽象名称为web的绑定和实例
  */
@@ -166,4 +179,182 @@ shy_clear('web');
  * 清除所有绑定和实例
  */
 shy_clear_all();
+
 ```
+
+**本框架对开发者开放了容器、且包括框架核心在内的几乎所有实例都在容器里面。这提升了开发自由度。但是，开发者在操作框架核心类的时候，一定要仔细梳理运行流程，以免产生bug。**
+
+### 3. 门面
+
+门面提供了便捷的静态调用方法，通过魔术方法`__callStatic()`代理被代理类中的方法。
+
+你可以对任意类实现门面调用：新建门面代理类；继承门面类；设置被代理类。
+
+实现门面代理类的代码示例如下：
+
+```php
+
+namespace shy\http\facade;
+
+use shy\core\facade;
+
+class request extends facade
+{
+    /**
+     * Get the registered name of the component.
+     *
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'request';
+    }
+}
+
+```
+
+门面类通过shy函数获取被代理类：
+
+```php
+
+/**
+ * Get facade instance in container
+ *
+ * @return object
+ */
+ public static function getInstance()
+ {
+     return shy(static::getFacadeAccessor());
+ }
+
+```
+
+由此可见，代理类的`getFacadeAccessor()`方法需要返回容器中的抽象名称，门面类通过这个抽象名称找到需要被代理的实例。
+
+如果被代理的实例没有加入到容器中，那就需要保证，`shy($abstract)`函数只通过一个"抽象名称"参数，可以将实例加入到容器。可以参考2.1.2.2章节。推荐使用命名空间，也可以在`getFacadeAccessor()`方法返回前绑定实例。
+
+### 4. 流水线
+
+流水线（pipeline）是本框架重要的调度工具，连通了包括路由、中间件、控制器在内的整个框架的运行流程。
+
+pipeline方法讲解：
+
+1. send：设置传入参数，参数数量没有限制；
+2. through：设置传入对象；
+3. via：设置传入对象执行的方法，默认执行handle方法；
+4. then：流水线的执行方法，同时会设置传入回调，传入的第一个参数为回调；
+5. run：流水线的不需要回调时的执行方法，不可与then方法链式调用。
+
+开发者可使用流水线来构建自己的调度，使用代码实例如下：
+
+```php
+
+/**
+ * 框架web模块的运行，带回调执行
+ */
+shy('pipeline')
+    ->send(shy('request'))
+    ->through('router')
+    ->then(function ($response) {
+        if (!empty($response)) {
+            shy('response')->send($response);
+        }
+
+        $this->end($response);
+    });
+
+```
+
+**开发者使用流水线自定义调度流程时，应当仔细梳理运行流程**
+
+### 5. 中间件
+
+中间件是流水线带"运行控制器回调"执行的特例，传入的第一个参数`$next`即是用于运行控制器的。
+
+```php
+
+namespace app\http\middleware;
+
+use shy\core\middleware;
+
+class example implements middleware
+{
+    public function handle($next, ...$passable)
+    {
+        // 请求处理
+        $request = null;
+
+        // 执行控制器
+        $response = $next();
+
+        // 响应处理
+        $response = ', example middleware, ' . json_encode($response);
+        return $response;
+    }
+}
+
+```
+
+### 6. 路由
+
+路由通过请求类获取请求路径、并解析出对应控制器和方法，然后通过流水线调度控制器。
+
+路由支持配置文件模式和路径模式，可以在`app.php`中关闭、启用。配置文件模式根据请求路径查找配置文件，得到控制器及其方法，支持中间件、路径前缀。路径模式直接把请求路径解析出控制器及其方法，属于传统方法。
+
+配置文件示例：
+
+```php
+
+return [
+    'group' => [
+        ['middleware' => ['example'], 'path' => [
+            '/test2' => 'test2@test2',//echo string with middleware
+            '/test3' => 'test2@test3'//return string with middleware
+        ]],
+        ['prefix' => 'route', 'path' => [
+            '/home' => 'home@index',//view home
+            '/test' => 'home@test'//return string
+        ]]
+    ],
+    'path' => [
+        '/home2' => 'home@test2',//return string
+        '/home3' => 'home@home3'//404
+    ]
+];
+
+```
+
+### 7. 控制器
+
+控制器的方法应该返回数据、交由框架输出，不应该直接在控制器内输出。
+
+在控制器内使用实例需要注意该用单例还是新实例，容器内的实例、包括门面都是单例。
+
+### 8. 模版
+
+框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。
+
+本框架的模版需要使用原生PHP语法开发，并且只提供了必须的一小部分函数给开发者使用，学习、调试成本较低。
+
+但是，为了提升开发者体验，框架计划支持第三方模版系统。
+
+##### 8.1 模版类
+
+1. view方法设置模版文件
+2. layout方法设置布局页文件
+3. with方法向模版传入参数
+4. render方法渲染模版，框架会自动执行渲染
+
+##### 8.2 模版函数
+
+1. view：模版类的封装。用于便捷地在控制器中使用模版，可传参、也可链式调用。每次使用都会在容器中新建模版类。
+2. include_sub_view：在布局页中输出模版。
+3. include_view：在布局页、模版中引入组件模版。
+4. param：在模版中输出变量或常量，不使用该函数输出报错无法被框架正常处理。
+
+### 9. 杂项函数
+
+1. config：获取配置文件的配置
+2. config_all：获取配置文件的所有配置
+3. logger：记录日志
+4. dd：调试输出

@@ -11,5 +11,5 @@ namespace shy\core;
 
 interface middleware
 {
-    public function handle(...$passable);
+    public function handle($next, ...$passable);
 }

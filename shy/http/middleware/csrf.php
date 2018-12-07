@@ -13,9 +13,8 @@ use shy\core\middleware;
 
 class csrf implements middleware
 {
-    public function handle(...$passable)
+    public function handle($next, ...$passable)
     {
-        $next = reset($passable);
         // request handle
         $request = null;
 
