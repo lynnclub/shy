@@ -42,10 +42,15 @@ class web
      */
     private function setting()
     {
-        defined('BASE_URL') or define('BASE_URL', config('base_url'));
         defined('BASE_PATH') or define('BASE_PATH', config('base', 'path'));
         defined('APP_PATH') or define('APP_PATH', config('app', 'path'));
         defined('CACHE_PATH') or define('CACHE_PATH', config('cache', 'path'));
+
+        if (empty(config('base_url'))) {
+            defined('BASE_URL') or define('BASE_URL', shy('request')->getSchemeAndHttpHost() . '/');
+        } else {
+            defined('BASE_URL') or define('BASE_URL', config('base_url'));
+        }
 
         date_default_timezone_set(config('timezone'));
     }

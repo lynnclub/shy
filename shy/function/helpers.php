@@ -119,6 +119,57 @@ if (!function_exists('shy')) {
     }
 }
 
+if (!function_exists('shy_list')) {
+    /**
+     * Get instances list
+     *
+     * @return array
+     */
+    function shy_list()
+    {
+        global $_container;
+        return $_container->getList();
+    }
+}
+
+if (!function_exists('shy_clear')) {
+    /**
+     * Clear instance
+     *
+     * @param string $abstract
+     */
+    function shy_clear($abstract)
+    {
+        global $_container;
+        $_container->clear($abstract);
+    }
+}
+
+if (!function_exists('shy_clear_all')) {
+    /**
+     * Clear all instances
+     */
+    function shy_clear_all()
+    {
+        global $_container;
+        $_container->clearAll();
+    }
+}
+
+if (!function_exists('in_shy_list')) {
+    /**
+     * Is in instances list
+     *
+     * @param string $abstract
+     * @return bool
+     */
+    function in_shy_list($abstract)
+    {
+        global $_container;
+        return $_container->inList($abstract);
+    }
+}
+
 if (!function_exists('view')) {
     /**
      * New view
@@ -228,6 +279,8 @@ if (!function_exists('param')) {
         $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
             echo $params[$key];
+        } elseif (constant($key)) {
+            echo constant($key);
         } else {
             shy('view')->error('[view] Param ' . $key . ' is not exist.');
         }

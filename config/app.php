@@ -5,10 +5,10 @@ return [
     /*
     | Base Url
     |
-    | main domain.
+    | main domain. (optional)
     */
 
-    'base_url' => 'http://shy.test/',
+    'base_url' => '',
 
     /*
     | Environment
@@ -38,7 +38,7 @@ return [
     | Slow Log Limit (second)
     */
 
-    'slow_log_limit' => 10,
+    'slow_log_limit' => 1,
 
     /*
     | Route By Config

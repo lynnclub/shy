@@ -88,6 +88,8 @@ class container
             self::$instances[$abstract] = self::$binds[$abstract];
         }
 
+        unset(self::$binds[$abstract]);
+
         return self::$instances[$abstract];
     }
 
@@ -161,6 +163,21 @@ class container
     public function getList()
     {
         return array_keys(self::$instances);
+    }
+
+    /**
+     * Is in instances list
+     *
+     * @param string $abstract
+     * @return bool
+     */
+    public function inList($abstract)
+    {
+        if (isset(self::$instances[$abstract])) {
+            return true;
+        }
+
+        return false;
     }
 
 }
