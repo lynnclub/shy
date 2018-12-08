@@ -2,12 +2,12 @@
 
 namespace shy\core;
 
-use shy\exception\handler;
+use shy\core\exception\handler;
 use Exception;
 use Throwable;
 use ErrorException;
-use shy\exception\fatalThrowableError;
-use shy\exception\fatalErrorException;
+use shy\core\exception\fatalThrowableError;
+use shy\core\exception\fatalErrorException;
 
 trait exceptionHandlerRegister
 {

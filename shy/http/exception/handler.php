@@ -2,7 +2,7 @@
 
 namespace shy\http\exception;
 
-use shy\exception\handler as handlerInterface;
+use shy\core\exception\handler as handlerInterface;
 use Exception;
 use shy\http\facade\response;
 use shy\http\facade\request;

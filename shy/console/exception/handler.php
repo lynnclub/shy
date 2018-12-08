@@ -2,7 +2,7 @@
 
 namespace shy\console\exception;
 
-use shy\exception\handler as handlerInterface;
+use shy\core\exception\handler as handlerInterface;
 use Exception;
 
 class handler implements handlerInterface

@@ -11,12 +11,13 @@ define('SHY_START', microtime(true));
 /**
  * Composer Autoload
  */
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 /**
  * Helpers
  */
-require_once __DIR__ . '/../shy/function/helpers.php';
+require __DIR__ . '/../shy/core/function/helpers.php';
+require __DIR__ . '/../shy/http/function/helpers.php';
 
 /**
  * Framework

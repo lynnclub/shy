@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace shy\exception;
+namespace shy\core\exception;
 
 use Throwable;
 use ParseError;

@@ -4,7 +4,7 @@
  * Session
  */
 
-namespace shy\library;
+namespace shy\core\library;
 
 class session
 {

@@ -10,10 +10,11 @@
 namespace app\http\middleware;
 
 use shy\core\middleware;
+use Closure;
 
 class example implements middleware
 {
-    public function handle($next, ...$passable)
+    public function handle(Closure $next, ...$passable)
     {
         // request handle
         $request = null;

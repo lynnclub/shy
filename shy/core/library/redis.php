@@ -1,14 +1,14 @@
 <?php
 
-namespace shy\library;
+namespace shy\core\library;
 
-use PDO as phpPdo;
+use redis as PhpRedis;
 use shy\http\exception\httpException;
 
 /**
- * pdo封装类
+ * Redis数据库类
  */
-class pdo
+class redis
 {
     private function __construct()
     {
@@ -35,25 +35,28 @@ class pdo
      */
     public static function instance($config_name = 'default')
     {
-        $config = config('mysql', 'database');
+        $config = config('redis', 'database');
         if (!isset($config[$config_name])) {
-            throw new httpException(500, 'Mysql Config ' . $config_name . ' not set');
+            throw new httpException(500, 'Redis Config ' . $config_name . ' not set');
         }
-        if (!extension_loaded('pdo')) {
-            throw new httpException(500, 'Pdo extension not find');
+        if (!extension_loaded('redis')) {
+            throw new httpException(500, 'Redis extension not find');
         }
 
         if (empty(self::$instance[$config_name])) {
             $config = $config[$config_name];
-            self::$instance[$config_name] = new phpPdo(
-                'mysql:host=' . $config['host'] . ';dbname=' . $config['database'],
-                $config['username'],
-                $config['password'],
-                [phpPdo::ATTR_PERSISTENT => true]
-            );
-            self::$instance[$config_name]->setAttribute(phpPdo::ATTR_ERRMODE, phpPdo::ERRMODE_EXCEPTION);
+            self::$instance[$config_name] = new PhpRedis();
+            self::$instance[$config_name]->pconnect($config['host'], $config['port']);
+            if (isset($config['password'])) {
+                self::$instance[$config_name]->auth($config['password']);
+            }
+            if (isset($config['database'])) {
+                self::$instance[$config_name]->select($config['database']);
+            }
+            if (self::$instance[$config_name]->ping() !== '+PONG') {
+                throw new httpException(500, 'Redis Config ' . $config_name . ': connect failed');
+            }
         }
-
         return self::$instance[$config_name];
     }
 
@@ -65,6 +68,7 @@ class pdo
     public static function close($config_name = 'default')
     {
         if (isset(self::$instance[$config_name])) {
+            self::$instance[$config_name]->close();
             self::$instance[$config_name] = null;
         }
     }
@@ -74,9 +78,9 @@ class pdo
      */
     public static function closeAll()
     {
-        foreach (self::$instance as $config_name => $connection) {
-            self::$instance[$config_name] = null;
+        foreach (self::$instance as $connection) {
+            $connection->close();
         }
-        self::$instance = array();
+        self::$instance = [];
     }
 }

@@ -19,7 +19,7 @@ class container
     use exceptionHandlerRegister;
 
     /**
-     * Bind ready to make
+     * Bind ready to join
      *
      * @var mixed $binds
      */
@@ -31,6 +31,15 @@ class container
      * @var mixed $instances
      */
     private static $instances;
+
+    /**
+     * Instances memory used
+     *
+     * @var array
+     */
+    private static $instancesMemoryUsed;
+
+    private $beforeMakeInstanceMemoryUsed;
 
     /**
      * Bind instance or closure ready to join container
@@ -65,14 +74,20 @@ class container
      */
     public function makeNew(string $abstract, $concrete = null, ...$parameters)
     {
+        $this->beforeMakeInstanceMemoryUsed = memory_get_usage() / 1024;
         if (isset(self::$binds[$abstract])) {
             array_unshift($parameters, $concrete);
         } else {
+            /**
+             * abstract is namespace
+             */
             if (class_exists($abstract)) {
                 array_unshift($parameters, $concrete);
                 $concrete = $abstract;
             }
-
+            /**
+             * concrete is namespace
+             */
             if (empty($concrete)) {
                 throw new RuntimeException('No concrete to make');
             } elseif (is_string($concrete) && class_exists($concrete)) {
@@ -82,13 +97,16 @@ class container
             $this->bind($abstract, $concrete);
         }
 
+        /**
+         * join
+         */
         if (self::$binds[$abstract] instanceof Closure) {
             self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
         } elseif (is_object(self::$binds[$abstract])) {
             self::$instances[$abstract] = self::$binds[$abstract];
         }
-
         unset(self::$binds[$abstract]);
+        $this->countMakeInstanceMemoryUsed($abstract);
 
         return self::$instances[$abstract];
     }
@@ -120,11 +138,11 @@ class container
      * @return mixed
      * @throws ReflectionException
      */
-    private function makeClassByReflection($abstract, $concrete, ...$parameters)
+    private function makeClassByReflection(string $abstract, string $concrete, ...$parameters)
     {
         $reflector = new ReflectionClass($concrete);
         if (!$reflector->isInstantiable()) {
-            throw new RuntimeException('class is not instantiable');
+            throw new RuntimeException('class ' . $concrete . ' is not instantiable');
         }
         $constructor = $reflector->getConstructor();
         if (is_null($constructor)) {
@@ -132,8 +150,19 @@ class container
         } else {
             self::$instances[$abstract] = $reflector->newInstanceArgs($parameters);
         }
+        $this->countMakeInstanceMemoryUsed($abstract);
 
         return self::$instances[$abstract];
+    }
+
+    /**
+     * Count make instance memory used
+     *
+     * @param $abstract
+     */
+    private function countMakeInstanceMemoryUsed($abstract)
+    {
+        self::$instancesMemoryUsed[$abstract] = (memory_get_usage() / 1024) - $this->beforeMakeInstanceMemoryUsed;
     }
 
     /**
@@ -143,7 +172,7 @@ class container
      */
     public function clear($abstract)
     {
-        unset(self::$binds[$abstract], self::$instances[$abstract]);
+        unset(self::$binds[$abstract], self::$instancesMemoryUsed[$abstract], self::$instances[$abstract]);
     }
 
     /**
@@ -163,6 +192,16 @@ class container
     public function getList()
     {
         return array_keys(self::$instances);
+    }
+
+    /**
+     * Get the list of instances memory used
+     *
+     * @return array
+     */
+    public function getListMemoryUsed()
+    {
+        return self::$instancesMemoryUsed;
     }
 
     /**

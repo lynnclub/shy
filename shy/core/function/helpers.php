@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Functions
+ * Core functions
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -36,7 +36,7 @@ if (!function_exists('config_all')) {
     function config_all($file = 'app')
     {
         static $config = [];
-        static $config_path = __DIR__ . '/../../config/';
+        static $config_path = __DIR__ . '/../../../config/';
         if (isset($config[$file])) {
             return $config[$file];
         } else {
@@ -79,7 +79,7 @@ if (!function_exists('bind')) {
     }
 }
 
-if (!function_exists('makeNew')) {
+if (!function_exists('make_new')) {
     /**
      * Make new instance and join container
      *
@@ -88,7 +88,7 @@ if (!function_exists('makeNew')) {
      * @param array ...$parameters
      * @return object
      */
-    function makeNew($abstract, $concrete = null, ...$parameters)
+    function make_new($abstract, $concrete = null, ...$parameters)
     {
         $make = function ($abstract, $concrete = null, ...$parameters) {
             global $_container;
@@ -132,6 +132,19 @@ if (!function_exists('shy_list')) {
     }
 }
 
+if (!function_exists('shy_list_memory_used')) {
+    /**
+     * Get instances list of memory used
+     *
+     * @return array
+     */
+    function shy_list_memory_used()
+    {
+        global $_container;
+        return $_container->getListMemoryUsed();
+    }
+}
+
 if (!function_exists('shy_clear')) {
     /**
      * Clear instance
@@ -170,67 +183,6 @@ if (!function_exists('in_shy_list')) {
     }
 }
 
-if (!function_exists('view')) {
-    /**
-     * New view
-     *
-     * @param $view
-     * @param array $params
-     * @param string $layout
-     * @return mixed
-     */
-    function view($view, $params = [], $layout = '')
-    {
-        $view = makeNew('view', 'shy\http\view')->view($view);
-        if (isset($params)) {
-            $view->with($params);
-        }
-        if (isset($layout)) {
-            $view->layout($layout);
-        }
-        return $view;
-    }
-}
-
-if (!function_exists('include_view')) {
-    /**
-     * Include View
-     *
-     * @param $filename
-     * @param array $params
-     */
-    function include_view($filename, $params = [])
-    {
-        $filename = APP_PATH . 'http/views/' . $filename . '.php';
-        if (file_exists($filename)) {
-            if (!empty($params)) {
-                extract($params);
-            }
-
-            ob_start();
-            require_once "$filename";
-            ob_end_flush();
-        } else {
-            shy('view')->error('[view] Include view ' . $filename . ' is not exist.');
-        }
-    }
-}
-
-if (!function_exists('include_sub_view')) {
-    /**
-     * Include sub view
-     */
-    function include_sub_view()
-    {
-        $subViewContent = shy('view')->getSubView();
-        if (empty($subViewContent) || !is_string($subViewContent)) {
-            shy('view')->error('[view] Include sub view failed.');
-        } else {
-            echo $subViewContent;
-        }
-    }
-}
-
 if (!function_exists('logger')) {
     /**
      * Log
@@ -265,24 +217,5 @@ if (!function_exists('dd')) {
         }
 
         exit(0);
-    }
-}
-
-if (!function_exists('param')) {
-    /**
-     * output param
-     *
-     * @param $key
-     */
-    function param($key)
-    {
-        $params = shy('view')->getParams();
-        if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
-            echo $params[$key];
-        } elseif (constant($key)) {
-            echo constant($key);
-        } else {
-            shy('view')->error('[view] Param ' . $key . ' is not exist.');
-        }
     }
 }

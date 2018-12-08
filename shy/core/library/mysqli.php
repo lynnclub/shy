@@ -1,6 +1,6 @@
 <?php
 
-namespace shy\library;
+namespace shy\core\library;
 
 use mysqli as phpMysqli;
 use shy\http\exception\httpException;

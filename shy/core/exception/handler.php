@@ -1,6 +1,6 @@
 <?php
 
-namespace shy\exception;
+namespace shy\core\exception;
 
 use Exception;
 

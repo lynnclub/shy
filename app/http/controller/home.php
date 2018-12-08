@@ -9,12 +9,12 @@
 
 namespace app\http\controller;
 
-use shy\library\session;
+use shy\core\library\session;
 use app\http\business\testBusiness;
 
-use shy\library\mysqli;
-use shy\library\redis;
-use shy\library\pdo;
+use shy\core\library\mysqli;
+use shy\core\library\redis;
+use shy\core\library\pdo;
 use shy\http\facade\request;
 
 class home
