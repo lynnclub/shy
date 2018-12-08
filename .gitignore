@@ -1,5 +1,8 @@
-vendor/*
-!public/vendor/*
-composer.lock
 .DS_Store
-.idea/*
+/.idea
+/vendor
+!/public/vendor
+composer.lock
+package-lock.json
+/node_modules
+/bower_components
