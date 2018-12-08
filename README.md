@@ -144,97 +144,88 @@ shy('web');
 shy('web', $parma1, $param2);
 
 /**
- * 直接将实例加入容器
+ * Add instances directly to the container
  */
 shy('web', new shy\web());
 
 /**
- * 直接带参运行回调
+ * Direct run callback with parameters
  */
 shy('web', function ($param1, $param2) {
     return new shy\web($param1, $param2);
 }, $param1, $param2);
 
 /**
- * 命名空间作为抽象名称，带参实例化命名空间类
+ * Namespace as an abstract name, with a parameter instantiation namespace class
  */
 shy('shy\web', $param1, $param2);
 
 /**
- * 设置抽象名称并实例化带命名空间的类
+ * Set the abstract name and instantiate the class with the namespace
  */
 shy('web','shy\web');
 
 /**
- * 设置抽象名称为pdo，并实例化带命名空间的类
+ * Set the abstract name to pdo and instantiate the class with the namespace
  *
- * 这种做法是错误的。因为pdo本身是实际存在的php拓展类，不可以作为其它实例的抽象名称。
+ * This approach is wrong. Because pdo itself is a real php extension class, it can't be used as an abstract name for other instances.
  */
 shy('pdo', 'shy\core\library\pdo');
 
 ```
 
-shy函数是框架的核心函数之一，代表对容器的操作。
+The shy function is one of the core functions of the framework and represents the operation of the container.
 
-该函数运行时，如果容器内存在待加入的抽象名称，此时不会做加入操作，而且直接返回该抽象名称对应的旧实例。如果不存在，才会将该抽象名称及其对应的实例加入到容器中，并返回被加入的实例。
+When the function is running, if there is an abstract name to be added to the container, the join operation will not be performed at this time, and the old instance corresponding to the abstract name will be directly returned. If it does not exist, the abstract name and its corresponding instance are added to the container and the joined instance is returned.
 
-该函数将实例加入到容器之前，会尝试获取实例，比如从绑定的实例获取、或者执行绑定的回调来实例化对象。如果之前没有绑定实例或者回调，该函数会根据上述2.2.1的用法模式、尝试各种可能实例化对象。实例加入容器之后，会清除绑定以免占用内存。
+Before the function adds an instance to the container, it tries to get the instance, such as getting it from the bound instance, or executing the bound callback to instantiate the object. If there is no previous binding instance or callback, the function will try to instantiate the object according to the usage pattern of 2.2.1 above. After the instance is added to the container, the binding is cleared to avoid taking up memory.
 
-如何知道抽象名称是否已存在？你可以通过`shy_list()`函数获取容器内的所有抽象名称，或者使用`in_shy_list()`函数判断是不是已存在。
+How do I know if an abstract name already exists? You can get all the abstract names in the container via the `shy_list()` function, or use the `in_shy_list()` function to determine if it already exists.
 
-##### 2.3 替换实例
+##### 2.3 Replacement Instance
 
-###### 2.3.1 用法模式
+###### 2.3.1 Usage Mode
 
-1. make_new(抽象名称, 任意个其它参数、即0到N个)
-2. make_new(抽象名称, 实例或回调, 任意个其它参数)
-3. make_new(命名空间类名, 任意个其它参数)
-4. make_new(抽象名称, 命名空间类名, 任意个其它参数)
+1. make_new(abstract name, Any other parameter)
+2. make_new(abstract name, instance or callback, Any other parameter)
+3. make_new(namespace class name, Any other parameter)
+4. make_new(abstract name, namespace class name, Any other parameter)
 
 ```php
-/**
- * 如果名称被占用，替换成新实例
- * 
- * 返回 web实例
- */
+
 make_new('web', new shy\web());
 
-/**
- * 如果名称被占用，替换成新实例
- * 
- * 返回 web实例
- */
 make_new('web', function ($param1, $param2) {
     return new shy\web($param1, $param2);
 });
 
 ```
 
-如果需要替换容器中的实例，不应该使用shy函数，应该用make_new函数。这两个函数的用法是一样的，所以这里没有给出完整的代码示例。
+If you need to replace an instance in a container, you should not use the shy function, you should use the make_new function. The usage of these two functions is the same, so the complete code example is not given here.
 
-##### 2.4 清除实例
+##### 2.4 Clear Instance
 
 ```php
 /**
- * 清除抽象名称为web的绑定和实例
+ * Clear bindings and instances with abstract names for the web
  */
 shy_clear('web');
 
 /**
- * 清除所有绑定和实例
+ * Clear all bindings and instances
  */
 shy_clear_all();
 
 ```
 
 
-**由上述内容可见，本框架为开发者提供了开放容器、并且包括框架核心在内的实例都在容器里面，可以很方便地操作。这提升了开发自由度，但是，开发者在操作框架核心类的时候，一定要仔细梳理逻辑，以免产生问题。**
+**As can be seen from the above, this framework provides developers with open containers, and the instances including the framework core are inside the container, which can be easily operated. This improves the freedom of development, but developers must carefully comb the logic when operating the core classes of the framework to avoid problems.**
 
-### 3. 门面
+### 3. Facade
 
-门面提供了便捷的静态调用方法，通过魔术方法`__callStatic()`调用**被代理类**中的方法。
+The facade provides a convenient way to call statically, via the magic method `__callStatic()` to call the method in **the delegate class**.
 
-实现**门面代理类**需要继承框架的**门面类**，代码示例如下：
+Implementation **facade proxy class** needs to extends the framework's **facade class**, the code example is as follows:
 
 ```php
 namespace app\http\facade;
@@ -256,25 +247,25 @@ class testBusiness extends facade
 
 ```
 
-由此可见，**门面代理类**的`getInstance()`方法重写了**门面类**中的该方法，将**被代理类**的实例传给了**门面类**。参考**2.2加入、取出实例**章节，以便创建、获取正确的实例。
+Thus, the `getInstance()` method of **the facade proxy class** overrides the method in **the facade class** and passes the instance of **the delegate class** to **the facade class**. Refer to **2.2 Join and Fetch Instances** to create and get the correct instance.
 
-### 4. 流水线（pipeline）
+### 4. pipeline
 
-流水线是本框架重要的调度工具，连通了包括路由、中间件、控制器在内的整个框架的运行流程。
+The pipeline is an important scheduling tool for this framework, connecting the entire framework's operational processes including routing, middleware, and controllers.
 
-pipeline方法讲解：
+The pipeline class method explains:
 
-1. send：设置传入参数，参数数量没有限制；
-2. through：设置传入对象；
-3. via：设置传入对象执行的方法，默认执行handle方法；
-4. then：流水线的执行方法，同时会设置传入回调，传入的第一个参数为回调；
-5. run：流水线的不需要回调时的执行方法，不可与then方法链式调用。
+1. Send: set the incoming parameters, there is no limit to the number of parameters;
+2. Through: sets the processing object of the pipeline;
+3. Via: set the method to be executed by the incoming object. By default, the handle method is executed.
+4. Then: the execution method of the pipeline, at the same time will set the incoming callback, the first parameter passed in is the callback;
+5. Run: the execution method of the pipeline that does not require a callback. It cannot be chained call with the then method.
 
-开发者可使用流水线来构建自己的调度，使用代码实例如下：
+Developers can use the pipeline to build their own schedules, using code examples as follows:
 
 ```php
 /**
- * 框架web模块的运行，带回调执行
+ * Framework web module running, with callback execution
  */
 shy('pipeline')
     ->send(shy('request'))
@@ -289,11 +280,11 @@ shy('pipeline')
 
 ```
 
-**开发者使用流水线自定义调度流程时，应当仔细梳理运行流程。**
+**When developers use the pipeline to customize the scheduling process, you should carefully sort through the running process.**
 
 ### 5. 中间件
 
-中间件是流水线then方法传入"执行控制器回调"时的特例，传入的第一个参数`$next`即是用于执行控制器方法的。
+The middleware is a special case when the pipeline then method is passed to the "callback of running the controller". The first parameter passed in is `$next`, which is the callback function for running the controller method.
 
 ```php
 namespace app\http\middleware;
@@ -304,13 +295,13 @@ class example implements middleware
 {
     public function handle($next, ...$passable)
     {
-        // 请求处理
+        // Request processing
         $request = null;
 
-        // 执行控制器
+        // Running the controller method
         $response = $next();
 
-        // 响应处理
+        // Response processing
         $response = ', example middleware, ' . json_encode($response);
         return $response;
     }
@@ -318,13 +309,13 @@ class example implements middleware
 
 ```
 
-### 6. 路由
+### 6. Router
 
-路由通过请求类获取请求路径、并解析出对应控制器和方法，然后通过流水线调度控制器。
+The route obtains the request path through the request class, parses out the corresponding controller and method, and then dispatches the controller through the pipeline.
 
-路由支持"配置文件模式"和"路径模式"，可以在配置文件`app.php`中关闭、启用。配置文件模式根据请求路径查找配置文件，得到控制器及其方法，支持中间件、路径前缀。路径模式是直接把请求路径当成控制器及其方法，属于传统方法。两种模式同时启用时，配置文件模式优先。
+Routing support "configuration mode" and "path mode" can be turned off and enabled in the configuration file `app.php`. The configuration mode finds the configuration file according to the request path, obtains the controller and its method, and supports the middleware and path prefix. The path mode is to directly treat the request path as a controller and its method, which is a traditional method. When both modes are enabled at the same time, the configuration mode takes precedence.
 
-配置文件示例：
+Configuration mode file `router.php` example:
 
 ```php
 return [
@@ -346,35 +337,35 @@ return [
 
 ```
 
-### 7. 控制器
+### 7. Controller
 
-控制器中的方法应该返回数据、以便交由框架输出，开发者不应该直接在控制器内输出。在控制器内使用实例，需要注意该用单例还是新建实例，取容器内的实例、包括门面都是单例。
+The method in the controller should return the data for the output of the framework, and the developer should not output directly in the controller. To use an instance in the controller, you need to pay attention to the use of a singleton or a new instance. The instances in the container, including the facade, are singletons.
 
-### 8. 数据库
+### 8. Database
 
-本框架暂时只提供了pdo、redis和mysqli的封装类。
+For the time being, this framework only provides encapsulation classes of pdo, redis and mysqli.
 
-### 9. 模版
+### 9. View
 
-框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。本框架的模版需要使用原生PHP语法开发，并且只提供了必须的一小部分函数给开发者使用，学习、调试成本较低。但是，要求开发做好`isset()`、`empty()`、`is_array()`等预防报错处理。
+The framework's own template does not use the complex design of character parsing, because this way is not only complex to achieve, but also develops a set of template rules that require user learning. The template of this framework needs to be developed using native PHP syntax, and only provides a small amount of functions necessary for developers to use, learning and debugging costs are lower. However, developers are required to do a good job of preventing errors, such as `isset()`, `empty()`, `is_array()`.
 
-为了满足开发者的需求，框架计划未来支持第三方模版系统。
+To meet the needs of developers, this framework plans to support third-party template systems in the future.
 
-##### 9.1 模版类方法
+##### 9.1 View class method
 
-1. view：设置模版文件
-2. layout：设置布局页文件
-3. with：向模版传入参数
-4. render：渲染模版，框架会自动执行渲染
+1. View: set view file
+2. Layout: set layout file
+3. With: Pass parameters to the view
+4. Render: Render the view, the framework will automatically perform the rendering
 
-##### 9.2 模版函数
+##### 9.2 View Functions
 
-1. view：模版类的封装。用于便捷地在控制器中使用模版，可传参、也可链式调用。每次使用本函数都会在容器中新建或替换模版实例。
-2. include_sub_view：在布局页中输出模版。
-3. include_view：在布局页、模版中引入组件模版。
-4. param：在模版中输出变量或常量，不使用该函数输出报错无法被框架正常处理。
+1. View: The encapsulation of the view class. It is used to conveniently use the view in the controller, which can be passed in parameters or chained call. Each time you use this function, you will either create or replace a template instance in the container.
+2. include_sub_view: Output view in layout page.
+3. include_view: Introducing component view in layout or view。
+4. param: Output variables or constants in the view, output error without using this function can not be processed by the framework.
 
-在控制器方法中使用view函数：
+using the view function in the controller method:
 
 ```php
 public function index()
@@ -387,7 +378,8 @@ public function index()
 
 ```
 
-include_sub_view函数在布局页中设置模版输出位置、include_view函数引入模版组件、param函数输出变量和常量：
+The include_sub_view function sets the view output location in the layout, the include_view function to import the component view, the param function output variables and constants:
+
 ```php
 <!DOCTYPE html>
 <html>
@@ -404,26 +396,27 @@ include_sub_view函数在布局页中设置模版输出位置、include_view函�
 
 ```
 
-### 10. 杂项函数
+### 10. Miscellaneous Functions
 
-1. config：获取配置文件的配置
-2. config_all：获取配置文件的所有配置
-3. logger：记录日志
-4. dd：调试输出
+1. config: Get the configuration of the configuration file
+2. config_all: Get all configuration of the configuration file
+3. logger: Logging
+4. dd: Debug output
 
-### 11. 命令模式
+### 11. Command Mode
 
-本框架支持命令模式
+This framework supports command mode.
 
-在项目根目录执行下述命令可以查看所有命令：
+Execute the following command in the project root directory to view all commands:
 
 ```php
 php console list
 ```
 
-需要拓展命令可以在配置文件`console.php`中配置命令名称、对象和方法。
+If you need an extension command, you can configure the command name, object, and method in the configuration file `console.php`.
 
-新建命令代码示例：
+Code example for make new command：
+
 ```php
 /**
  * Example command
