@@ -1,4 +1,5 @@
 .DS_Store
+*.log
 /.idea
 /vendor
 !/public/vendor
