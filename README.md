@@ -2,6 +2,8 @@
 
 She is a petite, but can hold up half the sky; she supports many convenient features and usages while maintaining a dexterous figure. Powerful doesn't necessarily require complex implementations, come check out her!
 
+[查看中文文档](https://github.com/lynncho/shy/blob/master/README-CHINESE.md)
+
 ## 1. Summary
 
 ### 1.1. Features
@@ -88,7 +90,7 @@ The container itself is an instance concept, this instance can store other insta
 
 ###### 2.1.1 Usage Mode
 
-bind(Abstract name, Instance or callback)
+bind(Abstract name, Instance or Callback)
 
 ###### 2.1.2 Code Example
 
@@ -282,7 +284,7 @@ shy('pipeline')
 
 **When developers use the pipeline to customize the scheduling process, you should carefully sort through the running process.**
 
-### 5. 中间件
+### 5. Middleware
 
 The middleware is a special case when the pipeline then method is passed to the "callback of running the controller". The first parameter passed in is `$next`, which is the callback function for running the controller method.
 
