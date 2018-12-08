@@ -1,7 +1,7 @@
 <?php
 
 /**
- * test Method
+ * test
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -11,27 +11,7 @@ namespace app\http\business;
 
 class testBusiness
 {
-    static private $_instance;
-
     private $isMobile;
-
-    private function __construct()
-    {
-        // not allow new outside
-    }
-
-    private function __clone()
-    {
-        // not allow clone outside
-    }
-
-    public static function instance()
-    {
-        if (!(self::$_instance instanceof self)) {
-            self::$_instance = new self;
-        }
-        return self::$_instance;
-    }
 
     public function isMobile()
     {

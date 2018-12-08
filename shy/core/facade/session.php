@@ -1,10 +1,10 @@
 <?php
 
-namespace shy\http\facade;
+namespace shy\core\facade;
 
 use shy\core\facade;
 
-class request extends facade
+class session extends facade
 {
     /**
      * Get the instance.
@@ -13,6 +13,6 @@ class request extends facade
      */
     protected static function getInstance()
     {
-        return shy('request');
+        return shy('session', 'shy\core\library\session');
     }
 }

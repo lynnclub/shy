@@ -10,22 +10,12 @@ use shy\http\exception\httpException;
  */
 class pdo
 {
-    private function __construct()
-    {
-        // not allow new outside
-    }
-
-    private function __clone()
-    {
-        // not allow clone outside
-    }
-
     /**
      * 实例数组
      *
      * @var array
      */
-    protected static $instance = array();
+    protected static $instance = [];
 
     /**
      * 获取实例
@@ -33,7 +23,7 @@ class pdo
      * @param string $config_name
      * @return Redis
      */
-    public static function instance($config_name = 'default')
+    public function instance($config_name = 'default')
     {
         $config = config('mysql', 'database');
         if (!isset($config[$config_name])) {
@@ -62,7 +52,7 @@ class pdo
      *
      * @param string $config_name
      */
-    public static function close($config_name = 'default')
+    public function close($config_name = 'default')
     {
         if (isset(self::$instance[$config_name])) {
             self::$instance[$config_name] = null;
@@ -72,7 +62,7 @@ class pdo
     /**
      * 关闭所有数据库实例
      */
-    public static function closeAll()
+    public function closeAll()
     {
         foreach (self::$instance as $config_name => $connection) {
             self::$instance[$config_name] = null;

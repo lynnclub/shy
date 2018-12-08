@@ -10,16 +10,6 @@ use shy\http\exception\httpException;
  */
 class mysqli
 {
-    private function __construct()
-    {
-        // not allow new outside
-    }
-
-    private function __clone()
-    {
-        // not allow clone outside
-    }
-
     /**
      * 实例数组
      *
@@ -33,7 +23,7 @@ class mysqli
      * @param string $config_name
      * @return mixed
      */
-    public static function instance($config_name = 'default')
+    public function instance($config_name = 'default')
     {
         $config = config('mysql', 'database');
         if (!isset($config[$config_name])) {
@@ -66,7 +56,7 @@ class mysqli
      *
      * @param string $config_name
      */
-    public static function close($config_name = 'default')
+    public function close($config_name = 'default')
     {
         if (isset(self::$instance[$config_name])) {
             self::$instance[$config_name]->close();
@@ -77,7 +67,7 @@ class mysqli
     /**
      * 关闭所有数据库实例
      */
-    public static function closeAll()
+    public function closeAll()
     {
         foreach (self::$instance as $connection) {
             $connection->close();

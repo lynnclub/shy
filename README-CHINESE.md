@@ -1,4 +1,4 @@
-# <center>害羞框架 Shy Framework</center>
+# 害羞框架 Shy Framework
 
 她是一个娇小、却能顶半边天的框架。她支持丰富的特性、用法，同时也保持着灵巧的身姿。快来了解一下她吧！
 
@@ -132,6 +132,13 @@ shy('shy\web', $param1, $param2);
  */
 shy('web','shy\web');
 
+/**
+ * 设置抽象名称为pdo，并实例化带命名空间的类
+ *
+ * 这种做法是错误的。因为pdo本身是实际存在的php拓展类，不可以作为其它实例的抽象名称。
+ */
+shy('pdo', 'shy\core\library\pdo');
+
 ```
 
 shy函数是框架的核心函数之一，代表对容器的操作。
@@ -197,43 +204,26 @@ shy_clear_all();
 实现**门面代理类**需要继承框架的**门面类**，代码示例如下：
 
 ```php
-namespace shy\http\facade;
+namespace app\http\facade;
 
 use shy\core\facade;
 
-class request extends facade
+class testBusiness extends facade
 {
     /**
-     * Get the registered name of the component.
+     * Get the instance.
      *
-     * @return string
+     * @return object
      */
-    protected static function getFacadeAccessor()
+    protected static function getInstance()
     {
-        return 'request';
+        return shy('app\http\business\testBusiness');
     }
 }
 
 ```
 
-**门面类**通过shy函数获取**被代理类**的实例：
-
-```php
-/**
- * Get facade instance in container
- *
- * @return object
- */
- public static function getInstance()
- {
-     return shy(static::getFacadeAccessor());
- }
-
-```
-
-由此可见，**门面代理类**的`getFacadeAccessor()`方法需要返回**被代理类**在容器中的抽象名称。这样**门面类**就可以通过这个抽象名称找到需要被代理的实例。
-
-如果被代理的实例没有加入到容器中，那就需要保证，`shy($abstract)`函数只通过一个"抽象名称"参数，可以将实例加入到容器。可以参考**2.2加入、取出实例**章节。推荐使用命名空间加入容器内不存在的实例。
+由此可见，**门面代理类**的`getInstance()`方法重写了**门面类**中的该方法，将**被代理类**的实例传给了**门面类**。参考**2.2加入、取出实例**章节，以便创建、获取正确的实例。
 
 ### 4. 流水线（pipeline）
 

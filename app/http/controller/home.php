@@ -9,28 +9,28 @@
 
 namespace app\http\controller;
 
-use shy\core\library\session;
-use app\http\business\testBusiness;
-
-use shy\core\library\mysqli;
-use shy\core\library\redis;
-use shy\core\library\pdo;
+use shy\core\facade\session;
 use shy\http\facade\request;
+use app\http\facade\testBusiness;
+
+use shy\core\facade\pdo;
+use shy\core\facade\redis;
+use shy\core\facade\mysqli;
 
 class home
 {
     public function index()
     {
-        if (testBusiness::instance()->isMobile()) {
+        if (testBusiness::isMobile()) {
             $info = 'Hello World in Mobile';
         } else {
             $info = 'Hello World';
         }
 
-        if (session::instance()->exist('user')) {
+        if (session::exist('user')) {
             $info .= ' Again';
         } else {
-            session::instance()->set('user', 1);
+            session::set('user', 1);
         }
 
         $title = 'Shy Framework';

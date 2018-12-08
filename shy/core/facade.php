@@ -8,25 +8,14 @@ abstract class facade
 {
 
     /**
-     * Get the registered name of the component.
+     * Get the instance.
      *
-     * @return string
-     *
-     * @throws \RuntimeException
+     * @return mixed
+     * @throws RuntimeException
      */
-    protected static function getFacadeAccessor()
+    protected static function getInstance()
     {
         throw new RuntimeException('Facade does not implement getFacadeAccessor method.');
-    }
-
-    /**
-     * Get facade instance in container
-     *
-     * @return object
-     */
-    public static function getInstance()
-    {
-        return shy(static::getFacadeAccessor());
     }
 
     /**
@@ -36,7 +25,7 @@ abstract class facade
      * @param  array $args
      * @return mixed
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function __callStatic($method, $args)
     {

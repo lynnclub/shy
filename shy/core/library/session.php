@@ -8,30 +8,16 @@ namespace shy\core\library;
 
 class session
 {
-    static private $_instance;
 
     private $session_id;
 
-    private function __construct()
+    public function __construct()
     {
         session_start();
     }
 
-    private function __clone()
-    {
-        // not allow clone outside
-    }
-
-    public static function instance()
-    {
-        if (!(self::$_instance instanceof self)) {
-            self::$_instance = new self;
-        }
-        return self::$_instance;
-    }
-
     /**
-     * session
+     * Session exist
      *
      * @param $key
      * @return mixed

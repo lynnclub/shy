@@ -28,4 +28,4 @@ use shy\http\exception\handler;
 
 $_container = new container();
 $_container->setExceptionHandler(new handler());
-shy('shy\web')->run();
+shy('web', 'shy\web')->run();

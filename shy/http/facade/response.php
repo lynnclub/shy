@@ -7,12 +7,12 @@ use shy\core\facade;
 class response extends facade
 {
     /**
-     * Get the registered name of the component.
+     * Get the instance.
      *
-     * @return string
+     * @return object
      */
-    protected static function getFacadeAccessor()
+    protected static function getInstance()
     {
-        return 'response';
+        return shy('response');
     }
 }
