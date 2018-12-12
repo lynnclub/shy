@@ -93,18 +93,14 @@ if (!function_exists('smarty')) {
      *
      * @param $view
      * @param array $params
-     * @param string $layout
      * @return mixed
      */
-    function smarty($view, $params = [], $layout = '')
+    function smarty($view, $params = [])
     {
-        $view = shy('smarty')->display($view);
-        if (isset($params)) {
-            $view->with($params);
+        if (config('smarty')) {
+            return shy('smarty')->fetch($view, $params);
+        } else {
+            throw new RuntimeException('The Smarty module is closed and can be opened in the configuration file.');
         }
-        if (isset($layout)) {
-            $view->layout($layout);
-        }
-        return $view;
     }
 }

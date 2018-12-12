@@ -13,6 +13,7 @@ return [
     ],
     'path' => [
         '/home2' => 'home@test2',//return string
+        '/smarty' => 'home@smarty',
         '/home3' => 'home@home3'//404
     ]
 ];

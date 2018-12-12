@@ -62,10 +62,17 @@ return [
     | Smarty
     */
 
-    'smarty' => [
-        'cache_lifetime' => '',
+    'smarty' => true,
+
+    /*
+    | Smarty Config
+    */
+
+    'smarty_config' => [
         'left_delimiter' => '',
-        'right_delimiter' => ''
+        'right_delimiter' => '',
+        'caching' => false,
+        'cache_lifetime' => 120 //seconds
     ]
 
 ];

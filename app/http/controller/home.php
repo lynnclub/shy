@@ -48,6 +48,25 @@ class home
         return view('home', compact('title', 'info'))->layout('main');
     }
 
+    public function smarty()
+    {
+        if (testBusiness::isMobile()) {
+            $params['info'] = 'Hello World in Mobile';
+        } else {
+            $params['info'] = 'Hello World';
+        }
+
+        if (session::exist('user')) {
+            $params['info'] .= ' Again';
+        } else {
+            session::set('user', 1);
+        }
+
+        $params['title'] = 'Shy Framework';
+
+        return smarty('smarty.tpl', $params);
+    }
+
     public function test()
     {
         return 'controller echo test ' . json_encode(request::all());
