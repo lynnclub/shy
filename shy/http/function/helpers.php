@@ -86,3 +86,25 @@ if (!function_exists('param')) {
         }
     }
 }
+
+if (!function_exists('smarty')) {
+    /**
+     * New view
+     *
+     * @param $view
+     * @param array $params
+     * @param string $layout
+     * @return mixed
+     */
+    function smarty($view, $params = [], $layout = '')
+    {
+        $view = shy('smarty')->display($view);
+        if (isset($params)) {
+            $view->with($params);
+        }
+        if (isset($layout)) {
+            $view->layout($layout);
+        }
+        return $view;
+    }
+}

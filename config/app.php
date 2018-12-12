@@ -56,6 +56,16 @@ return [
     | Default Controller
     */
 
-    'default_controller' => 'home'
+    'default_controller' => 'home',
+
+    /*
+    | Smarty
+    */
+
+    'smarty' => [
+        'cache_lifetime' => '',
+        'left_delimiter' => '',
+        'right_delimiter' => ''
+    ]
 
 ];

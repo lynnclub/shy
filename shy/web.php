@@ -13,6 +13,7 @@ use shy\http\request;
 use shy\http\router;
 use shy\http\view;
 use shy\http\response;
+use Smarty;
 
 class web
 {
@@ -35,6 +36,9 @@ class web
         bind('request', new request($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input')));
         bind('router', new router());
         bind('response', new response());
+        if (config('smarty')) {
+            bind('smarty', new Smarty());
+        }
     }
 
     /**
