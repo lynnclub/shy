@@ -18,16 +18,19 @@ use Smarty;
 class web
 {
     /**
-     * web constructor.
+     * Constructor.
      */
     public function __construct()
     {
         $this->bind();
         $this->setting();
+        if (config('smarty')) {
+            $this->smartySetting();
+        }
     }
 
     /**
-     * Bind object ready to join container
+     * Bind Object
      */
     private function bind()
     {
@@ -36,32 +39,10 @@ class web
         bind('request', new request($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input')));
         bind('router', new router());
         bind('response', new response());
-
-        if (config('smarty')) {
-            shy('smarty', new Smarty());
-            $smartyConfig = config('smarty_config');
-            shy('smarty')->template_dir = config('app', 'path') . 'http' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
-            shy('smarty')->compile_dir = config('cache', 'path') . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
-            if (isset($smartyConfig['left_delimiter']) && !empty($smartyConfig['left_delimiter'])) {
-                shy('smarty')->left_delimiter = $smartyConfig['left_delimiter'];
-            }
-            if (isset($smartyConfig['right_delimiter']) && !empty($smartyConfig['right_delimiter'])) {
-                shy('smarty')->right_delimiter = $smartyConfig['right_delimiter'];
-            }
-            if (isset($smartyConfig['caching']) && is_bool($smartyConfig['caching'])) {
-                shy('smarty')->caching = $smartyConfig['caching'];
-            }
-            if (isset($smartyConfig['cache_lifetime']) && is_int($smartyConfig['cache_lifetime'])) {
-                shy('smarty')->cache_lifetime = $smartyConfig['cache_lifetime'];
-            }
-            if (config('env') === 'development') {
-                shy('smarty')->debugging = true;
-            }
-        }
     }
 
     /**
-     * System setting
+     * System Setting
      */
     private function setting()
     {
@@ -76,6 +57,32 @@ class web
         }
 
         date_default_timezone_set(config('timezone'));
+    }
+
+    /**
+     * Smarty Setting
+     */
+    private function smartySetting()
+    {
+        $smarty = shy('smarty', new Smarty());
+        $smarty->template_dir = config('app', 'path') . 'http' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+        $smarty->compile_dir = config('cache', 'path') . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+        $smartyConfig = config('smarty_config');
+        if (isset($smartyConfig['left_delimiter']) && !empty($smartyConfig['left_delimiter'])) {
+            $smarty->left_delimiter = $smartyConfig['left_delimiter'];
+        }
+        if (isset($smartyConfig['right_delimiter']) && !empty($smartyConfig['right_delimiter'])) {
+            $smarty->right_delimiter = $smartyConfig['right_delimiter'];
+        }
+        if (isset($smartyConfig['caching']) && is_bool($smartyConfig['caching'])) {
+            $smarty->caching = $smartyConfig['caching'];
+        }
+        if (isset($smartyConfig['cache_lifetime']) && is_int($smartyConfig['cache_lifetime'])) {
+            $smarty->cache_lifetime = $smartyConfig['cache_lifetime'];
+        }
+        if (config('env') === 'development') {
+            $smarty->debugging = true;
+        }
     }
 
     /**

@@ -1,10 +1,14 @@
 # 害羞框架 Shy Framework
 
-她是一个娇小，却能顶半边天的框架；她支持很多便捷的特性和用法，同时也保持着灵巧的身姿。功能强大并不一定需要复杂的实现，快来了解一下她吧！
+她是一个娇小，却能顶半边天的框架；她支持很多便捷的特性和用法，同时也保持着灵巧的身姿。功能强大却没有复杂的实现，快来了解一下她吧！
 
 ## 1. 概要
 
-### 1.1 特性列表
+### 1.1 简介
+
+本框架是以容器为基础的，就连框架本身都在容器里面，由此为开发者提高了一个自由度极高的实例复用池。在容器的基础上，框架核心提供了异常处理、门面、流水线等实用特性。在框架核心的基础之上，提供了web服务、终端服务、api服务等。
+
+### 1.2 特性列表
 
 * 容器
 * 异常、错误处理
@@ -22,7 +26,7 @@
 * api（暂未实现）
 * socket（暂未实现）
 
-### 1.2 用法
+### 1.3 用法
 
 ##### 第一步
 
@@ -36,7 +40,7 @@ git clone https://github.com/lynncho/shy.git
 composer install
 ```
 
-### 1.3 目录结构
+### 1.4 目录结构
 
 ```
 shy 框架根目录
@@ -75,7 +79,7 @@ shy 框架根目录
 |___tests 单元测试目录
 ```
 
-### 1.4 术语
+### 1.5 术语
 
 * 实例："类"在实例化之后叫做一个"实例"。 "类"是静态的，不占进程内存，而"实例"拥有动态内存。
 * 抽象名称：容器内的实例对应的唯一名称。
@@ -351,7 +355,7 @@ return [
 
 框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。本框架的模版需要使用原生PHP语法开发，并且只提供了必须的一小部分函数给开发者使用，学习、调试成本较低。但是，要求开发者做好`isset()`、`empty()`、`is_array()`等预防报错处理。
 
-为了满足开发者的需求，框架计划未来支持第三方模版系统。
+此外，为了满足开发者的需求，框架支持了Smarty模版系统。
 
 ##### 9.1 模版类方法
 
@@ -392,6 +396,51 @@ include_sub_view函数在布局页中设置模版输出位置、include_view函�
 <body>
 <?php include_sub_view() ?>
 <?php include_view('component/footer') ?>
+</body>
+</html>
+
+```
+
+##### 9.3 Smarty模版
+
+本框架提供了对smarty模版的支持，需要通过composer安装smarty、并在配置文件`app.php`中启用。
+
+```bash
+composer require smarty/smarty
+```
+
+######9.3.1 在控制器中调用smarty模版代码示例
+
+```php
+return smarty('smarty.tpl', $params);
+```
+
+######9.3.2 smarty模版代码示例
+
+```php
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{$title}</title>
+    <link type="text/css" rel="stylesheet" href="{BASE_URL}css/app.css">
+</head>
+<body>
+<div id="hello-world">
+    {$info}
+</div>
+<div id="system">
+    <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
+    <p>Used Time: {microtime(true) - SHY_START} second</p>
+    <br>
+    <p>Loaded instance's abstract: </p>
+    <ol>
+        {foreach shy_list_memory_used() as $abstract => $memoryUsed}
+            <li>{$abstract}  {$memoryUsed} kb</li>
+        {/foreach}
+    </ol>
+</div>
+{include file='component/footer.php'}
 </body>
 </html>
 

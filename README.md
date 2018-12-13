@@ -1,12 +1,16 @@
 # Shy Framework
 
-She is a petite, but can hold up half the sky; she supports many convenient features and usages while maintaining a dexterous figure. Powerful doesn't necessarily require complex implementations, come check out her!
+She is a petite, but can hold up half the sky; she supports many convenient features and usages while maintaining a dexterous figure. Powerful but no complex implementation, come check out her!
 
 [查看中文文档](https://github.com/lynncho/shy/blob/master/README-CHINESE.md)
 
 ## 1. Summary
 
-### 1.1. Features
+### 1.1. Introduce
+
+This framework is container-based, even the framework itself is in the container, which improves a high degree of freedom instance reuse pool for developers.On the basis of the container, the framework core provides practical features such as exception handling, facades, and pipelines. Based on the framework core, web services, terminal services, api services, etc. are provided.
+
+### 1.2. Features
 
 * Container
 * Exception, error handling
@@ -24,7 +28,7 @@ She is a petite, but can hold up half the sky; she supports many convenient feat
 * Api (Not yet implemented)
 * Socket (Not yet implemented)
 
-### 1.2. Usage
+### 1.3. Usage
 
 ##### First Step
 ```bash
@@ -36,7 +40,7 @@ git clone https://github.com/lynncho/shy.git
 composer install
 ```
 
-### 1.3 Directory Structure
+### 1.4 Directory Structure
 
 ```
 shy  Framework root directory
@@ -75,7 +79,7 @@ shy  Framework root directory
 |___tests  Unit test directory
 ```
 
-### 1.4 The Term
+### 1.5 The Term
 
 * Instance: "Class" is called an "instance" after instantiation. "Class" is static, does not occupy process memory, and "instance" has dynamic memory.
 * Abstract Name: A unique name for an instance within a container.
@@ -351,7 +355,7 @@ For the time being, this framework only provides encapsulation classes of pdo, r
 
 The framework's own template does not use the complex design of character parsing, because this way is not only complex to achieve, but also develops a set of template rules that require user learning. The template of this framework needs to be developed using native PHP syntax, and only provides a small amount of functions necessary for developers to use, learning and debugging costs are lower. However, developers are required to do a good job of preventing errors, such as `isset()`, `empty()`, `is_array()`.
 
-To meet the needs of developers, this framework plans to support third-party template systems in the future.
+In addition, to meet the needs of developers, the framework supports the Smarty template system.
 
 ##### 9.1 View class method
 
@@ -393,6 +397,51 @@ The include_sub_view function sets the view output location in the layout, the i
 <body>
 <?php include_sub_view() ?>
 <?php include_view('component/footer') ?>
+</body>
+</html>
+
+```
+
+##### 9.3 Smarty
+
+This framework provides support for smarty templates, which need to be installed via composer and enabled in the configuration file `app.php`.
+
+```bash
+composer require smarty/smarty
+```
+
+######9.3.1 Call the smarty template code example in the controller
+
+```php
+return smarty('smarty.tpl', $params);
+```
+
+######9.3.2 Smarty template code example
+
+```php
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{$title}</title>
+    <link type="text/css" rel="stylesheet" href="{BASE_URL}css/app.css">
+</head>
+<body>
+<div id="hello-world">
+    {$info}
+</div>
+<div id="system">
+    <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
+    <p>Used Time: {microtime(true) - SHY_START} second</p>
+    <br>
+    <p>Loaded instance's abstract: </p>
+    <ol>
+        {foreach shy_list_memory_used() as $abstract => $memoryUsed}
+            <li>{$abstract}  {$memoryUsed} kb</li>
+        {/foreach}
+    </ol>
+</div>
+{include file='component/footer.php'}
 </body>
 </html>
 

@@ -21,21 +21,21 @@ class router
     private $controller = 'home';
 
     /**
-     * Method of controller
+     * Method of Controller
      *
      * @var string
      */
     private $method = 'index';
 
     /**
-     * Is Parse Route Controller And Method Success
+     * Is Parse Route Success
      *
      * @var bool
      */
     private $success = false;
 
     /**
-     * Base Url
+     * Base Url Path
      *
      * @var string
      */
@@ -69,16 +69,18 @@ class router
     }
 
     /**
-     * Pipeline Call Method
+     * Pipeline Handle
      *
-     * @param $next
+     * @param \Closure $next
      * @param \shy\http\request $request
+     * @return string|view
      */
     public function handle($next, $request)
     {
+        /**
+         * Parse Url
+         */
         $this->baseUrlPath = $request->getBaseUrlPath();
-
-        // Parse Url
         if (config('route_by_config')) {
             $this->success = $this->configRoute();
         }
@@ -87,13 +89,16 @@ class router
         }
         if (!$this->success) {
             throw new httpException(404, 'page not find');
+        } else {
+            $this->controller = 'app\\http\\controller\\' . $this->controller;
+            if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
+                throw new httpException(404, 'page not find');
+            }
         }
 
-        // Run
-        $this->controller = 'app\\http\\controller\\' . $this->controller;
-        if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-            throw new httpException(404, 'page not find');
-        }
+        /**
+         * Run controller and middleware
+         */
         if (empty($this->middleware)) {
             $response = $this->runController();
         } else {
@@ -111,7 +116,7 @@ class router
                 });
         }
 
-        $next($response);
+        return $next($response);
     }
 
     /**
@@ -128,7 +133,7 @@ class router
     }
 
     /**
-     * Route By Config
+     * Route by Config
      *
      * @return bool
      */
@@ -191,7 +196,7 @@ class router
     }
 
     /**
-     * Route By Base Url
+     * Route by Url Path
      *
      * @return bool
      */

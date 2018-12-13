@@ -22,6 +22,20 @@ use ReflectionProperty;
  */
 class fatalErrorException extends ErrorException
 {
+    /**
+     * fatalErrorException constructor.
+     *
+     * @param string $message
+     * @param int $code
+     * @param int $severity
+     * @param string $filename
+     * @param int $lineno
+     * @param int|null $traceOffset
+     * @param bool $traceArgs
+     * @param array|null $trace
+     * @param Throwable|null $previous
+     * @throws \ReflectionException
+     */
     public function __construct(string $message, int $code, int $severity, string $filename, int $lineno, int $traceOffset = null, bool $traceArgs = true, array $trace = null, Throwable $previous = null)
     {
         parent::__construct($message, $code, $severity, $filename, $lineno, $previous);
@@ -72,6 +86,12 @@ class fatalErrorException extends ErrorException
         }
     }
 
+    /**
+     * Set trace
+     *
+     * @param $trace
+     * @throws \ReflectionException
+     */
     protected function setTrace($trace)
     {
         $traceReflector = new ReflectionProperty('Exception', 'trace');

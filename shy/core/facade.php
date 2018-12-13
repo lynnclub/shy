@@ -8,7 +8,7 @@ abstract class facade
 {
 
     /**
-     * Get the instance.
+     * Get Instance.
      *
      * @return mixed
      * @throws RuntimeException

@@ -89,10 +89,10 @@ class response
                 header($key, $value);
             }
         }
-
         if ($view) {
             $this->response = $view;
         }
+
         if ($this->response instanceof view) {
             echo $this->response->render();
         } elseif (is_string($this->response)) {

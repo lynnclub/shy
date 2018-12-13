@@ -25,6 +25,12 @@ class fatalThrowableError extends fatalErrorException
 {
     private $originalClassName;
 
+    /**
+     * fatalThrowableError constructor.
+     *
+     * @param Throwable $e
+     * @throws \ReflectionException
+     */
     public function __construct(Throwable $e)
     {
         $this->originalClassName = get_class($e);

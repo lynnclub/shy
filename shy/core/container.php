@@ -19,21 +19,21 @@ class container
     use exceptionHandlerRegister;
 
     /**
-     * Bind ready to join
+     * Bind Ready to Join
      *
      * @var mixed $binds
      */
     private static $binds;
 
     /**
-     * Instances container
+     * Instances Container
      *
      * @var mixed $instances
      */
     private static $instances;
 
     /**
-     * Instances memory used
+     * Instances Memory Used
      *
      * @var array
      */
@@ -42,7 +42,7 @@ class container
     private $beforeMakeInstanceMemoryUsed;
 
     /**
-     * Bind instance or closure ready to join container
+     * Bind Instance or Closure
      *
      * @param string $abstract
      * @param object $concrete
@@ -57,14 +57,14 @@ class container
         ) {
             self::$binds[$abstract] = $concrete;
         } else {
-            throw new RuntimeException('bind concrete type invalid');
+            throw new RuntimeException('Bind concrete type invalid:' . $abstract);
         }
 
         return $this;
     }
 
     /**
-     * Make new instance and join container
+     * Make New Instance and Join to Container
      *
      * @param string $abstract
      * @param object|string $concrete
@@ -98,7 +98,7 @@ class container
         }
 
         /**
-         * join
+         * Join
          */
         if (self::$binds[$abstract] instanceof Closure) {
             self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
@@ -112,7 +112,7 @@ class container
     }
 
     /**
-     * Get instance or make new
+     * Get Instance or Make New
      *
      * @param string $abstract
      * @param object|string $concrete
@@ -130,7 +130,7 @@ class container
     }
 
     /**
-     * Make class by reflection
+     * Make Class by Reflection
      *
      * @param string $abstract
      * @param string $concrete
@@ -156,7 +156,7 @@ class container
     }
 
     /**
-     * Count make instance memory used
+     * Count Make Instance Memory Used
      *
      * @param $abstract
      */
@@ -166,7 +166,7 @@ class container
     }
 
     /**
-     * Clear bind and instance
+     * Clear Instance
      *
      * @param $abstract
      */
@@ -176,11 +176,12 @@ class container
     }
 
     /**
-     * Clear all binds and instances
+     * Clear All Instances
      */
     public function clearAll()
     {
         self::$binds = [];
+        self::$instancesMemoryUsed = [];
         self::$instances = [];
     }
 

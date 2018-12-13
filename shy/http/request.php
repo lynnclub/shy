@@ -77,7 +77,7 @@ class request
     protected $content;
 
     /**
-     * request constructor.
+     * Request constructor.
      *
      * @param array $query $_GET
      * @param array $request $_POST
