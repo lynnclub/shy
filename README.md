@@ -410,13 +410,13 @@ This framework provides support for smarty templates, which need to be installed
 composer require smarty/smarty
 ```
 
-######9.3.1 Call the smarty template code example in the controller
+###### 9.3.1 Call the smarty template code example in the controller
 
 ```php
 return smarty('smarty.tpl', $params);
 ```
 
-######9.3.2 Smarty template code example
+###### 9.3.2 Smarty template code example
 
 ```php
 <!DOCTYPE html>

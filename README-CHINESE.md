@@ -409,13 +409,13 @@ include_sub_view函数在布局页中设置模版输出位置、include_view函�
 composer require smarty/smarty
 ```
 
-######9.3.1 在控制器中调用smarty模版代码示例
+###### 9.3.1 在控制器中调用smarty模版代码示例
 
 ```php
 return smarty('smarty.tpl', $params);
 ```
 
-######9.3.2 smarty模版代码示例
+###### 9.3.2 smarty模版代码示例
 
 ```php
 <!DOCTYPE html>
