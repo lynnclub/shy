@@ -90,7 +90,7 @@ class web
         $request = shy('request');
         $request->init($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
         if (empty(config('base_url'))) {
-            defined('BASE_URL') or define('BASE_URL', shy('request')->getSchemeAndHttpHost() . '/');
+            defined('BASE_URL') or define('BASE_URL', $request->getBaseUrl());
         } else {
             defined('BASE_URL') or define('BASE_URL', config('base_url'));
         }

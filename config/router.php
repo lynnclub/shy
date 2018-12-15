@@ -14,6 +14,7 @@ return [
     'path' => [
         '/home2' => 'home@test2',//return string
         '/smarty' => 'home@smarty',
-        '/home3' => 'home@home3'//404
+        '/home3' => 'home@home3',//404
+        '/home/path/test' => 'home@index'//view home
     ]
 ];
