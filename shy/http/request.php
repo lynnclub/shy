@@ -255,8 +255,12 @@ class request
         $pathString = $this->server->get('REQUEST_URI');
         $path_param = explode('?', $pathString);
         if (!empty($path_param[0])) {
-            $path_param = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
-            $this->baseUrlPath = '/' . $path_param;
+            if (!IS_CLI) {
+                $path_param = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
+                $this->baseUrlPath = '/' . $path_param;
+            } else {
+                $this->baseUrlPath = $path_param[0];
+            }
         }
 
         return $this->baseUrlPath;
@@ -270,7 +274,10 @@ class request
      */
     public function getBaseUrl()
     {
-        $path = str_ireplace($this->server->get('DOCUMENT_ROOT'), '', config('public', 'path'));
+        $path = '/';
+        if (!IS_CLI) {
+            $path = str_ireplace($this->server->get('DOCUMENT_ROOT'), '', config('public', 'path'));
+        }
 
         return $this->getSchemeAndHttpHost() . $path;
     }
