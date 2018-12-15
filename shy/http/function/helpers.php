@@ -98,6 +98,7 @@ if (!function_exists('smarty')) {
     function smarty($view, $params = [])
     {
         if (config('smarty')) {
+            $params['GLOBALS'] = $GLOBALS;
             return shy('smarty')->fetch($view, $params);
         } else {
             throw new RuntimeException('The Smarty module is closed and can be opened in the configuration file.');

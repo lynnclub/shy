@@ -11,7 +11,11 @@
 </div>
 <div id="system">
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
-    <p>Used Time: {microtime(true) - IS_CLI ? $GLOBALS['_SHY_START'] : SHY_START)} second</p>
+    {if IS_CLI}
+        <p>Used Time: {microtime(true) - $GLOBALS['_SHY_START']} second</p>
+    {else}
+        <p>Used Time: {microtime(true) - SHY_START} second</p>
+    {/if}
     <br>
     <p>Loaded instance's abstract: </p>
     <ol>
