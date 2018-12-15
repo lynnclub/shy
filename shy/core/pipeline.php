@@ -12,14 +12,14 @@ class pipeline
      *
      * @var array|mixed
      */
-    protected $passable = [];
+    protected $passable;
 
     /**
      * The array of class pipes.
      *
      * @var array|mixed
      */
-    protected $pipes = [];
+    protected $pipes;
 
     /**
      * The method to call on each pipe.
@@ -101,10 +101,20 @@ class pipeline
     }
 
     /**
+     * Init Pipeline
+     */
+    protected function init()
+    {
+        $this->passable = [];
+        $this->pipes = [];
+        $this->method = 'handle';
+    }
+
+    /**
      * Get the final piece of the Closure onion.
      *
-     * @param  \Closure $destination
-     * @return \Closure
+     * @param  Closure $destination
+     * @return Closure
      */
     protected function prepareDestination(Closure $destination)
     {
@@ -116,7 +126,7 @@ class pipeline
     /**
      * Get a Closure that represents a slice of the application onion.
      *
-     * @return \Closure
+     * @return Closure
      */
     protected function carry()
     {
@@ -134,9 +144,12 @@ class pipeline
                 }
 
                 if (!method_exists($pipe, $this->method)) {
-                    throw new RuntimeException('Method' . $this->method . ' not exist');
+                    throw new RuntimeException('Method ' . $this->method . ' not exist');
+                } else {
+                    $method = $this->method;
                 }
-                $response = $pipe->{$this->method}(...$parameters);
+                $this->init();
+                $response = $pipe->{$method}(...$parameters);
 
                 return $response;
             };

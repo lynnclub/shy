@@ -297,8 +297,6 @@ class HeaderBag implements \IteratorAggregate, \Countable
         ksort($this->cacheControl);
 
         return implode(',', $this->cacheControl);
-
-        return HeaderUtils::toString($this->cacheControl, ',');
     }
 
     /**
@@ -311,8 +309,5 @@ class HeaderBag implements \IteratorAggregate, \Countable
     protected function parseCacheControl($header)
     {
         return explode(',=', $header);
-        $parts = HeaderUtils::split($header, ',=');
-
-        return HeaderUtils::combine($parts);
     }
 }

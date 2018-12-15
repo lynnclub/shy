@@ -14,17 +14,9 @@ use shy\http\bag\FileBag;
 use shy\http\bag\ServerBag;
 use shy\http\bag\HeaderBag;
 use Exception;
-use shy\http\exception\httpException;
 
 class request
 {
-    /**
-     * Get Post
-     *
-     * @var $method
-     */
-    private $method;
-
     /**
      * $_POST
      *
@@ -61,6 +53,13 @@ class request
     protected $server;
 
     /**
+     * Json or Stream
+     *
+     * @var string
+     */
+    protected $content;
+
+    /**
      * Http Header
      *
      * @var HeaderBag $headers
@@ -68,13 +67,18 @@ class request
     protected $headers;
 
     /**
-     * Base url path
+     * Get or Post
+     *
+     * @var $method
+     */
+    protected $method;
+
+    /**
+     * Base Url Path
      *
      * @var string
      */
-    protected $baseUrlPath = '';
-
-    protected $content;
+    protected $baseUrlPath;
 
     /**
      * Request constructor.
@@ -86,7 +90,7 @@ class request
      * @param array $server $_SERVER
      * @param string $content php://input
      */
-    public function __construct(array $query = array(), array $request = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
+    public function init(array $query = [], array $request = [], array $cookies = [], array $files = [], array $server = [], $content = null)
     {
         $this->request = new ParameterBag($request);
         $this->query = new ParameterBag($query);
@@ -95,6 +99,9 @@ class request
         $this->server = new ServerBag($server);
         $this->headers = new HeaderBag($this->server->getHeaders());
         $this->content = $content;
+
+        $this->method = null;
+        $this->baseUrlPath = null;
     }
 
     /**
@@ -241,6 +248,10 @@ class request
      */
     public function getBaseUrlPath()
     {
+        if (isset($this->baseUrlPath)) {
+            return $this->baseUrlPath;
+        }
+
         $pathString = $this->server->get('REQUEST_URI');
         $path_param = explode('?', $pathString);
         if (!empty($path_param[0])) {
@@ -285,6 +296,16 @@ class request
     }
 
     /**
+     * Expects Json
+     *
+     * @return bool
+     */
+    public function expectsJson()
+    {
+        return $this->ajax() && !$this->pjax();
+    }
+
+    /**
      * User Agent
      *
      * @return null|string|string[]
@@ -295,13 +316,15 @@ class request
     }
 
     /**
-     * Expects Json
-     *
-     * @return bool
+     * Is Resource
      */
-    public function expectsJson()
+    public function isResource()
     {
-        return $this->ajax() && !$this->pjax();
+        if (preg_match('/.+\.(css|ico|gif|jpg|jpeg|bmp|png)$/i', $this->getBaseUrlPath())) {
+            return true;
+        }
+
+        return false;
     }
 
 }

@@ -8,12 +8,12 @@
 
 namespace shy;
 
-use shy\core\pipeline;
 use shy\http\request;
 use shy\http\router;
-use shy\http\view;
+use shy\core\pipeline;
 use shy\http\response;
 use Smarty;
+use shy\core\facade\session;
 
 class web
 {
@@ -22,23 +22,19 @@ class web
      */
     public function __construct()
     {
-        $this->bind();
+        $this->make();
         $this->setting();
-        if (config('smarty')) {
-            $this->smartySetting();
-        }
     }
 
     /**
      * Bind Object
      */
-    private function bind()
+    private function make()
     {
-        bind('view', new view());
-        bind('pipeline', new pipeline());
-        bind('request', new request($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input')));
-        bind('router', new router());
-        bind('response', new response());
+        shy('request', new request());
+        shy('router', new router());
+        shy('pipeline', new pipeline());
+        shy('response', new response());
     }
 
     /**
@@ -46,17 +42,17 @@ class web
      */
     private function setting()
     {
+        date_default_timezone_set(config('timezone'));
+
         defined('BASE_PATH') or define('BASE_PATH', config('base', 'path'));
         defined('APP_PATH') or define('APP_PATH', config('app', 'path'));
         defined('CACHE_PATH') or define('CACHE_PATH', config('cache', 'path'));
+        defined('PUBLIC_PATH') or define('PUBLIC_PATH', config('public', 'path'));
+        defined('IS_CLI') or define('IS_CLI', is_int(strpos(php_sapi_name(), 'cli')) ? true : false);
 
-        if (empty(config('base_url'))) {
-            defined('BASE_URL') or define('BASE_URL', shy('request')->getSchemeAndHttpHost() . '/');
-        } else {
-            defined('BASE_URL') or define('BASE_URL', config('base_url'));
+        if (config('smarty')) {
+            $this->smartySetting();
         }
-
-        date_default_timezone_set(config('timezone'));
     }
 
     /**
@@ -67,6 +63,7 @@ class web
         $smarty = shy('smarty', new Smarty());
         $smarty->template_dir = config('app', 'path') . 'http' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
         $smarty->compile_dir = config('cache', 'path') . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+
         $smartyConfig = config('smarty_config');
         if (isset($smartyConfig['left_delimiter']) && !empty($smartyConfig['left_delimiter'])) {
             $smarty->left_delimiter = $smartyConfig['left_delimiter'];
@@ -90,18 +87,32 @@ class web
      */
     public function run()
     {
+        $request = shy('request');
+        $request->init($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+        if (empty(config('base_url'))) {
+            defined('BASE_URL') or define('BASE_URL', shy('request')->getSchemeAndHttpHost() . '/');
+        } else {
+            defined('BASE_URL') or define('BASE_URL', config('base_url'));
+        }
         logger('request/', serialize(shy('request')));
 
-        shy('pipeline')
-            ->send(shy('request'))
+        /**
+         * Run
+         */
+        $response = shy('pipeline')
+            ->send($request)
             ->through('router')
             ->then(function ($response) {
                 if (!empty($response)) {
                     shy('response')->send($response);
                 }
 
-                $this->end($response);
+                return $response;
             });
+
+        $this->end($response);
+
+        return $response;
     }
 
     /**
@@ -115,7 +126,14 @@ class web
          * slow_log
          */
         if (config('slow_log')) {
-            $difference = microtime(true) - SHY_START;
+            if (IS_CLI) {
+                global $_SHY_START;
+                $difference = microtime(true) - $_SHY_START;
+                unset($_SHY_START);
+            } else {
+                $difference = microtime(true) - SHY_START;
+            }
+
             if ($difference > config('slow_log_limit')) {
                 logger('slowLog/log', json_encode([
                     'controller' => shy('router')->getController(),

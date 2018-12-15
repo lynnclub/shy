@@ -18,35 +18,35 @@ class router
      *
      * @var string
      */
-    private $controller = 'home';
+    protected $controller;
 
     /**
      * Method of Controller
      *
      * @var string
      */
-    private $method = 'index';
+    protected $method;
 
     /**
      * Is Parse Route Success
      *
      * @var bool
      */
-    private $success = false;
+    protected $success;
 
     /**
      * Base Url Path
      *
      * @var string
      */
-    private $baseUrlPath = '';
+    protected $baseUrlPath;
 
     /**
      * Middleware
      *
      * @var array
      */
-    private $middleware = [];
+    protected $middleware;
 
     /**
      * Get Controller Name
@@ -77,10 +77,15 @@ class router
      */
     public function handle($next, $request)
     {
+        $this->init();
+        $this->baseUrlPath = $request->getBaseUrlPath();
+        if (empty($this->baseUrlPath) || !is_string($this->baseUrlPath)) {
+            throw new httpException(404, 'page not find');
+        }
+
         /**
          * Parse Url
          */
-        $this->baseUrlPath = $request->getBaseUrlPath();
         if (config('route_by_config')) {
             $this->success = $this->configRoute();
         }
@@ -120,11 +125,22 @@ class router
     }
 
     /**
+     * Init Router
+     */
+    protected function init()
+    {
+        $this->controller = 'home';
+        $this->method = 'index';
+        $this->success = false;
+        $this->middleware = [];
+    }
+
+    /**
      * Run controller
      *
      * @return mixed
      */
-    private function runController()
+    protected function runController()
     {
         return shy('pipeline')
             ->through($this->controller)
@@ -137,7 +153,7 @@ class router
      *
      * @return bool
      */
-    private function configRoute()
+    protected function configRoute()
     {
         $fasterRouter = json_decode(@file_get_contents(CACHE_PATH . 'app/router'), true);
         if (config('env') === 'development' || empty($fasterRouter) || !is_array($fasterRouter)) {
@@ -200,7 +216,7 @@ class router
      *
      * @return bool
      */
-    private function pathRoute()
+    protected function pathRoute()
     {
         $path = explode('/', $this->baseUrlPath);
         if (!empty($path[1])) {

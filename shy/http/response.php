@@ -18,21 +18,21 @@ class response
      *
      * @var int $code
      */
-    private $code;
+    protected $code;
 
     /**
      * Header
      *
      * @var array $header
      */
-    private $header;
+    protected $header;
 
     /**
      * Response
      *
      * @var view|string $response
      */
-    private $response;
+    protected $response;
 
     /**
      * Set Response
@@ -84,7 +84,7 @@ class response
         if ($this->code) {
             header($this->httpCodeMessage($this->code));
         }
-        if ($this->header) {
+        if (!empty($this->header) && is_array($this->header)) {
             foreach ($this->header as $key => $value) {
                 header($key, $value);
             }
@@ -100,8 +100,16 @@ class response
         } else {
             throw new RuntimeException('Invalid response');
         }
+        $this->init();
 
         return true;
+    }
+
+    protected function init()
+    {
+        $this->code = null;
+        $this->header = [];
+        $this->response = '';
     }
 
     /**
