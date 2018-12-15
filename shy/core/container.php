@@ -49,7 +49,7 @@ class container
      * @throws RuntimeException
      * @return $this
      */
-    public function bind(string $abstract, object $concrete)
+    public function bind(string $abstract, $concrete)
     {
         if (
             $concrete instanceof Closure
