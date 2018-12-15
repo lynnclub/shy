@@ -126,6 +126,10 @@ class container
             return self::$instances[$abstract];
         }
 
+        if (!is_string($abstract)) {
+            throw new RuntimeException('Abstract is not string');
+        }
+
         return $this->makeNew($abstract, $concrete, ...$parameters);
     }
 

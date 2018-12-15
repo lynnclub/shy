@@ -60,6 +60,7 @@ trait exceptionHandlerRegister
      *
      * @param $e
      * @return void
+     * @throws
      */
     public function handleException($e)
     {
@@ -93,6 +94,7 @@ trait exceptionHandlerRegister
      * @param array $error
      * @param null $traceOffset
      * @return fatalErrorException
+     * @throws
      */
     protected function fatalExceptionFromError(array $error, $traceOffset = null)
     {
