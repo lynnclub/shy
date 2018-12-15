@@ -74,6 +74,10 @@ class container
      */
     public function makeNew(string $abstract, $concrete = null, ...$parameters)
     {
+        if (empty($abstract)) {
+            throw new RuntimeException('Abstract is empty');
+        }
+
         $this->beforeMakeInstanceMemoryUsed = memory_get_usage() / 1024;
         if (isset(self::$binds[$abstract])) {
             array_unshift($parameters, $concrete);
@@ -124,10 +128,6 @@ class container
     {
         if (isset(self::$instances[$abstract])) {
             return self::$instances[$abstract];
-        }
-
-        if (!is_string($abstract)) {
-            throw new RuntimeException('Abstract is not string');
         }
 
         return $this->makeNew($abstract, $concrete, ...$parameters);
