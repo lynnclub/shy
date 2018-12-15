@@ -168,11 +168,17 @@ class container
     /**
      * Clear Instance
      *
-     * @param $abstract
+     * @param string|array $abstract
      */
     public function clear($abstract)
     {
-        unset(self::$binds[$abstract], self::$instancesMemoryUsed[$abstract], self::$instances[$abstract]);
+        if (is_array($abstract)) {
+            foreach ($abstract as $item) {
+                unset(self::$binds[$item], self::$instancesMemoryUsed[$item], self::$instances[$item]);
+            }
+        } else {
+            unset(self::$binds[$abstract], self::$instancesMemoryUsed[$abstract], self::$instances[$abstract]);
+        }
     }
 
     /**

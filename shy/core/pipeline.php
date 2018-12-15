@@ -134,13 +134,13 @@ class pipeline
             return function (...$passable) use ($next, $pipe) {
                 if (is_callable($pipe)) {
                     return $pipe($next, ...$passable);
-                } elseif (!is_object($pipe)) {
+                } elseif (is_object($pipe)) {
+                    array_unshift($passable, $next);
+                    $parameters = $passable;
+                } else {
                     list($name, $parameters) = $this->parsePipeString($pipe);
                     $pipe = shy($name);
                     $parameters = array_merge([$next], $passable, $parameters);
-                } else {
-                    array_unshift($passable, $next);
-                    $parameters = $passable;
                 }
 
                 if (!method_exists($pipe, $this->method)) {

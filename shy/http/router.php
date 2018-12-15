@@ -119,7 +119,11 @@ class router
                 ->then(function () {
                     return $this->runController();
                 });
+
+            shy_clear(array_values($this->middleware));
         }
+
+        shy_clear($this->controller);
 
         return $next($response);
     }

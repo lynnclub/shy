@@ -149,7 +149,7 @@ if (!function_exists('shy_clear')) {
     /**
      * Clear instance
      *
-     * @param string $abstract
+     * @param string|array $abstract
      */
     function shy_clear($abstract)
     {

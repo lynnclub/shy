@@ -11,6 +11,15 @@ return [
     'base_url' => '',
 
     /*
+    | Worker Man
+    */
+
+    'worker_man' => [
+        'port' => 2348,
+        'worker' => 4
+    ],
+
+    /*
     | Environment
     |
     | for error reporting.
