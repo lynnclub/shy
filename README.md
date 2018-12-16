@@ -1,6 +1,6 @@
 # 害羞框架 Shy Framework
 
-她是一个娇小，却能顶半边天的框架；她苗条的身姿里面，有海纳百川的胸怀。强大却没有复杂的实现，快来了解一下她吧！
+她是一个娇小，却能顶半边天的框架；她灵动的眼眸中，透露出包罗万象的智慧；她向你敞开了怀抱，希望彼此在快乐的氛围中共育一片天地。她会是你的梦寐以求吗？快来了解一下她吧！
 
 [View English Documents](https://github.com/lynncho/shy/blob/master/README-EN.md)
 
