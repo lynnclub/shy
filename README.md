@@ -4,6 +4,10 @@
 
 [View English Documents](https://github.com/lynncho/shy/blob/master/README-EN.md)
 
+Shy框架交流一群：963908345
+
+加群暗号：lynncho
+
 ## 1. 概要
 
 ### 1.1 简介
