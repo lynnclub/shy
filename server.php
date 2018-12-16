@@ -17,7 +17,7 @@ require __DIR__ . '/vendor/autoload.php';
  * Helpers
  */
 require __DIR__ . '/shy/core/function/helpers.php';
-require __DIR__ . '/shy/http/function/helpers.php';
+require __DIR__ . '/shy/http/function/view.php';
 
 /**
  * Framework
@@ -28,4 +28,4 @@ use shy\http\exception\handler;
 
 $_container = new container();
 $_container->setExceptionHandler(new handler());
-shy('web', 'shy\web')->run();
+shy('http', 'shy\http')->run();

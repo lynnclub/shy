@@ -1,6 +1,6 @@
 <?php
 /**
- * Shy Framework Web Entry
+ * Shy Framework Http Entry
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -19,7 +19,7 @@ if (IS_CLI) {
     /**
      * Run Framework In CLI
      */
-    shy('web')->run();
+    shy('http')->run();
 } else {
     define('SHY_START', microtime(true));
 
@@ -32,12 +32,12 @@ if (IS_CLI) {
      * Helpers
      */
     require __DIR__ . '/../shy/core/function/helpers.php';
-    require __DIR__ . '/../shy/http/function/helpers.php';
+    require __DIR__ . '/../shy/http/function/view.php';
 
     /**
      * Run Framework
      */
     $_container = new container();
     $_container->setExceptionHandler(new handler());
-    shy('web', 'shy\web')->run();
+    shy('http', 'shy\http')->run();
 }

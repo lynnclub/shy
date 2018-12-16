@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Http functions
+ * Http view functions
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/

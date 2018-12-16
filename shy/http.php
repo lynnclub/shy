@@ -1,6 +1,6 @@
 <?php
 /**
- * Shy Framework Web
+ * Shy Framework Http
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -13,9 +13,9 @@ use shy\http\router;
 use shy\core\pipeline;
 use shy\http\response;
 use Smarty;
-use Workerman\Protocols\Http;
+use Workerman\Protocols\Http as workerHttp;
 
-class web
+class http
 {
     protected $lastCycleCount = 0;
 
@@ -92,7 +92,7 @@ class web
             global $_CYCLE_COUNT;
             if ($_CYCLE_COUNT > $this->lastCycleCount) {
                 $this->lastCycleCount = $_CYCLE_COUNT;
-                Http::sessionStart();
+                workerHttp::sessionStart();
             }
         } else {
             session_start();

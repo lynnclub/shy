@@ -28,9 +28,10 @@ class shy
             PHP_EOL . '( *^_^* )';
     }
 
-    public function workerman()
+
+    public function http()
     {
-        $config = config('worker_man');
+        $config = config('worker_man_http');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
             throw new RuntimeException('WorkerMan setting error');
         }
@@ -46,7 +47,48 @@ class shy
         $web->count = $config['worker'];
         $web->addRoot('localhost', config('public', 'path'));
 
-        Worker::$stdoutFile = config('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'workerman' . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log';
+        Worker::$stdoutFile = config('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'workerman' . DIRECTORY_SEPARATOR . 'http-' . date('Y-m-d') . '.log';
+        Worker::runAll();
+    }
+
+    public function workerman()
+    {
+        $config = config('worker_man_socket');
+        global $argv;
+        if (isset($config[$argv[1]])) {
+            $config = $config[$argv[1]];
+        } else {
+            throw new RuntimeException('WorkerMan socket config ' . $argv[1] . ' not found.');
+        }
+        if (!isset($config['address'], $config['worker'], $config['onConnect'], $config['onMessage'], $config['onClose']) || !is_int($config['worker'])) {
+            throw new RuntimeException('WorkerMan setting error');
+        }
+
+        if (isset($argv[0])) {
+            $argv[1] = $argv[0];
+        }
+        $worker = new Worker($config['address']);
+        $worker->count = $config['worker'];
+
+        if (!empty($config['onConnect'])) {
+            $worker->onConnect = function ($connection) {
+                shy('pipeline');
+            };
+        }
+
+        if (!empty($config['onMessage'])) {
+            $worker->onMessage = function ($connection, $data) {
+                shy('pipeline');
+            };
+        }
+
+        if (!empty($config['onClose'])) {
+            $worker->onClose = function ($connection) {
+                shy('pipeline');
+            };
+        }
+
+        Worker::$stdoutFile = config('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'workerman' . DIRECTORY_SEPARATOR . 'socket-' . date('Y-m-d') . '.log';
         Worker::runAll();
     }
 

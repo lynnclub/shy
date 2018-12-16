@@ -66,8 +66,8 @@ class webInWorkerMan extends Worker
         /**
          * Helpers
          */
-        require __DIR__ . '/../shy/http/function/helpers.php';
-        shy('web', 'shy\web');
+        require __DIR__ . '/../shy/http/function/view.php';
+        shy('http', 'shy\http');
 
         global $_CYCLE_COUNT;
         $_CYCLE_COUNT = 0;

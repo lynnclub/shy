@@ -11,12 +11,25 @@ return [
     'base_url' => '',
 
     /*
-    | Worker Man
+    | WorkerMan Http
     */
 
-    'worker_man' => [
+    'worker_man_http' => [
         'port' => 2348,
         'worker' => 4
+    ],
+
+    /*
+    | WorkerMan Socket
+    */
+    'worker_man_socket' => [
+        'webChat' => [
+            'address' => 'websocket://127.0.0.1:2349',
+            'worker' => 4,
+            'onConnect' => ['app\socket\test' => 'onConnect'],
+            'onMessage' => ['app\socket\test' => 'onMessage'],
+            'onClose' => ['app\socket\test' => 'onClose']
+        ],
     ],
 
     /*
