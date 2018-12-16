@@ -2,7 +2,7 @@
 
 She is a petite, but can hold up half the sky; she supports many convenient features and usages while maintaining a dexterous figure. Powerful but no complex implementation, come check out her!
 
-[查看中文文档](https://github.com/lynncho/shy/blob/master/README-CHINESE.md)
+[查看中文文档](https://github.com/lynncho/shy/blob/master/README-CN.md)
 
 ## 1. Summary
 
