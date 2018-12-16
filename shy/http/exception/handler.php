@@ -48,7 +48,7 @@ class handler implements handlerInterface
      * Response an exception.
      *
      * @param Exception $e
-     * @throws \ReflectionException
+     * @throws
      * @return bool
      */
     public function response(Exception $e)

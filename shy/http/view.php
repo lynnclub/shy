@@ -124,13 +124,13 @@ class view
         ob_start();
         extract($this->params);
         if (isset($this->layout, $this->view)) {
-            include $this->view . '.php';
+            require $this->view . '.php';
             $this->subViewContent = ob_get_contents();
             ob_clean();
-            include $this->layout . '.php';
+            require $this->layout . '.php';
             $this->viewContent = ob_get_contents();
         } elseif (isset($this->view)) {
-            include $this->view . '.php';
+            require $this->view . '.php';
             $this->viewContent = ob_get_contents();
         }
         ob_end_clean();

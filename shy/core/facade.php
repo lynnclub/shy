@@ -15,7 +15,7 @@ abstract class facade
      */
     protected static function getInstance()
     {
-        throw new RuntimeException('Facade does not implement getFacadeAccessor method.');
+        throw new RuntimeException('Facade does not implement getInstance method.');
     }
 
     /**
