@@ -6,15 +6,11 @@
 
 namespace shy\core\library;
 
+use Workerman\Protocols\Http;
+
 class session
 {
-
-    private $session_id;
-
-    public function __construct()
-    {
-        session_start();
-    }
+    protected $last_cycle_count = 0;
 
     /**
      * Session exist
@@ -46,9 +42,10 @@ class session
 
     public function sessionId()
     {
-        if (empty($this->session_id)) {
-            $this->session_id = session_id();
+        if (IS_CLI) {
+            Http::sessionId();
+        } else {
+            return session_id();
         }
-        return $this->session_id;
     }
 }

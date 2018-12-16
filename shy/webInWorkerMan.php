@@ -68,6 +68,9 @@ class webInWorkerMan extends Worker
          */
         require __DIR__ . '/../shy/http/function/helpers.php';
         shy('web', 'shy\web');
+
+        global $_CYCLE_COUNT;
+        $_CYCLE_COUNT = 0;
     }
 
     /**
@@ -162,8 +165,8 @@ class webInWorkerMan extends Worker
         $workerman_path_info = pathinfo($workerman_path);
         $workerman_file_extension = isset($workerman_path_info['extension']) ? $workerman_path_info['extension'] : '';
         if ($workerman_file_extension === '') {
-            $workerman_path = 'workerman.index.php';
-            //$workerman_path = ($len = strlen($workerman_path)) && $workerman_path[$len - 1] === '/' ? $workerman_path . 'workerman.index.php' : $workerman_path . '/workerman.index.php';
+            $workerman_path = 'index.php';
+            //$workerman_path = ($len = strlen($workerman_path)) && $workerman_path[$len - 1] === '/' ? $workerman_path . 'index.php' : $workerman_path . '/index.php';
             $workerman_file_extension = 'php';
         }
 

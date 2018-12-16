@@ -13,10 +13,12 @@ use shy\http\router;
 use shy\core\pipeline;
 use shy\http\response;
 use Smarty;
-use shy\core\facade\session;
+use Workerman\Protocols\Http;
 
 class web
 {
+    protected $lastCycleCount = 0;
+
     /**
      * Constructor.
      */
@@ -29,7 +31,7 @@ class web
     /**
      * Bind Object
      */
-    private function make()
+    protected function make()
     {
         shy('request', new request());
         shy('router', new router());
@@ -40,7 +42,7 @@ class web
     /**
      * System Setting
      */
-    private function setting()
+    protected function setting()
     {
         date_default_timezone_set(config('timezone'));
 
@@ -48,7 +50,6 @@ class web
         defined('APP_PATH') or define('APP_PATH', config('app', 'path'));
         defined('CACHE_PATH') or define('CACHE_PATH', config('cache', 'path'));
         defined('PUBLIC_PATH') or define('PUBLIC_PATH', config('public', 'path'));
-        defined('IS_CLI') or define('IS_CLI', is_int(strpos(php_sapi_name(), 'cli')) ? true : false);
 
         if (config('smarty')) {
             $this->smartySetting();
@@ -58,7 +59,7 @@ class web
     /**
      * Smarty Setting
      */
-    private function smartySetting()
+    protected function smartySetting()
     {
         $smarty = shy('smarty', new Smarty());
         $smarty->template_dir = config('app', 'path') . 'http' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
@@ -83,10 +84,27 @@ class web
     }
 
     /**
+     * Session Start
+     */
+    protected function sessionStart()
+    {
+        if (IS_CLI) {
+            global $_CYCLE_COUNT;
+            if ($_CYCLE_COUNT > $this->lastCycleCount) {
+                $this->lastCycleCount = $_CYCLE_COUNT;
+                Http::sessionStart();
+            }
+        } else {
+            session_start();
+        }
+    }
+
+    /**
      * Run
      */
     public function run()
     {
+        $this->sessionStart();
         $request = shy('request');
         $request->init($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
         if (empty(config('base_url'))) {
