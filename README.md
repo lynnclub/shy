@@ -580,6 +580,12 @@ class example
 
 ##### 14.2 使用
 
+安装WorkerMan包：
+
+```bash
+composer require workerman/workerman
+```
+
 你可以在配置文件`app.php`中，配置服务端口、工作进程数：
 
 ```php
