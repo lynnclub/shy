@@ -256,10 +256,12 @@ class request
         $path_param = explode('?', $pathString);
         if (!empty($path_param[0])) {
             if (!IS_CLI) {
-                $path_param = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
-                $this->baseUrlPath = '/' . $path_param;
-            } else {
                 $this->baseUrlPath = $path_param[0];
+            } else {
+                $path_param[0] = str_replace('/', DIRECTORY_SEPARATOR, $path_param[0]);
+                $path_param = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
+                $path_param = str_replace(DIRECTORY_SEPARATOR, '/', $path_param);
+                $this->baseUrlPath = '/' . $path_param;
             }
         }
 
