@@ -13,9 +13,8 @@ use shy\core\facade\session;
 use shy\http\facade\request;
 use app\http\facade\testBusiness;
 
-use shy\core\facade\pdo;
 use shy\core\facade\redis;
-use shy\core\facade\mysqli;
+use shy\http\facade\capsule;
 
 class home
 {
@@ -35,12 +34,8 @@ class home
 
         $title = 'Shy Framework';
 
-//        pdo::instance();
-//        pdo::close();
-//        pdo::closeAll();
-//        mysqli::instance();
-//        mysqli::close();
-//        mysqli::closeAll();
+//        dd(shy('capsule')::table('users')->where('id', 1)->get());
+//        dd(capsule::table('users')->where('id', 2)->get());
 //        redis::instance();
 //        redis::close();
 //        redis::closeAll();

@@ -14,6 +14,7 @@ use shy\core\pipeline;
 use shy\http\response;
 use Smarty;
 use Workerman\Protocols\Http as workerHttp;
+use RuntimeException;
 
 class http
 {
@@ -53,6 +54,31 @@ class http
 
         if (config('smarty')) {
             $this->smartySetting();
+        }
+        if (config('illuminate_database')) {
+            $capsule = shy('capsule', 'Illuminate\Database\Capsule\Manager');
+            $database = config('db', 'database');
+            if (is_array($database)) {
+                $capsule->setAsGlobal();
+                foreach ($database as $name => $item) {
+                    if (isset($item['driver'], $item['host'], $item['port'], $item['database'], $item['username'], $item['password'], $item['charset'], $item['collation'])) {
+                        $capsule->addConnection([
+                            'driver' => $item['driver'],
+                            'host' => $item['host'],
+                            'database' => $item['database'],
+                            'username' => $item['username'],
+                            'password' => $item['password'],
+                            'charset' => $item['charset'],
+                            'collation' => $item['collation'],
+                            'prefix' => '',
+                        ], $name);
+                    } else {
+                        throw new RuntimeException('Database config error.');
+                    }
+                }
+            } else {
+                throw new RuntimeException('Database config error.');
+            }
         }
     }
 

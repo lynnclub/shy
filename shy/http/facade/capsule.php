@@ -1,10 +1,10 @@
 <?php
 
-namespace shy\core\facade;
+namespace shy\http\facade;
 
 use shy\core\facade;
 
-class pdo extends facade
+class capsule extends facade
 {
     /**
      * Get the instance.
@@ -13,6 +13,6 @@ class pdo extends facade
      */
     protected static function getInstance()
     {
-        return shy('shy_pdo', 'shy\core\library\pdo');
+        return shy('capsule');
     }
 }

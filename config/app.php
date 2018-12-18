@@ -11,6 +11,24 @@ return [
     'base_url' => '',
 
     /*
+    | Environment
+    |
+    | for error reporting.
+    | options: development, production.
+    */
+
+    'env' => 'development',
+
+    /*
+    | Time Zone
+    |
+    | for time() date()...
+    | options: PRC, Asia/Shanghai, Asia/Tokyo...
+    */
+
+    'timezone' => 'PRC',
+
+    /*
     | WorkerMan Http
     */
 
@@ -31,24 +49,6 @@ return [
             'onClose' => ['app\socket\example' => 'onClose']
         ],
     ],
-
-    /*
-    | Environment
-    |
-    | for error reporting.
-    | options: development, production.
-    */
-
-    'env' => 'development',
-
-    /*
-    | Time Zone
-    |
-    | for time() date()...
-    | options: PRC, Asia/Shanghai, Asia/Tokyo...
-    */
-
-    'timezone' => 'PRC',
 
     /*
     | Slow Log
@@ -79,6 +79,12 @@ return [
     */
 
     'default_controller' => 'home',
+
+    /*
+    | Illuminate Database
+    */
+
+    'illuminate_database' => true,
 
     /*
     | Smarty

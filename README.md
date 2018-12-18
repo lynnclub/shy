@@ -406,7 +406,43 @@ protected static function getInstance()
 
 ### 10. 数据库
 
-本框架暂时只提供了pdo、redis和mysqli的封装类。
+##### 10.1 SQL数据库
+
+本框架兼容laravel的db包，你可以通过下面的命令安装并使用：
+
+```bash
+composer require illuminate/database
+```
+
+然后在配置文件`database.php`中配置数据库。最后在配置文件`app.php`中，配置illuminate_database启动即可使用。
+
+使用方式如下：
+
+```php
+shy('capsule')::table('users')->where('id', 1)->get();
+
+//或者
+
+use shy\http\facade\capsule;
+
+capsule::table('users')->where('id', 2)->get();
+```
+
+Illuminate Database的更多用法，可以查看[该项目的文档](https://github.com/illuminate/database)
+
+##### 10.2 Redis数据库
+
+对于redis数据库，本框架暂时只提供了PhpRedis的封装类，需要安装PhpRedis拓展，并通过下面的方式使用：
+
+```php
+/**
+ * 使用redis的门面类
+ */
+use shy\core\facade\redis;
+
+$redis = redis::instance('redis1');
+
+```
 
 ### 11. 模版
 
