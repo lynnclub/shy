@@ -84,7 +84,7 @@ return [
     | Illuminate Database
     */
 
-    'illuminate_database' => true,
+    'illuminate_database' => false,
 
     /*
     | Smarty
