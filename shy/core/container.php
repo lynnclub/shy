@@ -152,7 +152,7 @@ class container
         if (is_null($constructor)) {
             self::$instances[$abstract] = $reflector->newInstanceWithoutConstructor();
         } else {
-            self::$instances[$abstract] = $reflector->newInstanceArgs($parameters);
+            self::$instances[$abstract] = $reflector->newInstance(...$parameters);
         }
         $this->countMakeInstanceMemoryUsed($abstract);
 
