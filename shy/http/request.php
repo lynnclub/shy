@@ -255,7 +255,7 @@ class request
         $pathString = $this->server->get('REQUEST_URI');
         $path_param = explode('?', $pathString);
         if (!empty($path_param[0])) {
-            if (!IS_CLI) {
+            if (IS_CLI) {
                 $this->baseUrlPath = $path_param[0];
             } else {
                 $path_param[0] = str_replace('/', DIRECTORY_SEPARATOR, $path_param[0]);
