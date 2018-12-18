@@ -15,12 +15,22 @@ use Workerman\Worker;
 
 class shy
 {
+    /**
+     * The List of Command
+     *
+     * @return string
+     */
     public function list()
     {
         $list = shy('console')->getCommandList();
         return implode(PHP_EOL, $list);
     }
 
+    /**
+     * Get Version
+     *
+     * @return string
+     */
     public function version()
     {
         return 'Shy Framework v0.1' .
@@ -28,7 +38,9 @@ class shy
             PHP_EOL . '( *^_^* )';
     }
 
-
+    /**
+     * WorkerMan http
+     */
     public function http()
     {
         $config = config('worker_man_http');
@@ -51,40 +63,58 @@ class shy
         Worker::runAll();
     }
 
+    /**
+     * WorkerMan socket
+     */
     public function workerman()
     {
-        $config = config('worker_man_socket');
         global $argv;
-        if (isset($config[$argv[1]])) {
-            $config = $config[$argv[1]];
+        if (!isset($argv[0])) {
+            throw new RuntimeException('WorkerMan socket config not specified.');
+        }
+        $config = config('worker_man_socket');
+        if (isset($config[$argv[0]])) {
+            $config = $config[$argv[0]];
         } else {
-            throw new RuntimeException('WorkerMan socket config ' . $argv[1] . ' not found.');
+            throw new RuntimeException('WorkerMan socket config ' . $argv[0] . ' not found.');
         }
         if (!isset($config['address'], $config['worker'], $config['onConnect'], $config['onMessage'], $config['onClose']) || !is_int($config['worker'])) {
             throw new RuntimeException('WorkerMan setting error');
         }
 
-        if (isset($argv[0])) {
-            $argv[1] = $argv[0];
-        }
         $worker = new Worker($config['address']);
         $worker->count = $config['worker'];
 
         if (!empty($config['onConnect'])) {
-            $worker->onConnect = function ($connection) {
-                shy('pipeline');
+            $onConnectClass = key($config['onConnect']);
+            $onConnectMethod = current($config['onConnect']);
+            shy($onConnectClass);
+            $worker->onConnect = function ($connection) use ($onConnectClass, $onConnectMethod) {
+                if (method_exists($onConnectClass, $onConnectMethod)) {
+                    shy($onConnectClass)->$onConnectMethod($connection);
+                }
             };
         }
 
         if (!empty($config['onMessage'])) {
-            $worker->onMessage = function ($connection, $data) {
-                shy('pipeline');
+            $onMessageClass = key($config['onMessage']);
+            $onMessageMethod = current($config['onMessage']);
+            shy($onMessageClass);
+            $worker->onMessage = function ($connection, $data) use ($onMessageClass, $onMessageMethod) {
+                if (method_exists($onMessageClass, $onMessageMethod)) {
+                    shy($onMessageClass)->$onMessageMethod($connection, $data);
+                }
             };
         }
 
         if (!empty($config['onClose'])) {
-            $worker->onClose = function ($connection) {
-                shy('pipeline');
+            $onCloseClass = key($config['onClose']);
+            $onCloseMethod = current($config['onClose']);
+            shy($onCloseClass);
+            $worker->onClose = function ($connection) use ($onCloseClass, $onCloseMethod) {
+                if (method_exists($onCloseClass, $onCloseMethod)) {
+                    shy($onCloseClass)->$onCloseMethod($connection);
+                }
             };
         }
 

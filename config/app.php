@@ -23,12 +23,12 @@ return [
     | WorkerMan Socket
     */
     'worker_man_socket' => [
-        'webChat' => [
+        'chat' => [
             'address' => 'websocket://127.0.0.1:2349',
             'worker' => 4,
-            'onConnect' => ['app\socket\test' => 'onConnect'],
-            'onMessage' => ['app\socket\test' => 'onMessage'],
-            'onClose' => ['app\socket\test' => 'onClose']
+            'onConnect' => ['app\socket\example' => 'onConnect'],
+            'onMessage' => ['app\socket\example' => 'onMessage'],
+            'onClose' => ['app\socket\example' => 'onClose']
         ],
     ],
 
