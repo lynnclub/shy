@@ -149,7 +149,14 @@ class container
             throw new RuntimeException('class ' . $concrete . ' is not instantiable');
         }
         $constructor = $reflector->getConstructor();
-        if (is_null($constructor)) {
+        $params = $constructor->getParameters();
+        $needParam = false;
+        foreach ($params as $param) {
+            if (!$param->isOptional()) {
+                $needParam = true;
+            }
+        }
+        if (is_null($constructor) || !$needParam) {
             self::$instances[$abstract] = $reflector->newInstanceWithoutConstructor();
         } else {
             self::$instances[$abstract] = $reflector->newInstance(...$parameters);

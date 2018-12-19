@@ -279,6 +279,7 @@ class request
         $path = '/';
         if (!IS_CLI) {
             $path = str_ireplace($this->server->get('DOCUMENT_ROOT'), '', config('public', 'path'));
+            $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         }
 
         return $this->getSchemeAndHttpHost() . $path;
