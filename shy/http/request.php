@@ -258,8 +258,8 @@ class request
             if (IS_CLI) {
                 $this->baseUrlPath = $path_param[0];
             } else {
-                $path_param[0] = str_replace('/', DIRECTORY_SEPARATOR, $path_param[0]);
-                $path_param = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
+                $path_param[0] = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
+                $path_param = str_ireplace(config('public', 'path'), '', $path_param[0]);
                 $path_param = str_replace(DIRECTORY_SEPARATOR, '/', $path_param);
                 $this->baseUrlPath = '/' . $path_param;
             }
