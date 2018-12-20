@@ -694,3 +694,11 @@ php console workerman chat start
 2. config_all：获取配置文件的所有配置
 3. logger：记录日志
 4. dd：调试输出
+
+### 17. 特别鸣谢（排名不分先后）
+
+1. @JamFun
+2. @WeakChickenPeng
+3. @CrazyNing98
+
+感谢以上GitHub用户为本框架提供的支持、帮助，意见、建议。有你们的陪伴，Shy框架能走的更远！
