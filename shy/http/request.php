@@ -278,7 +278,8 @@ class request
     {
         $path = '/';
         if (!IS_CLI) {
-            $path = str_ireplace($this->server->get('DOCUMENT_ROOT'), '', config('public', 'path'));
+            $DOCUMENT_ROOT = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT'));
+            $path = str_ireplace($DOCUMENT_ROOT, '', config('public', 'path'));
             $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         }
 
