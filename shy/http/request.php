@@ -252,16 +252,24 @@ class request
             return $this->uri;
         }
 
-        $pathString = $this->server->get('REQUEST_URI');
-        $path_param = explode('?', $pathString);
-        if (!empty($path_param[0])) {
+        $uri = parse_url('http://dummy' . $this->server->get('REQUEST_URI'));
+        $uri = isset($uri['path']) ? $uri['path'] : '';
+
+        $scriptName = $this->server->get('SCRIPT_NAME');
+        if (isset($scriptName) && strpos($uri, $scriptName) === 0) {
+            $uri = substr($uri, strlen($scriptName));
+        }
+
+        if (trim($uri, '/') === '') {
+            $this->uri = '/';
+        } else {
             if (IS_CLI) {
-                $this->uri = $path_param[0];
+                $this->uri = $uri;
             } else {
-                $path_param[0] = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $path_param[0]);
-                $path_param = str_ireplace(config('public', 'path'), '', $path_param[0]);
-                $path_param = str_replace(DIRECTORY_SEPARATOR, '/', $path_param);
-                $this->uri = '/' . $path_param;
+                $uri = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $uri);
+                $uri = str_ireplace(config('public', 'path'), '', $uri);
+                $uri = str_replace(DIRECTORY_SEPARATOR, '/', $uri);
+                $this->uri = '/' . $uri;
             }
         }
 

@@ -78,10 +78,8 @@ class router
     public function handle($next, $request)
     {
         $this->init();
-        $this->uri = str_ireplace('/index.php', '', $request->getUri());
-        if (empty($this->uri)) {
-            $this->uri = '/';
-        }
+        $this->uri = $request->getUri();
+
         if (!is_string($this->uri)) {
             throw new httpException(404, 'page not find');
         }
