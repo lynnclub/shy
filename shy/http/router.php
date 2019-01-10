@@ -39,7 +39,7 @@ class router
      *
      * @var string
      */
-    protected $baseUrlPath;
+    protected $uri;
 
     /**
      * Middleware
@@ -78,11 +78,11 @@ class router
     public function handle($next, $request)
     {
         $this->init();
-        $this->baseUrlPath = str_ireplace('/index.php', '', $request->getBaseUrlPath());
-        if (empty($this->baseUrlPath)) {
-            $this->baseUrlPath = '/';
+        $this->uri = str_ireplace('/index.php', '', $request->getUri());
+        if (empty($this->uri)) {
+            $this->uri = '/';
         }
-        if (!is_string($this->baseUrlPath)) {
+        if (!is_string($this->uri)) {
             throw new httpException(404, 'page not find');
         }
 
@@ -206,10 +206,10 @@ class router
         /**
          * parse router
          */
-        if (isset($fasterRouter[$this->baseUrlPath])) {
-            $handle = $fasterRouter[$this->baseUrlPath]['handle'];
-            if (isset($fasterRouter[$this->baseUrlPath]['middleware'])) {
-                $this->middleware = $fasterRouter[$this->baseUrlPath]['middleware'];
+        if (isset($fasterRouter[$this->uri])) {
+            $handle = $fasterRouter[$this->uri]['handle'];
+            if (isset($fasterRouter[$this->uri]['middleware'])) {
+                $this->middleware = $fasterRouter[$this->uri]['middleware'];
             }
 
             list($this->controller, $this->method) = explode('@', $handle);
@@ -225,7 +225,7 @@ class router
      */
     protected function pathRoute()
     {
-        $path = explode('/', $this->baseUrlPath);
+        $path = explode('/', $this->uri);
         if (!empty($path[1])) {
             $this->controller = lcfirst($path[1]);
             if (isset($path[2]) && !empty($path[2])) {
