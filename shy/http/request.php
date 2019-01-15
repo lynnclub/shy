@@ -252,26 +252,25 @@ class request
             return $this->uri;
         }
 
-        $uri = parse_url('http://dummy' . $this->server->get('REQUEST_URI'));
+        $uri = parse_url($this->server->get('REQUEST_URI'));
         $uri = isset($uri['path']) ? $uri['path'] : '';
 
         $scriptName = $this->server->get('SCRIPT_NAME');
-        if (isset($scriptName) && strpos($uri, $scriptName) === 0) {
+        if (isset($scriptName[0]) && strpos($uri, $scriptName) === 0) {
             $uri = substr($uri, strlen($scriptName));
         }
 
-        if (trim($uri, '/') === '') {
-            $this->uri = '/';
-        } else {
-            if (IS_CLI) {
-                $this->uri = $uri;
+        if (trim($uri, '/') !== '') {
+            if (DIRECTORY_SEPARATOR === '/') {
+                $uri = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
             } else {
-                $uri = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $uri);
-                $uri = str_ireplace(config('public', 'path'), '', $uri);
+                $uri = str_replace('/', DIRECTORY_SEPARATOR, $uri);
+                $uri = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
                 $uri = str_replace(DIRECTORY_SEPARATOR, '/', $uri);
-                $this->uri = '/' . $uri;
             }
         }
+
+        $this->uri = ('/' !== $uri[0] ? '/' : '') . $uri;
 
         return $this->uri;
     }
