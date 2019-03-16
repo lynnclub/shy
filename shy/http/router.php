@@ -49,23 +49,14 @@ class router
     protected $middleware;
 
     /**
-     * Get Controller Name
-     *
-     * @return string
+     * Init Router
      */
-    public function getController()
+    protected function init()
     {
-        return $this->controller;
-    }
-
-    /**
-     * Get Method Name
-     *
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->method;
+        $this->controller = 'home';
+        $this->method = 'index';
+        $this->success = false;
+        $this->middleware = [];
     }
 
     /**
@@ -81,7 +72,7 @@ class router
         $this->uri = $request->getUri();
 
         if (!is_string($this->uri)) {
-            throw new httpException(404, 'page not find');
+            throw new httpException(404, 'route not found');
         }
 
         /**
@@ -93,13 +84,13 @@ class router
         if (!$this->success && config('route_by_path')) {
             $this->success = $this->pathRoute();
         }
-        if (!$this->success) {
-            throw new httpException(404, 'page not find');
-        } else {
+        if ($this->success) {
             $this->controller = 'app\\http\\controller\\' . $this->controller;
             if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-                throw new httpException(404, 'page not find');
+                throw new httpException(404, 'route not found');
             }
+        } else {
+            throw new httpException(404, 'route not found');
         }
 
         /**
@@ -130,14 +121,23 @@ class router
     }
 
     /**
-     * Init Router
+     * Get Controller Name
+     *
+     * @return string
      */
-    protected function init()
+    public function getController()
     {
-        $this->controller = 'home';
-        $this->method = 'index';
-        $this->success = false;
-        $this->middleware = [];
+        return $this->controller;
+    }
+
+    /**
+     * Get Method Name
+     *
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
     }
 
     /**

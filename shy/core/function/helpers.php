@@ -183,6 +183,41 @@ if (!function_exists('in_shy_list')) {
     }
 }
 
+if (!function_exists('init_illuminate_database')) {
+    /**
+     * Init illuminate database
+     *
+     * @return object Illuminate\Database\Capsule\Manager
+     */
+    function init_illuminate_database()
+    {
+        $capsule = shy('capsule', 'Illuminate\Database\Capsule\Manager');
+        $database = config('db', 'database');
+        if (is_array($database)) {
+            $capsule->setAsGlobal();
+            foreach ($database as $name => $item) {
+                if (isset($item['driver'], $item['host'], $item['port'], $item['database'], $item['username'], $item['password'], $item['charset'], $item['collation'])) {
+                    $capsule->addConnection([
+                        'driver' => $item['driver'],
+                        'host' => $item['host'],
+                        'database' => $item['database'],
+                        'username' => $item['username'],
+                        'password' => $item['password'],
+                        'charset' => $item['charset'],
+                        'collation' => $item['collation'],
+                        'prefix' => '',
+                    ], $name);
+                } else {
+                    throw new RuntimeException('Database config error.');
+                }
+            }
+            return $capsule;
+        } else {
+            throw new RuntimeException('Database config error.');
+        }
+    }
+}
+
 if (!function_exists('logger')) {
     /**
      * Log

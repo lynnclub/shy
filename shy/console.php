@@ -38,6 +38,10 @@ class console
          * Time Zone
          */
         date_default_timezone_set(config('timezone'));
+
+        if (config('illuminate_database')) {
+            init_illuminate_database();
+        }
     }
 
     public function getCommandList()
