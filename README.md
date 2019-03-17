@@ -37,6 +37,7 @@ Shy框架交流一群：963908345
 * 常驻内存模式
 * socket
 * api（暂未实现）
+* 常量
 
 ### 1.3 用法
 
@@ -690,14 +691,24 @@ php console workerman chat start
 
 上述命令中，chat是服务组名。更多内容请参照常驻内存模式的14.2章节。
 
-### 16. 杂项函数
+### 16. 常量
+
+框架提供了一些常量可供使用：
+
+1. BASE_PATH：项目根目录
+2. APP_PATH：app开发目录
+3. CACHE_PATH：缓存目录
+4. PUBLIC_PATH：web开放目录
+5. BASE_URL：项目URL
+
+### 17. 杂项函数
 
 1. config：获取配置文件的配置
 2. config_all：获取配置文件的所有配置
 3. logger：记录日志
 4. dd：调试输出
 
-### 17. 特别鸣谢（排名不分先后）
+### 18. 特别鸣谢（排名不分先后）
 
 1. @JamFun
 2. @WeakChickenPeng
