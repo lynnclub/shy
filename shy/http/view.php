@@ -68,11 +68,11 @@ class view
             throw new RuntimeException('Invalid view.');
         }
 
-        $view = config('app', 'path') . 'http/views/' . $view;
-        if (file_exists($view . '.php')) {
+        $view = config('app', 'path') . 'http/views/' . $view . '.php';
+        if (file_exists($view)) {
             $this->view = $view;
         } else {
-            throw new RuntimeException('View file ' . $view . '.php not exist.');
+            throw new RuntimeException('View file ' . $view . ' not exist.');
         }
 
         return $this;
@@ -90,11 +90,11 @@ class view
             if (!is_string($layout)) {
                 throw new RuntimeException('Invalid layout.');
             }
-            $layout = config('app', 'path') . 'http/views/layout/' . $layout;
-            if (file_exists($layout . '.php')) {
+            $layout = config('app', 'path') . 'http/views/layout/' . $layout . '.php';
+            if (file_exists($layout)) {
                 $this->layout = $layout;
             } else {
-                throw new RuntimeException('Layout file ' . $layout . '.php not exist.');
+                throw new RuntimeException('Layout file ' . $layout . ' not exist.');
             }
         }
 
@@ -124,13 +124,13 @@ class view
         ob_start();
         extract($this->params);
         if (isset($this->layout, $this->view)) {
-            require $this->view . '.php';
+            require "{$this->view}";
             $this->subViewContent = ob_get_contents();
             ob_clean();
-            require $this->layout . '.php';
+            require "{$this->layout}";
             $this->viewContent = ob_get_contents();
         } elseif (isset($this->view)) {
-            require $this->view . '.php';
+            require "{$this->view}";
             $this->viewContent = ob_get_contents();
         }
         ob_end_clean();
@@ -150,6 +150,26 @@ class view
     public function getSubView()
     {
         return $this->subViewContent;
+    }
+
+    /**
+     * Get layout filename
+     *
+     * @return string
+     */
+    public function getLayout()
+    {
+        return $this->layout;
+    }
+
+    /**
+     * Get view filename
+     *
+     * @return string
+     */
+    public function getView()
+    {
+        return $this->view;
     }
 
     /**

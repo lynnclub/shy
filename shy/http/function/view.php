@@ -61,7 +61,7 @@ if (!function_exists('include_sub_view')) {
     {
         $subViewContent = shy('view')->getSubView();
         if (empty($subViewContent) || !is_string($subViewContent)) {
-            shy('view')->error('[view] Include sub view failed.');
+            shy('view')->error('[view] Layout ' . shy('view')->getLayout() . ' include sub view ' . shy('view')->getView() . ' failed.');
         } else {
             echo $subViewContent;
         }
