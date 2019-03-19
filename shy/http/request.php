@@ -264,8 +264,8 @@ class request
             if (DIRECTORY_SEPARATOR === '/') {
                 $uri = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
             } else {
-                $uri = str_replace('/', DIRECTORY_SEPARATOR, $uri);
-                $uri = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
+                $uri = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $uri);
+                $uri = str_ireplace(config('public', 'path'), '', $uri);
                 $uri = str_replace(DIRECTORY_SEPARATOR, '/', $uri);
             }
         }
