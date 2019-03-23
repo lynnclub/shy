@@ -123,16 +123,21 @@ class view
     {
         ob_start();
         extract($this->params);
-        if (isset($this->layout, $this->view)) {
+        /**
+         * View
+         */
+        if (isset($this->view)) {
             include "{$this->view}";
+        }
+        /**
+         * Layout
+         */
+        if (isset($this->layout)) {
             $this->subViewContent = ob_get_clean();
             $this->params = array_merge($this->params, get_defined_vars());
             include "{$this->layout}";
-            $this->viewContent = ob_get_clean();
-        } elseif (isset($this->view)) {
-            include "{$this->view}";
-            $this->viewContent = ob_get_clean();
         }
+        $this->viewContent = ob_get_contents();
         ob_end_clean();
 
         if (empty($this->errorMsg)) {
