@@ -45,7 +45,7 @@ if (!function_exists('include_view')) {
             }
 
             ob_start();
-            require "{$filename}";
+            include "{$filename}";
             ob_end_flush();
         } else {
             shy('view')->error('[view] Include view ' . $filename . ' is not exist.');
@@ -79,6 +79,8 @@ if (!function_exists('param')) {
         $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
             echo $params[$key];
+        } elseif (isset($GLOBALS[$key])) {
+            echo $GLOBALS[$key];
         } elseif (defined($key)) {
             echo constant($key);
         } else {

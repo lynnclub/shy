@@ -124,14 +124,14 @@ class view
         ob_start();
         extract($this->params);
         if (isset($this->layout, $this->view)) {
-            require "{$this->view}";
-            $this->subViewContent = ob_get_contents();
-            ob_clean();
-            require "{$this->layout}";
-            $this->viewContent = ob_get_contents();
+            include "{$this->view}";
+            $this->subViewContent = ob_get_clean();
+            $this->params = array_merge($this->params, get_defined_vars());
+            include "{$this->layout}";
+            $this->viewContent = ob_get_clean();
         } elseif (isset($this->view)) {
-            require "{$this->view}";
-            $this->viewContent = ob_get_contents();
+            include "{$this->view}";
+            $this->viewContent = ob_get_clean();
         }
         ob_end_clean();
 
