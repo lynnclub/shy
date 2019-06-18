@@ -270,7 +270,7 @@ class request
             }
         }
 
-        $this->uri = ('/' !== $uri[0] ? '/' : '') . $uri;
+        $this->uri = isset($uri[0]) && '/' === $uri[0] ? $uri : '/' . $uri;
 
         return $this->uri;
     }
