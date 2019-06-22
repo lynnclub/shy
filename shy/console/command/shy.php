@@ -43,9 +43,9 @@ class shy
      */
     public function http()
     {
-        $config = config('worker_man_http');
+        $config = config_key('worker_man_http');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
-            throw new RuntimeException('WorkerMan setting error');
+            throw new RuntimeException('WorkerMan setting error.');
         }
 
         global $argv;
@@ -57,9 +57,8 @@ class shy
         }
         $web = new webInWorkerMan('http://0.0.0.0:' . $config['port']);
         $web->count = $config['worker'];
-        $web->addRoot('localhost', config('public', 'path'));
+        $web->addRoot('localhost', config_key('public', 'path'));
 
-        Worker::$stdoutFile = config('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'workerman' . DIRECTORY_SEPARATOR . 'http-' . date('Y-m-d') . '.log';
         Worker::runAll();
     }
 
@@ -72,7 +71,7 @@ class shy
         if (!isset($argv[0])) {
             throw new RuntimeException('WorkerMan socket config not specified.');
         }
-        $config = config('worker_man_socket');
+        $config = config_key('worker_man_socket');
         if (isset($config[$argv[0]])) {
             $config = $config[$argv[0]];
         } else {
@@ -118,7 +117,7 @@ class shy
             };
         }
 
-        Worker::$stdoutFile = config('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'workerman' . DIRECTORY_SEPARATOR . 'socket-' . date('Y-m-d') . '.log';
+        Worker::$stdoutFile = config_key('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'console' . DIRECTORY_SEPARATOR . 'socket-' . date('Y-m-d') . '.log';
         Worker::runAll();
     }
 

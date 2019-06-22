@@ -141,12 +141,42 @@ if (!function_exists('push_resource')) {
                 }
             }
 
-            $array = push_array_config('push_js', $resource);
+            $array = config_array_push('push_' . $type, $resource);
 
             if (empty($resource) && is_array($array) && !empty($array)) {
                 echo implode('', $array);
             }
         }
+    }
+}
+
+if (!function_exists('lang')) {
+    /**
+     * lang
+     *
+     * @param int $code
+     * @return string
+     */
+    function lang(int $code)
+    {
+        $language = shy\http\facade\session::get('language');
+        if (empty($language)) {
+            $language = config_key('default_lang');
+        }
+
+        return config_key($code, 'lang/' . $language);
+    }
+}
+
+if (!function_exists('set_lang')) {
+    /**
+     * Set Lang
+     *
+     * @param string $language
+     */
+    function set_lang(string $language)
+    {
+        shy\http\facade\session::set('language', $language);
     }
 }
 
@@ -160,7 +190,7 @@ if (!function_exists('smarty')) {
      */
     function smarty(string $view, $params = [])
     {
-        if (config('smarty')) {
+        if (config_key('smarty')) {
             $params['GLOBALS'] = $GLOBALS;
             return shy('smarty')->fetch($view, $params);
         } else {

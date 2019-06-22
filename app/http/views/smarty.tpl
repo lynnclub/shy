@@ -15,10 +15,14 @@
 </div>
 <div id="system">
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
-    {if IS_CLI}
-        <p>Used Time: {microtime(true) - $GLOBALS['_SHY_START']} second</p>
-    {else}
-        <p>Used Time: {microtime(true) - SHY_START} second</p>
+    <p>Used Time: {microtime(true) - config('SHY_START_TIME')} second</p>
+    {assign var="cycleStartTime" value="{config('SHY_CYCLE_START_TIME')}"}
+    {if isset($cycleStartTime) && !empty($cycleStartTime)}
+        <p>Cycle Used Time: {microtime(true) - $cycleStartTime} second</p>
+    {/if}
+    {assign var="cycleCount" value="{config('SHY_CYCLE_COUNT')}"}
+    {if isset($cycleCount) && !empty($cycleCount)}
+        <p>Cycle Count: {$cycleCount}</p>
     {/if}
     <br>
     <p>Loaded instance's abstract: </p>
@@ -27,6 +31,9 @@
             <li>{$abstract}  {$memoryUsed/1024} kb</li>
         {/foreach}
     </ol>
+    <br>
+    <p>Config:</p>
+    {var_dump(config_all())}
 </div>
 {include file='component/footer.php'}
 </body>

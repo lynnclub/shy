@@ -37,9 +37,9 @@ class console
         /**
          * Time Zone
          */
-        date_default_timezone_set(config('timezone'));
+        date_default_timezone_set(config_key('timezone'));
 
-        if (config('illuminate_database')) {
+        if (config_key('illuminate_database')) {
             init_illuminate_database();
         }
     }
@@ -99,7 +99,7 @@ EOT;
         array_shift($argv);
         $this->command = array_shift($argv);
         $this->params = $argv;
-        $this->config = config_all('console');
+        $this->config = config('console');
         if (isset($this->config[$this->command])) {
             $route = $this->config[$this->command];
             $route = explode('@', $route);

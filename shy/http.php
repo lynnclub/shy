@@ -42,18 +42,18 @@ class http
      */
     protected function setting()
     {
-        date_default_timezone_set(config('timezone'));
+        date_default_timezone_set(config_key('timezone'));
 
-        defined('BASE_PATH') or define('BASE_PATH', config('base', 'path'));
-        defined('APP_PATH') or define('APP_PATH', config('app', 'path'));
-        defined('CACHE_PATH') or define('CACHE_PATH', config('cache', 'path'));
-        defined('PUBLIC_PATH') or define('PUBLIC_PATH', config('public', 'path'));
+        defined('BASE_PATH') or define('BASE_PATH', config_key('base', 'path'));
+        defined('APP_PATH') or define('APP_PATH', config_key('app', 'path'));
+        defined('CACHE_PATH') or define('CACHE_PATH', config_key('cache', 'path'));
+        defined('PUBLIC_PATH') or define('PUBLIC_PATH', config_key('public', 'path'));
 
-        if (config('smarty')) {
+        if (config_key('smarty')) {
             $this->smartySetting();
         }
 
-        if (config('illuminate_database')) {
+        if (config_key('illuminate_database')) {
             init_illuminate_database();
         }
     }
@@ -64,10 +64,10 @@ class http
     protected function smartySetting()
     {
         $smarty = shy('smarty', new Smarty());
-        $smarty->template_dir = config('app', 'path') . 'http' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
-        $smarty->compile_dir = config('cache', 'path') . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+        $smarty->template_dir = config_key('app', 'path') . 'http' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+        $smarty->compile_dir = config_key('cache', 'path') . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
 
-        $smartyConfig = config('smarty_config');
+        $smartyConfig = config_key('smarty_config');
         if (isset($smartyConfig['left_delimiter']) && !empty($smartyConfig['left_delimiter'])) {
             $smarty->left_delimiter = $smartyConfig['left_delimiter'];
         }
@@ -80,7 +80,7 @@ class http
         if (isset($smartyConfig['cache_lifetime']) && is_int($smartyConfig['cache_lifetime'])) {
             $smarty->cache_lifetime = $smartyConfig['cache_lifetime'];
         }
-        if (config('env') === 'development') {
+        if (config_key('env') === 'development') {
             $smarty->debugging = true;
         }
     }
@@ -94,10 +94,10 @@ class http
         $request->init($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
         logger('request: ' . json_encode(shy('request')->all()));
         session::sessionStart();
-        if (empty(config('base_url'))) {
+        if (empty(config_key('base_url'))) {
             defined('BASE_URL') or define('BASE_URL', $request->getBaseUrl());
         } else {
-            defined('BASE_URL') or define('BASE_URL', config('base_url'));
+            defined('BASE_URL') or define('BASE_URL', config_key('base_url'));
         }
         /**
          * Run Router
@@ -127,16 +127,9 @@ class http
         /**
          * slow_log
          */
-        if (config('slow_log')) {
-            if (IS_CLI) {
-                global $_SHY_START;
-                $difference = microtime(true) - $_SHY_START;
-                unset($_SHY_START);
-            } else {
-                $difference = microtime(true) - SHY_START;
-            }
-
-            if ($difference > config('slow_log_limit')) {
+        if (config_key('slow_log')) {
+            $difference = microtime(true) - config('SHY_START_TIME');
+            if ($difference > config_key('slow_log_limit')) {
                 logger('slow: ' . json_encode([
                         'controller' => shy('router')->getController(),
                         'method' => shy('router')->getMethod(),

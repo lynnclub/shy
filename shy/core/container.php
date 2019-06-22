@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Container
  *
@@ -18,6 +17,8 @@ class container
 {
     use exceptionHandlerRegister;
 
+    private $configDir = __DIR__ . '/../../config/';
+
     /**
      * Config
      *
@@ -26,21 +27,21 @@ class container
     private static $config;
 
     /**
-     * Bind Ready to Join
+     * Bind ready to join
      *
      * @var mixed $binds
      */
     private static $binds;
 
     /**
-     * Instances Container
+     * Instances container
      *
      * @var mixed $instances
      */
     private static $instances;
 
     /**
-     * Instances Memory Used
+     * Instances memory used
      *
      * @var array
      */
@@ -49,33 +50,109 @@ class container
     private $beforeMakeInstanceMemoryUsed;
 
     /**
-     * Set Config
+     * Set config
      *
      * @param string $abstract
      * @param $config
+     * @return mixed
      */
     public function setConfig(string $abstract, $config)
     {
-        self::$config[$abstract] = $config;
+        if (isset(self::$config[$abstract])) {
+            throw new RuntimeException('Config abstract ' . $abstract . ' exist and not empty.');
+        }
+        if (isset($config)) {
+            self::$config[$abstract] = $config;
+        } else {
+            throw new RuntimeException('Config abstract ' . $abstract . ' config is null.');
+        }
+
+        return self::$config[$abstract];
     }
 
     /**
-     * Get Config
+     * Remove config
      *
      * @param string $abstract
+     */
+    public function removeConfig(string $abstract)
+    {
+        unset(self::$config[$abstract]);
+    }
+
+    /**
+     * Get config
+     *
+     * @param string $abstract
+     * @param string $default
      * @return mixed
      */
-    public function getConfig(string $abstract)
+    public function getConfig(string $abstract, $default = '')
     {
         if (isset(self::$config[$abstract])) {
             return self::$config[$abstract];
         }
 
-        throw new RuntimeException('Config ' . $abstract . ' not found in container.');
+        /**
+         * autoload config file
+         */
+        $configFile = $this->configDir . $abstract . '.php';
+        if (file_exists($configFile) && $config = require_file($configFile)) {
+            return $this->setConfig($abstract, $config);
+        }
+
+        return $default;
     }
 
     /**
-     * Bind Instance or Closure
+     * Is config exist
+     *
+     * @param string $abstract
+     * @return bool
+     */
+    public function configExist(string $abstract)
+    {
+        if (isset(self::$config[$abstract])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all config
+     *
+     * @return mixed
+     */
+    public function getAllConfig()
+    {
+        return self::$config;
+    }
+
+    /**
+     * Calc int in config
+     *
+     * @param string $abstract
+     * @param int $int
+     * @return mixed
+     */
+    public function configIntCalc(string $abstract, int $int = 1)
+    {
+        if (isset(self::$config[$abstract])) {
+            if (!is_int(self::$config[$abstract])) {
+                throw new RuntimeException('Config Int Calc need config value is int.');
+            }
+        } else {
+            self::$config[$abstract] = 0;
+        }
+
+        self::$config[$abstract] += $int;
+
+        return self::$config[$abstract];
+    }
+
+    /**
+     * Bind instance or closure
      *
      * @param string $abstract
      * @param object|Closure $concrete
@@ -97,59 +174,7 @@ class container
     }
 
     /**
-     * Make New Instance and Join to Container
-     *
-     * @param string $abstract
-     * @param object|string $concrete
-     * @param array ...$parameters
-     * @return object
-     * @throws RuntimeException|ReflectionException
-     */
-    public function makeNew(string $abstract, $concrete = null, ...$parameters)
-    {
-        if (empty($abstract)) {
-            throw new RuntimeException('Abstract is empty');
-        }
-
-        $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
-        if (isset(self::$binds[$abstract])) {
-            array_unshift($parameters, $concrete);
-        } else {
-            /**
-             * abstract is namespace
-             */
-            if (class_exists($abstract)) {
-                array_unshift($parameters, $concrete);
-                $concrete = $abstract;
-            }
-            /**
-             * concrete is namespace
-             */
-            if (empty($concrete)) {
-                throw new RuntimeException('No concrete to make');
-            } elseif (is_string($concrete) && class_exists($concrete)) {
-                return $this->makeClassByReflection($abstract, $concrete, ...$parameters);
-            }
-
-            $this->bind($abstract, $concrete);
-        }
-
-        /**
-         * Join
-         */
-        if (self::$binds[$abstract] instanceof Closure) {
-            self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
-        } elseif (is_object(self::$binds[$abstract])) {
-            self::$instances[$abstract] = self::$binds[$abstract];
-        }
-        unset(self::$binds[$abstract]);
-        $this->countMakeInstanceMemoryUsed($abstract);
-
-        return self::$instances[$abstract];
-    }
-
-    /**
-     * Get Instance or Make New
+     * Get instance or make new
      *
      * @param string $abstract
      * @param object|string $concrete
@@ -167,7 +192,60 @@ class container
     }
 
     /**
-     * Make Class by Reflection
+     * Make new instance and join to container
+     *
+     * @param string $abstract
+     * @param object|string $concrete
+     * @param array ...$parameters
+     * @return object
+     * @throws RuntimeException|ReflectionException
+     */
+    public function makeNew(string $abstract, $concrete = null, ...$parameters)
+    {
+        if (empty($abstract)) {
+            throw new RuntimeException('Abstract is empty');
+        }
+
+        if (isset(self::$binds[$abstract])) {
+            array_unshift($parameters, $concrete);
+        } else {
+            /**
+             * abstract is namespace
+             */
+            if (class_exists($abstract)) {
+                array_unshift($parameters, $concrete);
+                $concrete = $abstract;
+            }
+            /**
+             * concrete is namespace
+             */
+            if (empty($concrete)) {
+                throw new RuntimeException('No concrete to make');
+            } elseif (is_string($concrete) && class_exists($concrete)) {
+                $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
+                return $this->makeClassByReflection($abstract, $concrete, ...$parameters);
+            }
+
+            $this->bind($abstract, $concrete);
+        }
+
+        /**
+         * Join
+         */
+        $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
+        if (self::$binds[$abstract] instanceof Closure) {
+            self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
+        } elseif (is_object(self::$binds[$abstract])) {
+            self::$instances[$abstract] = self::$binds[$abstract];
+        }
+        unset(self::$binds[$abstract]);
+        $this->countMakeInstanceMemoryUsed($abstract);
+
+        return self::$instances[$abstract];
+    }
+
+    /**
+     * Make class by Reflection
      *
      * @param string $abstract
      * @param string $concrete
@@ -193,17 +271,19 @@ class container
     }
 
     /**
-     * Count Make Instance Memory Used
+     * Count memory used while make instance
      *
      * @param $abstract
      */
     private function countMakeInstanceMemoryUsed(string $abstract)
     {
-        self::$instancesMemoryUsed[$abstract] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
+        if (!isset(self::$instancesMemoryUsed[$abstract])) {
+            self::$instancesMemoryUsed[$abstract] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
+        }
     }
 
     /**
-     * Clear Instance
+     * Clear instance
      *
      * @param string|array $abstract
      */
@@ -219,7 +299,7 @@ class container
     }
 
     /**
-     * Clear All Instances
+     * Clear all instances
      */
     public function clearAll()
     {

@@ -62,15 +62,11 @@ class webInWorkerMan extends Worker
         list(, $address) = explode(':', $socket_name, 2);
         parent::__construct('http:' . $address, $context_option);
         $this->name = 'WebServer';
-
         /**
-         * Helpers
+         * CLI Run http
          */
         require __DIR__ . '/../shy/http/function/view.php';
         shy('http', 'shy\http');
-
-        global $_CYCLE_COUNT;
-        $_CYCLE_COUNT = 0;
     }
 
     /**

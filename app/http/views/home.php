@@ -1,6 +1,6 @@
 <?php
 
-push_resource('js', [BASE_URL . 'vendor/jquery/dist/jquery.js', '']);
+push_resource('js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.js', '']);
 
 ?>
 
@@ -10,7 +10,21 @@ push_resource('js', [BASE_URL . 'vendor/jquery/dist/jquery.js', '']);
 </div>
 <div id="system">
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
-    <p>Used Time: <?php echo microtime(true) - (IS_CLI ? $GLOBALS['_SHY_START'] : SHY_START); ?> second</p>
+    <p>Used Time: <?php echo microtime(true) - config('SHY_START_TIME'); ?> second</p>
+    <?php
+    $cycleStartTime = config('SHY_CYCLE_START_TIME');
+    if (isset($cycleStartTime) && !empty($cycleStartTime)) { ?>
+        <p>Cycle Used Time: <?php echo microtime(true) - $cycleStartTime; ?> second</p>
+        <?php
+    }
+    ?>
+    <?php
+    $cycleCount = config('SHY_CYCLE_COUNT');
+    if (isset($cycleCount) && !empty($cycleCount)) { ?>
+        <p>Cycle Count: <?php echo $cycleCount; ?></p>
+        <?php
+    }
+    ?>
     <br>
     <p>Loaded instance's abstract: </p>
     <ol>
@@ -18,4 +32,7 @@ push_resource('js', [BASE_URL . 'vendor/jquery/dist/jquery.js', '']);
             <li><?php echo $abstract . '  ' . $memoryUsed / 1024 . ' kb'; ?></li>
         <?php } ?>
     </ol>
+    <br>
+    <p>Config:</p>
+    <?php var_dump(config_all()); ?>
 </div>

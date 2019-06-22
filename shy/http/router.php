@@ -78,10 +78,10 @@ class router
         /**
          * Parse Url
          */
-        if (config('route_by_config')) {
+        if (config_key('route_by_config')) {
             $this->success = $this->configRoute();
         }
-        if (!$this->success && config('route_by_path')) {
+        if (!$this->success && config_key('route_by_path')) {
             $this->success = $this->pathRoute();
         }
         if ($this->success) {
@@ -161,12 +161,12 @@ class router
     protected function configRoute()
     {
         $fasterRouter = json_decode(@file_get_contents(CACHE_PATH . 'app/router'), true);
-        if (config('env') === 'development' || empty($fasterRouter) || !is_array($fasterRouter)) {
+        if (config_key('env') === 'development' || empty($fasterRouter) || !is_array($fasterRouter)) {
             /**
              * build faster router
              */
             $fasterRouter = [];
-            $router = config_all('router');
+            $router = config('router');
             /**
              * path router
              */
@@ -233,7 +233,7 @@ class router
             }
         } elseif (count($path) === 2) {
             //home page
-            if ($defaultController = config('default_controller')) {
+            if ($defaultController = config_key('default_controller')) {
                 $this->controller = $defaultController;
             }
 

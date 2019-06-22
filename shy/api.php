@@ -36,7 +36,7 @@ class api
         /**
          * Time Zone
          */
-        date_default_timezone_set(config('timezone'));
+        date_default_timezone_set(config_key('timezone'));
     }
 
     public function run()

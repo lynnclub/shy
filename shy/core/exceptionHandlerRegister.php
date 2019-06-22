@@ -27,7 +27,7 @@ trait exceptionHandlerRegister
         set_exception_handler([$this, 'handleException']);
         register_shutdown_function([$this, 'handleShutdown']);
 
-        if (config('env') === 'production') {
+        if (config_key('env') === 'production') {
             ini_set('display_errors', 'Off');
         }
     }

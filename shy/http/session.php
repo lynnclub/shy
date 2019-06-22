@@ -16,10 +16,10 @@ class session
      */
     public function sessionStart()
     {
-        if (IS_CLI) {
-            global $_CYCLE_COUNT;
-            if ($_CYCLE_COUNT > $this->lastCycleCount) {
-                $this->lastCycleCount = $_CYCLE_COUNT;
+        if (config('IS_CLI')) {
+            $cycleCount = config('SHY_CYCLE_COUNT');
+            if ($cycleCount > $this->lastCycleCount) {
+                $this->lastCycleCount = $cycleCount;
                 Http::sessionStart();
             }
         } else {
@@ -57,7 +57,7 @@ class session
 
     public function sessionId()
     {
-        if (IS_CLI) {
+        if (config('IS_CLI')) {
             Http::sessionId();
         } else {
             return session_id();

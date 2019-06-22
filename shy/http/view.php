@@ -68,7 +68,7 @@ class view
             throw new RuntimeException('Invalid view.');
         }
 
-        $view = config('app', 'path') . 'http/views/' . $view . '.php';
+        $view = config_key('app', 'path') . 'http/views/' . $view . '.php';
         if (file_exists($view)) {
             $this->view = $view;
         } else {
@@ -90,7 +90,7 @@ class view
             if (!is_string($layout)) {
                 throw new RuntimeException('Invalid layout.');
             }
-            $layout = config('app', 'path') . 'http/views/layout/' . $layout . '.php';
+            $layout = config_key('app', 'path') . 'http/views/layout/' . $layout . '.php';
             if (file_exists($layout)) {
                 $this->layout = $layout;
             } else {
@@ -138,7 +138,10 @@ class view
             include "{$this->layout}";
         }
         $this->viewContent = ob_get_contents();
-        ob_end_clean();
+        /**
+         * Can not ob_end_clean(), worker man will no output
+         */
+        ob_clean();
 
         if (empty($this->errorMsg)) {
             return $this->viewContent;

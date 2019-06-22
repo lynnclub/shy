@@ -6,33 +6,30 @@
  * @link      http://lynncho.cn/
  */
 
-defined('IS_CLI') or define('IS_CLI', is_int(strpos(php_sapi_name(), 'cli')) ? true : false);
-
 use shy\http\exception\handler;
 
-if (IS_CLI) {
-    global $_SHY_START, $_CYCLE_COUNT;
-    $_SHY_START = microtime(true);
-    $_CYCLE_COUNT += 1;
-
+if (function_exists('shy')) {
+    config_del('SHY_CYCLE_START_TIME');
+    config_set('SHY_CYCLE_START_TIME', microtime(true));
+    config_int_calc('SHY_CYCLE_COUNT');
     /**
-     * Run Framework In CLI
+     * Run Framework In CLI mode
      */
     shy('http')->run();
 } else {
-    define('SHY_START', microtime(true));
-
     /**
      * Composer Autoload
      */
     require __DIR__ . '/../vendor/autoload.php';
-
     /**
      * Helpers
      */
     require __DIR__ . '/../shy/core/function/helpers.php';
     require __DIR__ . '/../shy/http/function/view.php';
-
+    /**
+     * Config
+     */
+    config_set('SHY_START_TIME', microtime(true));
     /**
      * Run Framework
      */

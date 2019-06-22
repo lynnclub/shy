@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-
 /**
  * Shy Framework Console Entry
  *
@@ -8,23 +7,23 @@
  * @link      http://lynncho.cn/
  */
 
-define('SHY_START', microtime(true));
+use shy\console\exception\handler;
 
 /**
  * Composer Autoload
  */
 require __DIR__ . '/vendor/autoload.php';
-
 /**
  * Helpers
  */
 require __DIR__ . '/shy/core/function/helpers.php';
-
 /**
- * Framework Run
+ * Config
  */
-
-use shy\console\exception\handler;
-
+config_set('IS_CLI', true);
+config_set('SHY_START_TIME', microtime(true));
+/**
+ * Run CLI mode
+ */
 (container())->setExceptionHandler(new handler());
 shy('console', 'shy\console')->run();

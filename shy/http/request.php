@@ -273,10 +273,10 @@ class request
 
         if (trim($uri, '/') !== '') {
             if (DIRECTORY_SEPARATOR === '/') {
-                $uri = str_ireplace(config('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
+                $uri = str_ireplace(config_key('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
             } else {
                 $uri = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $uri);
-                $uri = str_ireplace(config('public', 'path'), '', $uri);
+                $uri = str_ireplace(config_key('public', 'path'), '', $uri);
                 $uri = str_replace(DIRECTORY_SEPARATOR, '/', $uri);
             }
         }
@@ -295,9 +295,9 @@ class request
     public function getBaseUrl()
     {
         $path = '/';
-        if (!IS_CLI) {
+        if (!config('IS_CLI')) {
             $DOCUMENT_ROOT = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT'));
-            $path = str_ireplace($DOCUMENT_ROOT, '', config('public', 'path'));
+            $path = str_ireplace($DOCUMENT_ROOT, '', config_key('public', 'path'));
             $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         }
 

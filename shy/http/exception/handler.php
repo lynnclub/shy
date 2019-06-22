@@ -63,7 +63,7 @@ class handler implements handlerInterface
         }
 
         response::set('');
-        if (config('env') !== 'production') {
+        if (config_key('env') !== 'production') {
             request::expectsJson()
                 ? response::set($this->getErrorString($e))
                 : response::set(view('errors/exception', compact('e')));

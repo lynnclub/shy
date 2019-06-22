@@ -25,7 +25,7 @@ class redis
      */
     public function instance($config_name = 'default')
     {
-        $config = config('redis', 'database');
+        $config = config_key('redis', 'database');
         if (!isset($config[$config_name])) {
             throw new httpException(500, 'Redis Config ' . $config_name . ' not set');
         }

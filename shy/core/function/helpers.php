@@ -23,7 +23,7 @@ if (!function_exists('container')) {
     }
 }
 
-if (!function_exists('set_config')) {
+if (!function_exists('config_set')) {
     /**
      * Set config
      *
@@ -31,37 +31,34 @@ if (!function_exists('set_config')) {
      * @param $config
      * @return mixed
      */
-    function set_config(string $abstract, $config)
+    function config_set(string $abstract, $config)
     {
-        container()->setConfig($abstract, $config);
+        return container()->setConfig($abstract, $config);
     }
 }
 
-if (!function_exists('push_array_config')) {
+if (!function_exists('config_exist')) {
     /**
-     * Push array config
+     * Is config exist
      *
      * @param string $abstract
-     * @param $config
-     * @return array
+     * @return bool
      */
-    function push_array_config(string $abstract, $config)
+    function config_exist(string $abstract)
     {
-        $oldConfig = config_all($abstract);
-        if (empty($oldConfig)) {
-            $oldConfig = [];
-        } else {
-            if (!is_array($oldConfig)) {
-                throw new RuntimeException('push_array_config() need array saved config');
-            }
-        }
+        return container()->configExist($abstract);
+    }
+}
 
-        if (!empty($config)) {
-            array_push($oldConfig, $config);
-            set_config($abstract, $oldConfig);
-        }
-
-        return $oldConfig;
+if (!function_exists('config_del')) {
+    /**
+     * Remove config
+     *
+     * @param string $abstract
+     */
+    function config_del(string $abstract)
+    {
+        container()->removeConfig($abstract);
     }
 }
 
@@ -69,13 +66,27 @@ if (!function_exists('config')) {
     /**
      * Get config
      *
+     * @param string $abstract
+     * @param string $default
+     * @return mixed
+     */
+    function config(string $abstract = 'app', $default = '')
+    {
+        return container()->getConfig($abstract, $default);
+    }
+}
+
+if (!function_exists('config_key')) {
+    /**
+     * Get config array value by key
+     *
      * @param string $key
      * @param string $abstract
      * @return mixed
      */
-    function config(string $key, string $abstract = 'app')
+    function config_key(string $key, string $abstract = 'app')
     {
-        $config = config_all($abstract);
+        $config = config($abstract);
         if (isset($config[$key])) {
             return $config[$key];
         }
@@ -84,23 +95,55 @@ if (!function_exists('config')) {
 
 if (!function_exists('config_all')) {
     /**
-     * Get all config of the config abstract
+     * Get all config
      *
-     * @param string $abstract
      * @return mixed
      */
-    function config_all(string $abstract = 'app')
+    function config_all()
     {
-        try {
-            $config = container()->getConfig($abstract);
-        } catch (RuntimeException $e) {
-            $config = require_file(__DIR__ . '/../../../config/' . $abstract . '.php');
-            if ($config) {
-                set_config($abstract, $config);
-            }
+        return container()->getAllConfig();
+    }
+}
+
+if (!function_exists('config_int_calc')) {
+    /**
+     * Config int
+     *
+     * @param string $abstract
+     * @param int $int
+     * @return int
+     */
+    function config_int_calc(string $abstract, int $int = 1)
+    {
+        return container()->configIntCalc($abstract, $int);
+    }
+}
+
+if (!function_exists('config_array_push')) {
+    /**
+     * Push config
+     *
+     * @param string $abstract
+     * @param string|array $config
+     * @return array
+     */
+    function config_array_push(string $abstract, $config)
+    {
+        $oldConfig = config($abstract);
+        if (empty($oldConfig)) {
+            $oldConfig = [];
+        }
+        if (!is_array($oldConfig)) {
+            throw new RuntimeException('config_array_push() config ' . $abstract . ' must be array');
         }
 
-        return $config;
+        if (!empty($config)) {
+            array_push($oldConfig, $config);
+            config_del($abstract);
+            config_set($abstract, $oldConfig);
+        }
+
+        return $oldConfig;
     }
 }
 
@@ -115,6 +158,8 @@ if (!function_exists('require_file')) {
     {
         if (file_exists($filename)) {
             return require "$filename";
+        } else {
+            throw new RuntimeException('require_file() file not exist ' . $filename);
         }
     }
 }
@@ -142,7 +187,7 @@ if (!function_exists('make_new')) {
      * @param array ...$parameters
      * @return object
      */
-    function make_new(string $abstract, $concrete = null, ...$parameters): object
+    function make_new(string $abstract, $concrete = null, ...$parameters)
     {
         $make = function ($abstract, $concrete = null, ...$parameters) {
             return container()->makeNew($abstract, $concrete, ...$parameters);
@@ -161,7 +206,7 @@ if (!function_exists('shy')) {
      * @param array ...$parameters
      * @return object
      */
-    function shy(string $abstract, $concrete = null, ...$parameters): object
+    function shy(string $abstract, $concrete = null, ...$parameters)
     {
         $make = function ($abstract, $concrete = null, ...$parameters) {
             return container()->getOrMakeNew($abstract, $concrete, ...$parameters);
@@ -239,7 +284,7 @@ if (!function_exists('init_illuminate_database')) {
     function init_illuminate_database()
     {
         $capsule = shy('capsule', 'Illuminate\Database\Capsule\Manager');
-        $database = config('db', 'database');
+        $database = config_key('db', 'database');
         if (is_array($database)) {
             $capsule->setAsGlobal();
             foreach ($database as $name => $item) {
@@ -277,7 +322,7 @@ if (!function_exists('logger')) {
     function logger(string $msg, string $level = 'INFO', string $filename = '', string $datetimeFormat = 'Y-m-d')
     {
         if (empty($filename)) {
-            if (IS_CLI) {
+            if (config('IS_CLI')) {
                 $filename = 'console/';
             } else {
                 $filename = 'web/';
@@ -286,7 +331,7 @@ if (!function_exists('logger')) {
         if ($datetimeFormat) {
             $filename .= date($datetimeFormat);
         }
-        $filename = config('cache', 'path') . 'log/' . $filename . '.log';
+        $filename = config_key('cache', 'path') . 'log/' . $filename . '.log';
         if (!is_dir(dirname($filename))) {
             @mkdir(dirname($filename));
         }
@@ -321,35 +366,5 @@ if (!function_exists('dd')) {
         }
 
         exit(0);
-    }
-}
-
-if (!function_exists('lang')) {
-    /**
-     * lang
-     *
-     * @param int $code
-     * @return string
-     */
-    function lang(int $code)
-    {
-        $language = shy\http\facade\session::get('language');
-        if (empty($language)) {
-            $language = config('default_lang');
-        }
-
-        return config($code, 'lang/' . $language);
-    }
-}
-
-if (!function_exists('set_lang')) {
-    /**
-     * Set Lang
-     *
-     * @param string $language
-     */
-    function set_lang(string $language)
-    {
-        shy\http\facade\session::set('language', $language);
     }
 }

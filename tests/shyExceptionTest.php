@@ -13,7 +13,7 @@ class shyExceptionTest extends TestCase
     {
         global $_SHY_CONTAINER;
         $_SHY_CONTAINER = new container();
-        $_SHY_CONTAINER->make('config', new config());
+        $_SHY_CONTAINER->make('config', new config_key());
         $handler = $_SHY_CONTAINER->make('exception\handler', new handlerWeb());
         $_SHY_CONTAINER->setExceptionHandler($handler);
     }

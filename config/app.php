@@ -40,7 +40,7 @@ return [
 
     'worker_man_http' => [
         'port' => 2348,
-        'worker' => 4
+        'worker' => 2
     ],
 
     /*
@@ -49,7 +49,7 @@ return [
     'worker_man_socket' => [
         'chat' => [
             'address' => 'websocket://127.0.0.1:2349',
-            'worker' => 4,
+            'worker' => 2,
             'onConnect' => ['app\socket\example' => 'onConnect'],
             'onMessage' => ['app\socket\example' => 'onMessage'],
             'onClose' => ['app\socket\example' => 'onClose']
