@@ -8,7 +8,6 @@
 
 defined('IS_CLI') or define('IS_CLI', is_int(strpos(php_sapi_name(), 'cli')) ? true : false);
 
-use shy\core\container;
 use shy\http\exception\handler;
 
 if (IS_CLI) {
@@ -37,7 +36,6 @@ if (IS_CLI) {
     /**
      * Run Framework
      */
-    $_container = new container();
-    $_container->setExceptionHandler(new handler());
+    (container())->setExceptionHandler(new handler());
     shy('http', 'shy\http')->run();
 }

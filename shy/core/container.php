@@ -19,6 +19,13 @@ class container
     use exceptionHandlerRegister;
 
     /**
+     * Config
+     *
+     * @var mixed $config
+     */
+    private static $config;
+
+    /**
      * Bind Ready to Join
      *
      * @var mixed $binds
@@ -42,10 +49,36 @@ class container
     private $beforeMakeInstanceMemoryUsed;
 
     /**
+     * Set Config
+     *
+     * @param string $abstract
+     * @param $config
+     */
+    public function setConfig(string $abstract, $config)
+    {
+        self::$config[$abstract] = $config;
+    }
+
+    /**
+     * Get Config
+     *
+     * @param string $abstract
+     * @return mixed
+     */
+    public function getConfig(string $abstract)
+    {
+        if (isset(self::$config[$abstract])) {
+            return self::$config[$abstract];
+        }
+
+        throw new RuntimeException('Config ' . $abstract . ' not found in container.');
+    }
+
+    /**
      * Bind Instance or Closure
      *
      * @param string $abstract
-     * @param object $concrete
+     * @param object|Closure $concrete
      * @throws RuntimeException
      * @return $this
      */
@@ -78,7 +111,7 @@ class container
             throw new RuntimeException('Abstract is empty');
         }
 
-        $this->beforeMakeInstanceMemoryUsed = memory_get_usage() / 1024;
+        $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
         if (isset(self::$binds[$abstract])) {
             array_unshift($parameters, $concrete);
         } else {
@@ -164,9 +197,9 @@ class container
      *
      * @param $abstract
      */
-    private function countMakeInstanceMemoryUsed($abstract)
+    private function countMakeInstanceMemoryUsed(string $abstract)
     {
-        self::$instancesMemoryUsed[$abstract] = (memory_get_usage() / 1024) - $this->beforeMakeInstanceMemoryUsed;
+        self::$instancesMemoryUsed[$abstract] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
     }
 
     /**
@@ -221,7 +254,7 @@ class container
      * @param string $abstract
      * @return bool
      */
-    public function inList($abstract)
+    public function inList(string $abstract)
     {
         if (isset(self::$instances[$abstract])) {
             return true;

@@ -1,5 +1,12 @@
+<?php
+
+push_resource('js', [BASE_URL . 'vendor/jquery/dist/jquery.js', '']);
+
+?>
+
 <div id="hello-world">
     <?php param('info') ?>
+    <?php param('not_exist_param', true) ?>
 </div>
 <div id="system">
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
@@ -8,7 +15,7 @@
     <p>Loaded instance's abstract: </p>
     <ol>
         <?php foreach (shy_list_memory_used() as $abstract => $memoryUsed) { ?>
-            <li><?php echo $abstract . '  ' . $memoryUsed . ' kb'; ?></li>
+            <li><?php echo $abstract . '  ' . $memoryUsed / 1024 . ' kb'; ?></li>
         <?php } ?>
     </ol>
 </div>

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Core functions
  *
@@ -7,60 +6,116 @@
  * @link      http://lynncho.cn/
  */
 
+if (!function_exists('container')) {
+    /**
+     * Container
+     *
+     * @return \shy\core\container
+     */
+    function container()
+    {
+        static $_SHY_CONTAINER;
+        if (!$_SHY_CONTAINER instanceof shy\core\container) {
+            $_SHY_CONTAINER = new shy\core\container();
+        }
+
+        return $_SHY_CONTAINER;
+    }
+}
+
+if (!function_exists('set_config')) {
+    /**
+     * Set config
+     *
+     * @param string $abstract
+     * @param $config
+     * @return mixed
+     */
+    function set_config(string $abstract, $config)
+    {
+        container()->setConfig($abstract, $config);
+    }
+}
+
+if (!function_exists('push_array_config')) {
+    /**
+     * Push array config
+     *
+     * @param string $abstract
+     * @param $config
+     * @return array
+     */
+    function push_array_config(string $abstract, $config)
+    {
+        $oldConfig = config_all($abstract);
+        if (empty($oldConfig)) {
+            $oldConfig = [];
+        } else {
+            if (!is_array($oldConfig)) {
+                throw new RuntimeException('push_array_config() need array saved config');
+            }
+        }
+
+        if (!empty($config)) {
+            array_push($oldConfig, $config);
+            set_config($abstract, $oldConfig);
+        }
+
+        return $oldConfig;
+    }
+}
+
 if (!function_exists('config')) {
     /**
      * Get config
      *
-     * @param $key
-     * @param string $file
-     * @return bool
+     * @param string $key
+     * @param string $abstract
+     * @return mixed
      */
-    function config($key, $file = 'app')
+    function config(string $key, string $abstract = 'app')
     {
-        $config = config_all($file);
+        $config = config_all($abstract);
         if (isset($config[$key])) {
             return $config[$key];
-        } else {
-            return false;
         }
     }
 }
 
 if (!function_exists('config_all')) {
     /**
-     * Get all config of the config file
+     * Get all config of the config abstract
      *
-     * @param string $file
-     * @return bool|array
+     * @param string $abstract
+     * @return mixed
      */
-    function config_all($file = 'app')
+    function config_all(string $abstract = 'app')
     {
-        static $config = [];
-        static $config_path = __DIR__ . '/../../../config/';
-        if (isset($config[$file])) {
-            return $config[$file];
-        } else {
-            $config[$file] = require_config($config_path . $file);
-            return $config[$file];
+        try {
+            $config = container()->getConfig($abstract);
+        } catch (RuntimeException $e) {
+            $config = require_file(__DIR__ . '/../../../config/' . $abstract . '.php');
+            if ($config) {
+                set_config($abstract, $config);
+            }
         }
+
+        return $config;
     }
 }
 
-if (!function_exists('require_config')) {
+if (!function_exists('require_file')) {
     /**
      * Require file get config
      *
-     * @param $filename
-     * @return bool|mixed
+     * @param string $filename
+     * @return mixed
      */
-    function require_config($filename)
+    function require_file(string $filename)
     {
-        $filename .= '.php';
         if (file_exists($filename)) {
             return require "$filename";
         }
-
-        return false;
     }
 }
 
@@ -69,13 +124,12 @@ if (!function_exists('bind')) {
      * Bind instance or closure ready to join container
      *
      * @param string $abstract
-     * @param object $concrete
+     * @param object|Closure $concrete
      * @return object container
      */
-    function bind($abstract, $concrete)
+    function bind(string $abstract, $concrete)
     {
-        global $_container;
-        return $_container->bind($abstract, $concrete);
+        return container()->bind($abstract, $concrete);
     }
 }
 
@@ -83,16 +137,15 @@ if (!function_exists('make_new')) {
     /**
      * Make new instance and join container
      *
-     * @param $abstract
+     * @param string $abstract
      * @param object|Closure|string $concrete
      * @param array ...$parameters
      * @return object
      */
-    function make_new($abstract, $concrete = null, ...$parameters)
+    function make_new(string $abstract, $concrete = null, ...$parameters): object
     {
         $make = function ($abstract, $concrete = null, ...$parameters) {
-            global $_container;
-            return $_container->makeNew($abstract, $concrete, ...$parameters);
+            return container()->makeNew($abstract, $concrete, ...$parameters);
         };
 
         return $make($abstract, $concrete, ...$parameters);
@@ -103,16 +156,15 @@ if (!function_exists('shy')) {
     /**
      * Get instance or make new
      *
-     * @param $abstract
+     * @param string $abstract
      * @param object|Closure|string $concrete
      * @param array ...$parameters
      * @return object
      */
-    function shy($abstract, $concrete = null, ...$parameters)
+    function shy(string $abstract, $concrete = null, ...$parameters): object
     {
         $make = function ($abstract, $concrete = null, ...$parameters) {
-            global $_container;
-            return $_container->getOrMakeNew($abstract, $concrete, ...$parameters);
+            return container()->getOrMakeNew($abstract, $concrete, ...$parameters);
         };
 
         return $make($abstract, $concrete, ...$parameters);
@@ -127,8 +179,7 @@ if (!function_exists('shy_list')) {
      */
     function shy_list()
     {
-        global $_container;
-        return $_container->getList();
+        return container()->getList();
     }
 }
 
@@ -140,8 +191,7 @@ if (!function_exists('shy_list_memory_used')) {
      */
     function shy_list_memory_used()
     {
-        global $_container;
-        return $_container->getListMemoryUsed();
+        return container()->getListMemoryUsed();
     }
 }
 
@@ -153,8 +203,7 @@ if (!function_exists('shy_clear')) {
      */
     function shy_clear($abstract)
     {
-        global $_container;
-        $_container->clear($abstract);
+        container()->clear($abstract);
     }
 }
 
@@ -164,8 +213,7 @@ if (!function_exists('shy_clear_all')) {
      */
     function shy_clear_all()
     {
-        global $_container;
-        $_container->clearAll();
+        container()->clearAll();
     }
 }
 
@@ -176,10 +224,9 @@ if (!function_exists('in_shy_list')) {
      * @param string $abstract
      * @return bool
      */
-    function in_shy_list($abstract)
+    function in_shy_list(string $abstract)
     {
-        global $_container;
-        return $_container->inList($abstract);
+        return container()->inList($abstract);
     }
 }
 
@@ -222,12 +269,20 @@ if (!function_exists('logger')) {
     /**
      * Log
      *
-     * @param string $filename
      * @param string $msg
+     * @param string $level
+     * @param string $filename
      * @param string $datetimeFormat
      */
-    function logger($filename, $msg, $datetimeFormat = 'Y-m-d')
+    function logger(string $msg, string $level = 'INFO', string $filename = '', string $datetimeFormat = 'Y-m-d')
     {
+        if (empty($filename)) {
+            if (IS_CLI) {
+                $filename = 'console/';
+            } else {
+                $filename = 'web/';
+            }
+        }
         if ($datetimeFormat) {
             $filename .= date($datetimeFormat);
         }
@@ -235,7 +290,21 @@ if (!function_exists('logger')) {
         if (!is_dir(dirname($filename))) {
             @mkdir(dirname($filename));
         }
-        @file_put_contents($filename, '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL, FILE_APPEND);
+
+        $prefix = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] ';
+        $request = shy('request', 'shy\http\request');
+        if (is_object($request)) {
+            $ips = $request->getClientIps();
+            if (!empty($ips)) {
+                $prefix .= '[' . implode(',', $ips);
+            }
+
+            $url = $request->getUrl();
+            if (!empty($url)) {
+                $prefix .= ' ' . $url . '] ';
+            }
+        }
+        @file_put_contents($filename, $prefix . $msg . PHP_EOL, FILE_APPEND);
     }
 }
 
@@ -252,5 +321,35 @@ if (!function_exists('dd')) {
         }
 
         exit(0);
+    }
+}
+
+if (!function_exists('lang')) {
+    /**
+     * lang
+     *
+     * @param int $code
+     * @return string
+     */
+    function lang(int $code)
+    {
+        $language = shy\http\facade\session::get('language');
+        if (empty($language)) {
+            $language = config('default_lang');
+        }
+
+        return config($code, 'lang/' . $language);
+    }
+}
+
+if (!function_exists('set_lang')) {
+    /**
+     * Set Lang
+     *
+     * @param string $language
+     */
+    function set_lang(string $language)
+    {
+        shy\http\facade\session::set('language', $language);
     }
 }

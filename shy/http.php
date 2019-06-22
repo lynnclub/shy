@@ -13,13 +13,10 @@ use shy\http\router;
 use shy\core\pipeline;
 use shy\http\response;
 use Smarty;
-use Workerman\Protocols\Http as workerHttp;
-use RuntimeException;
+use shy\http\facade\session;
 
 class http
 {
-    protected $lastCycleCount = 0;
-
     /**
      * Constructor.
      */
@@ -89,38 +86,21 @@ class http
     }
 
     /**
-     * Session Start
-     */
-    protected function sessionStart()
-    {
-        if (IS_CLI) {
-            global $_CYCLE_COUNT;
-            if ($_CYCLE_COUNT > $this->lastCycleCount) {
-                $this->lastCycleCount = $_CYCLE_COUNT;
-                workerHttp::sessionStart();
-            }
-        } else {
-            session_start();
-        }
-    }
-
-    /**
      * Run
      */
     public function run()
     {
-        $this->sessionStart();
         $request = shy('request');
         $request->init($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+        logger('request: ' . json_encode(shy('request')->all()));
+        session::sessionStart();
         if (empty(config('base_url'))) {
             defined('BASE_URL') or define('BASE_URL', $request->getBaseUrl());
         } else {
             defined('BASE_URL') or define('BASE_URL', config('base_url'));
         }
-        logger('request/', serialize(shy('request')));
-
         /**
-         * Run
+         * Run Router
          */
         $response = shy('pipeline')
             ->send($request)
@@ -133,7 +113,7 @@ class http
                 return $response;
             });
 
-        $this->end($response);
+        $this->end();
 
         return $response;
     }
@@ -141,9 +121,8 @@ class http
     /**
      * End
      *
-     * @param $response
      */
-    public function end($response)
+    public function end()
     {
         /**
          * slow_log
@@ -158,15 +137,13 @@ class http
             }
 
             if ($difference > config('slow_log_limit')) {
-                logger('slowLog/log', json_encode([
-                    'controller' => shy('router')->getController(),
-                    'method' => shy('router')->getMethod(),
-                    'difference' => $difference
-                ]));
+                logger('slow: ' . json_encode([
+                        'controller' => shy('router')->getController(),
+                        'method' => shy('router')->getMethod(),
+                        'difference' => $difference
+                    ]), 'NOTICE');
             }
         }
-
-        logger('response/', serialize($response));
     }
 
 }

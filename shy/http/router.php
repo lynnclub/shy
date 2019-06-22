@@ -72,7 +72,7 @@ class router
         $this->uri = $request->getUri();
 
         if (!is_string($this->uri)) {
-            throw new httpException(404, 'route not found');
+            throw new httpException(404, 'Route not found 404');
         }
 
         /**
@@ -87,10 +87,10 @@ class router
         if ($this->success) {
             $this->controller = 'app\\http\\controller\\' . $this->controller;
             if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-                throw new httpException(404, 'route not found');
+                throw new httpException(404, 'Route not found 404');
             }
         } else {
-            throw new httpException(404, 'route not found');
+            throw new httpException(404, 'Route not found 404');
         }
 
         /**

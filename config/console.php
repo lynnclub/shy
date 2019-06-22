@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Config of console command
  */

@@ -11,19 +11,20 @@ namespace app\http\middleware;
 
 use shy\core\middleware;
 use Closure;
+use shy\http\facade\request;
 
 class example implements middleware
 {
     public function handle(Closure $next, ...$passable)
     {
         // request handle
-        $request = null;
+        $request = request::all();
 
         // run controller
         $response = $next();
 
         // response handle
-        $response = ', example middleware, ' . json_encode($response);
+        $response = 'request: ' . json_encode($request) . ', example middleware, response: ' . json_encode($response);
         return $response;
     }
 }

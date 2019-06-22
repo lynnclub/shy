@@ -1,7 +1,6 @@
 .DS_Store
 /.idea
 /vendor
-!/public/vendor
 composer.lock
 package-lock.json
 /node_modules

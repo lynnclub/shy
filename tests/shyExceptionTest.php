@@ -11,11 +11,11 @@ class shyExceptionTest extends TestCase
 
     public function setUp()
     {
-        global $_container;
-        $_container = new container();
-        $_container->make('config', new config());
-        $handler = $_container->make('exception\handler', new handlerWeb());
-        $_container->setExceptionHandler($handler);
+        global $_SHY_CONTAINER;
+        $_SHY_CONTAINER = new container();
+        $_SHY_CONTAINER->make('config', new config());
+        $handler = $_SHY_CONTAINER->make('exception\handler', new handlerWeb());
+        $_SHY_CONTAINER->setExceptionHandler($handler);
     }
 
     /**

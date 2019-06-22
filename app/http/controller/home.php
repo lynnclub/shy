@@ -9,7 +9,7 @@
 
 namespace app\http\controller;
 
-use shy\core\facade\session;
+use shy\http\facade\session;
 use shy\http\facade\request;
 use app\http\facade\testBusiness;
 

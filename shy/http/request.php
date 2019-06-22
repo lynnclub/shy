@@ -242,6 +242,17 @@ class request
     }
 
     /**
+     * Get url
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getUrl()
+    {
+        return $this->getSchemeAndHttpHost() . $this->server->get('REQUEST_URI');
+    }
+
+    /**
      * Get Base Url Path
      *
      * @return string|null
@@ -291,6 +302,25 @@ class request
         }
 
         return $this->getSchemeAndHttpHost() . $path;
+    }
+
+    /**
+     * Get client IPs
+     *
+     * @return array
+     */
+    public function getClientIps()
+    {
+        $clientIps = array();
+        $clientIps[] = $this->server->get('REMOTE_ADDR');
+        foreach ($clientIps as $key => $clientIp) {
+            // Remove port (unfortunately, it does happen)
+            if (preg_match('{((?:\d+\.){3}\d+)\:\d+}', $clientIp, $match)) {
+                $clientIps[$key] = $clientIp = $match[1];
+            }
+        }
+
+        return array_reverse($clientIps);
     }
 
     /**

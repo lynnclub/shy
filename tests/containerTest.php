@@ -9,8 +9,8 @@ class containerTest extends TestCase
 
     public function setUp()
     {
-        global $_container;
-        $this->container = $_container = new container;
+        global $_SHY_CONTAINER;
+        $this->container = $_SHY_CONTAINER = new container;
     }
 
     public function testMakeClosureWithParam()

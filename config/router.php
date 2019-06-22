@@ -15,6 +15,8 @@ return [
         '/home2' => 'home@test2',//return string
         '/smarty' => 'home@smarty',
         '/home3' => 'home@home3',//404
-        '/home/path/test' => 'home@index'//view home
+        '/home/path/test' => 'home@index',//view home
+        '/testLang' => 'test2@testLang',//zh-CN
+        '/testLang2' => 'test2@testLang2'//en-US
     ]
 ];

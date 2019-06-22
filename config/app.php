@@ -29,6 +29,12 @@ return [
     'timezone' => 'PRC',
 
     /*
+    | Default language
+    */
+
+    'default_lang' => 'zh-cn',
+
+    /*
     | WorkerMan Http
     */
 

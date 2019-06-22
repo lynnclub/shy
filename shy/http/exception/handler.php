@@ -34,7 +34,7 @@ class handler implements handlerInterface
             return $e->report();
         }
 
-        logger('exception/', $this->getErrorString($e));
+        logger('exception: ' . $this->getErrorString($e), 'ERROR');
     }
 
     private function getErrorString(Exception $e)

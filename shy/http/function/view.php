@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Http view functions
  *
@@ -11,12 +10,12 @@ if (!function_exists('view')) {
     /**
      * New view
      *
-     * @param $view
+     * @param string $view
      * @param array $params
      * @param string $layout
-     * @return mixed
+     * @return \shy\http\view
      */
-    function view($view, $params = [], $layout = '')
+    function view(string $view, array $params = [], string $layout = '')
     {
         $view = make_new('view', 'shy\http\view')->view($view);
         if (isset($params)) {
@@ -33,9 +32,9 @@ if (!function_exists('include_view')) {
     /**
      * Include View
      *
-     * @param $filename
+     * @param string $filename
      */
-    function include_view($filename)
+    function include_view(string $filename)
     {
         $filename = APP_PATH . 'http/views/' . $filename . '.php';
         if (file_exists($filename)) {
@@ -72,9 +71,10 @@ if (!function_exists('param')) {
     /**
      * output param
      *
-     * @param $key
+     * @param string $key
+     * @param bool $allowNotExist
      */
-    function param($key)
+    function param(string $key, bool $allowNotExist = false)
     {
         $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
@@ -83,8 +83,69 @@ if (!function_exists('param')) {
             echo $GLOBALS[$key];
         } elseif (defined($key)) {
             echo constant($key);
-        } else {
+        } elseif (!$allowNotExist) {
             shy('view')->error('[view] Param ' . $key . ' is not exist.');
+        }
+    }
+}
+
+if (!function_exists('get_param')) {
+    /**
+     * get param
+     *
+     * @param string $key
+     * @param bool $allowNotExist
+     * @return mixed
+     */
+    function get_param(string $key, bool $allowNotExist = false)
+    {
+        $params = shy('view')->getParams();
+        if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
+            return $params[$key];
+        } elseif (isset($GLOBALS[$key])) {
+            return $GLOBALS[$key];
+        } elseif (defined($key)) {
+            return constant($key);
+        } elseif (!$allowNotExist) {
+            shy('view')->error('[view] Param ' . $key . ' is not exist.');
+        }
+    }
+}
+
+if (!function_exists('push_resource')) {
+    /**
+     * Push resource
+     *
+     * type support js, css
+     *
+     * @param string $type
+     * @param string $resource
+     */
+    function push_resource(string $type, $resource = '')
+    {
+        if (is_array($resource)) {
+            foreach ($resource as $item) {
+                push_resource($type, $item);
+            }
+        } else {
+            if (!empty($resource)) {
+                switch ($type) {
+                    case 'js':
+                        $resource = '<script type="application/javascript" src="' . $resource . '"></script>';
+                        break;
+                    case 'css':
+                        $resource = '<link type="text/css" rel="stylesheet" href="' . $resource . '">';
+                        break;
+                    default:
+                        throw new RuntimeException('push_resource() undefined type ' . $type);
+                }
+            }
+
+            $array = push_array_config('push_js', $resource);
+
+            if (empty($resource) && is_array($array) && !empty($array)) {
+                echo implode('', $array);
+            }
         }
     }
 }
@@ -93,11 +154,11 @@ if (!function_exists('smarty')) {
     /**
      * New view
      *
-     * @param $view
-     * @param array $params
+     * @param string $view
+     * @param mixed $params
      * @return mixed
      */
-    function smarty($view, $params = [])
+    function smarty(string $view, $params = [])
     {
         if (config('smarty')) {
             $params['GLOBALS'] = $GLOBALS;

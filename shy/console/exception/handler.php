@@ -31,7 +31,7 @@ class handler implements handlerInterface
             return $e->report();
         }
 
-        logger('console/exception/', $this->getErrorString($e));
+        logger('exception: ' . $this->getErrorString($e), 'ERROR');
 
         echo
             PHP_EOL . $e->getMessage() . PHP_EOL .

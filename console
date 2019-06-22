@@ -24,9 +24,7 @@ require __DIR__ . '/shy/core/function/helpers.php';
  * Framework Run
  */
 
-use shy\core\container;
 use shy\console\exception\handler;
 
-$_container = new container();
-$_container->setExceptionHandler(new handler());
+(container())->setExceptionHandler(new handler());
 shy('console', 'shy\console')->run();
