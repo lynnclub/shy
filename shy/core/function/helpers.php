@@ -139,6 +139,7 @@ if (!function_exists('config_array_push')) {
 
         if (!empty($config)) {
             array_push($oldConfig, $config);
+            $oldConfig = array_unique($oldConfig);
             config_del($abstract);
             config_set($abstract, $oldConfig);
         }
