@@ -90,12 +90,6 @@ return [
     | Is use illuminate Database
     */
 
-    'illuminate_database' => true,
-
-    /*
-    | Is use smarty
-    */
-
-    'smarty_on' => true
+    'illuminate_database' => true
 
 ];

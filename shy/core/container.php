@@ -29,28 +29,28 @@ class container
      *
      * @var mixed $config
      */
-    private static $config;
+    private $config;
 
     /**
      * Bind ready to join
      *
      * @var mixed $binds
      */
-    private static $binds;
+    private  $binds;
 
     /**
      * Instances container
      *
      * @var mixed $instances
      */
-    private static $instances;
+    private  $instances;
 
     /**
      * Instances memory used
      *
      * @var array
      */
-    private static $instancesMemoryUsed;
+    private $instancesMemoryUsed;
 
     private $beforeMakeInstanceMemoryUsed;
 
@@ -73,16 +73,16 @@ class container
      */
     public function setConfig(string $abstract, $config)
     {
-        if (isset(self::$config[$abstract])) {
+        if (isset($this->config[$abstract])) {
             throw new RuntimeException('Config abstract ' . $abstract . ' exist and not empty.');
         }
         if (isset($config)) {
-            self::$config[$abstract] = $config;
+            $this->config[$abstract] = $config;
         } else {
             throw new RuntimeException('Config abstract ' . $abstract . ' config is null.');
         }
 
-        return self::$config[$abstract];
+        return $this->config[$abstract];
     }
 
     /**
@@ -92,7 +92,7 @@ class container
      */
     public function removeConfig(string $abstract)
     {
-        unset(self::$config[$abstract]);
+        unset($this->config[$abstract]);
     }
 
     /**
@@ -104,8 +104,8 @@ class container
      */
     public function getConfig(string $abstract, $default = '')
     {
-        if (isset(self::$config[$abstract])) {
-            return self::$config[$abstract];
+        if (isset($this->config[$abstract])) {
+            return $this->config[$abstract];
         }
 
         /**
@@ -127,7 +127,7 @@ class container
      */
     public function configExist(string $abstract)
     {
-        if (isset(self::$config[$abstract])) {
+        if (isset($this->config[$abstract])) {
             return true;
         }
 
@@ -141,7 +141,7 @@ class container
      */
     public function getAllConfig()
     {
-        return self::$config;
+        return $this->config;
     }
 
     /**
@@ -153,17 +153,17 @@ class container
      */
     public function configIntCalc(string $abstract, int $int = 1)
     {
-        if (isset(self::$config[$abstract])) {
-            if (!is_int(self::$config[$abstract])) {
+        if (isset($this->config[$abstract])) {
+            if (!is_int($this->config[$abstract])) {
                 throw new RuntimeException('Config Int Calc need config value is int.');
             }
         } else {
-            self::$config[$abstract] = 0;
+            $this->config[$abstract] = 0;
         }
 
-        self::$config[$abstract] += $int;
+        $this->config[$abstract] += $int;
 
-        return self::$config[$abstract];
+        return $this->config[$abstract];
     }
 
     /**
@@ -192,7 +192,7 @@ class container
             || is_object($concrete)
             || class_exists($concrete)
         ) {
-            self::$binds[$abstract] = $concrete;
+            $this->binds[$abstract] = $concrete;
         } else {
             throw new RuntimeException('Container: bind concrete type invalid:' . $abstract);
         }
@@ -211,8 +211,8 @@ class container
      */
     public function getOrMakeNew(string $abstract, $concrete = null, ...$parameters)
     {
-        if (isset(self::$instances[$abstract])) {
-            return self::$instances[$abstract];
+        if (isset($this->instances[$abstract])) {
+            return $this->instances[$abstract];
         }
 
         return $this->makeNew($abstract, $concrete, ...$parameters);
@@ -235,30 +235,30 @@ class container
         /**
          * bind
          */
-        if (!isset(self::$binds[$abstract])) {
+        if (!isset($this->binds[$abstract])) {
             $this->bind($abstract, $concrete);
         }
         /**
          * Join
          */
         $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
-        if (is_string(self::$binds[$abstract]) && class_exists(self::$binds[$abstract])) {
+        if (is_string($this->binds[$abstract]) && class_exists($this->binds[$abstract])) {
             if (!class_exists($concrete)) {
                 array_unshift($parameters, $concrete);
             }
-            self::$instances[$abstract] = $this->makeClassByReflection(self::$binds[$abstract], ...$parameters);
-        } elseif (self::$binds[$abstract] instanceof Closure) {
+            $this->instances[$abstract] = $this->makeClassByReflection($this->binds[$abstract], ...$parameters);
+        } elseif ($this->binds[$abstract] instanceof Closure) {
             if (!$concrete instanceof Closure) {
                 array_unshift($parameters, $concrete);
             }
-            self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
-        } elseif (is_object(self::$binds[$abstract])) {
-            self::$instances[$abstract] = self::$binds[$abstract];
+            $this->instances[$abstract] = call_user_func($this->binds[$abstract], ...$parameters);
+        } elseif (is_object($this->binds[$abstract])) {
+            $this->instances[$abstract] = $this->binds[$abstract];
         }
-        unset(self::$binds[$abstract]);
+        unset($this->binds[$abstract]);
         $this->countMakeInstanceMemoryUsed($abstract);
 
-        return self::$instances[$abstract];
+        return $this->instances[$abstract];
     }
 
     /**
@@ -292,7 +292,7 @@ class container
      */
     private function countMakeInstanceMemoryUsed(string $abstract)
     {
-        self::$instancesMemoryUsed[$abstract][] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
+        $this->instancesMemoryUsed[$abstract][] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
     }
 
     /**
@@ -304,10 +304,10 @@ class container
     {
         if (is_array($abstract)) {
             foreach ($abstract as $item) {
-                unset(self::$binds[$item], self::$instancesMemoryUsed[$item], self::$instances[$item]);
+                unset($this->binds[$item], $this->instancesMemoryUsed[$item], $this->instances[$item]);
             }
         } else {
-            unset(self::$binds[$abstract], self::$instancesMemoryUsed[$abstract], self::$instances[$abstract]);
+            unset($this->binds[$abstract], $this->instancesMemoryUsed[$abstract], $this->instances[$abstract]);
         }
     }
 
@@ -316,9 +316,9 @@ class container
      */
     public function clearAll()
     {
-        self::$binds = [];
-        self::$instancesMemoryUsed = [];
-        self::$instances = [];
+        $this->binds = [];
+        $this->instancesMemoryUsed = [];
+        $this->instances = [];
     }
 
     /**
@@ -328,7 +328,7 @@ class container
      */
     public function getList()
     {
-        return array_keys(self::$instances);
+        return array_keys($this->instances);
     }
 
     /**
@@ -338,7 +338,7 @@ class container
      */
     public function getListMemoryUsed()
     {
-        return self::$instancesMemoryUsed;
+        return $this->instancesMemoryUsed;
     }
 
     /**
@@ -349,7 +349,7 @@ class container
      */
     public function inList(string $abstract)
     {
-        if (isset(self::$instances[$abstract])) {
+        if (isset($this->instances[$abstract])) {
             return true;
         }
 
