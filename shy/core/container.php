@@ -17,7 +17,12 @@ class container
 {
     use exceptionHandlerRegister;
 
-    private $configDir = __DIR__ . '/../../config/';
+    /**
+     * Config dir
+     *
+     * @var string $configDir
+     */
+    private $configDir;
 
     /**
      * Config
@@ -48,6 +53,16 @@ class container
     private static $instancesMemoryUsed;
 
     private $beforeMakeInstanceMemoryUsed;
+
+    /**
+     * Container constructor.
+     *
+     * @param string $configDir
+     */
+    public function __construct(string $configDir = '')
+    {
+        $this->configDir = is_dir($configDir) ? $configDir : __DIR__ . '/../../config/';
+    }
 
     /**
      * Set config
@@ -155,19 +170,31 @@ class container
      * Bind instance or closure
      *
      * @param string $abstract
-     * @param object|Closure $concrete
+     * @param string|Closure|object $concrete
      * @throws RuntimeException
      * @return $this
      */
     public function bind(string $abstract, $concrete)
     {
+        if (empty($abstract)) {
+            throw new RuntimeException('Container: bind abstract' . $abstract . ' is empty');
+        }
+        if (empty($concrete)) {
+            if (class_exists($abstract)) {
+                $concrete = $abstract;
+            } else {
+                throw new RuntimeException('Container: bind concrete' . $concrete . ' is empty');
+            }
+        }
+
         if (
             $concrete instanceof Closure
             || is_object($concrete)
+            || class_exists($concrete)
         ) {
             self::$binds[$abstract] = $concrete;
         } else {
-            throw new RuntimeException('Bind concrete type invalid:' . $abstract);
+            throw new RuntimeException('Container: bind concrete type invalid:' . $abstract);
         }
 
         return $this;
@@ -203,37 +230,27 @@ class container
     public function makeNew(string $abstract, $concrete = null, ...$parameters)
     {
         if (empty($abstract)) {
-            throw new RuntimeException('Abstract is empty');
+            throw new RuntimeException('Container: make object abstract is empty');
         }
-
-        if (isset(self::$binds[$abstract])) {
-            array_unshift($parameters, $concrete);
-        } else {
-            /**
-             * abstract is namespace
-             */
-            if (class_exists($abstract)) {
-                array_unshift($parameters, $concrete);
-                $concrete = $abstract;
-            }
-            /**
-             * concrete is namespace
-             */
-            if (empty($concrete)) {
-                throw new RuntimeException('No concrete to make');
-            } elseif (is_string($concrete) && class_exists($concrete)) {
-                $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
-                return $this->makeClassByReflection($abstract, $concrete, ...$parameters);
-            }
-
+        /**
+         * bind
+         */
+        if (!isset(self::$binds[$abstract])) {
             $this->bind($abstract, $concrete);
         }
-
         /**
          * Join
          */
         $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
-        if (self::$binds[$abstract] instanceof Closure) {
+        if (is_string(self::$binds[$abstract]) && class_exists(self::$binds[$abstract])) {
+            if (!class_exists($concrete)) {
+                array_unshift($parameters, $concrete);
+            }
+            self::$instances[$abstract] = $this->makeClassByReflection(self::$binds[$abstract], ...$parameters);
+        } elseif (self::$binds[$abstract] instanceof Closure) {
+            if (!$concrete instanceof Closure) {
+                array_unshift($parameters, $concrete);
+            }
             self::$instances[$abstract] = call_user_func(self::$binds[$abstract], ...$parameters);
         } elseif (is_object(self::$binds[$abstract])) {
             self::$instances[$abstract] = self::$binds[$abstract];
@@ -247,27 +264,25 @@ class container
     /**
      * Make class by Reflection
      *
-     * @param string $abstract
      * @param string $concrete
      * @param array ...$parameters
      * @return mixed
      * @throws ReflectionException
      */
-    private function makeClassByReflection(string $abstract, string $concrete, ...$parameters)
+    private function makeClassByReflection(string $concrete, ...$parameters)
     {
         $reflector = new ReflectionClass($concrete);
         if (!$reflector->isInstantiable()) {
-            throw new RuntimeException('class ' . $concrete . ' is not instantiable');
+            throw new RuntimeException('Container: class ' . $concrete . ' is not instantiable');
         }
-        $constructor = $reflector->getConstructor();
-        if (is_null($constructor)) {
-            self::$instances[$abstract] = $reflector->newInstanceWithoutConstructor();
-        } else {
-            self::$instances[$abstract] = $reflector->newInstance(...$parameters);
-        }
-        $this->countMakeInstanceMemoryUsed($abstract);
 
-        return self::$instances[$abstract];
+        if (is_null($reflector->getConstructor())) {
+            $instance = $reflector->newInstanceWithoutConstructor();
+        } else {
+            $instance = $reflector->newInstance(...$parameters);
+        }
+
+        return $instance;
     }
 
     /**
@@ -277,9 +292,7 @@ class container
      */
     private function countMakeInstanceMemoryUsed(string $abstract)
     {
-        if (!isset(self::$instancesMemoryUsed[$abstract])) {
-            self::$instancesMemoryUsed[$abstract] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
-        }
+        self::$instancesMemoryUsed[$abstract][] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
     }
 
     /**

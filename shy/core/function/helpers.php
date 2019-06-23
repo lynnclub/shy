@@ -10,13 +10,14 @@ if (!function_exists('container')) {
     /**
      * Container
      *
+     * @param string $configDir
      * @return \shy\core\container
      */
-    function container()
+    function container(string $configDir = '')
     {
         static $_SHY_CONTAINER;
         if (!$_SHY_CONTAINER instanceof shy\core\container) {
-            $_SHY_CONTAINER = new shy\core\container();
+            $_SHY_CONTAINER = new shy\core\container($configDir);
         }
 
         return $_SHY_CONTAINER;
@@ -338,8 +339,8 @@ if (!function_exists('logger')) {
         }
 
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] ';
-        $request = shy('request', 'shy\http\request');
-        if (is_object($request)) {
+        $request = shy(shy\http\request::class);
+        if (is_object($request) && $request->isInit()) {
             $ips = $request->getClientIps();
             if (!empty($ips)) {
                 $prefix .= '[' . implode(',', $ips);

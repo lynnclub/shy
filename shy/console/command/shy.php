@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Shy command
  *
@@ -9,6 +8,7 @@
 
 namespace shy\console\command;
 
+use shy\console;
 use RuntimeException;
 use shy\webInWorkerMan;
 use Workerman\Worker;
@@ -22,7 +22,7 @@ class shy
      */
     public function list()
     {
-        $list = shy('console')->getCommandList();
+        $list = shy(console::class)->getCommandList();
         return implode(PHP_EOL, $list);
     }
 

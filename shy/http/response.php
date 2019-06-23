@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Shy Framework Router
+ * Response
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -33,6 +32,16 @@ class response
      * @var view|string $response
      */
     protected $response;
+
+    /**
+     * Init in cycle
+     */
+    protected function init()
+    {
+        $this->code = null;
+        $this->header = [];
+        $this->response = '';
+    }
 
     /**
      * Set Response
@@ -95,21 +104,16 @@ class response
 
         if ($this->response instanceof view) {
             echo $this->response->render();
+            shy_clear(view::class);
         } elseif (is_string($this->response)) {
             echo $this->response;
         } else {
             throw new RuntimeException('Invalid response');
         }
+
         $this->init();
 
         return true;
-    }
-
-    protected function init()
-    {
-        $this->code = null;
-        $this->header = [];
-        $this->response = '';
     }
 
     /**

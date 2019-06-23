@@ -3,6 +3,7 @@
 namespace shy\http\facade;
 
 use shy\core\facade;
+use shy\http\session as realSession;
 
 class session extends facade
 {
@@ -13,6 +14,6 @@ class session extends facade
      */
     protected static function getInstance()
     {
-        return shy('session', 'shy\http\session');
+        return shy(realSession::class);
     }
 }

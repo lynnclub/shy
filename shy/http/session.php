@@ -1,6 +1,9 @@
 <?php
 /**
  * Session
+ *
+ * @author    lynn<admin@lynncho.cn>
+ * @link      http://lynncho.cn/
  */
 
 namespace shy\http;

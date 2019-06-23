@@ -1,4 +1,10 @@
 <?php
+/**
+ * Pipeline
+ *
+ * @author    lynn<admin@lynncho.cn>
+ * @link      http://lynncho.cn/
+ */
 
 namespace shy\core;
 

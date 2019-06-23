@@ -2,6 +2,7 @@
 
 namespace shy\console\exception;
 
+use shy\console;
 use shy\core\exception\handler as handlerInterface;
 use Exception;
 
@@ -35,7 +36,7 @@ class handler implements handlerInterface
 
         echo
             PHP_EOL . $e->getMessage() . PHP_EOL .
-            shy('console')->exceptionNotice() . PHP_EOL . PHP_EOL;
+            shy(console::class)->exceptionNotice() . PHP_EOL . PHP_EOL;
     }
 
     private function getErrorString(Exception $e)

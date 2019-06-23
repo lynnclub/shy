@@ -24,24 +24,21 @@ class console
     protected $method;
 
     /**
-     * console constructor.
+     * Console constructor
      *
      */
     public function __construct()
     {
-        $this->setting();
-    }
-
-    protected function setting()
-    {
-        /**
-         * Time Zone
-         */
-        date_default_timezone_set(config_key('timezone'));
+        $this->systemSetting();
 
         if (config_key('illuminate_database')) {
             init_illuminate_database();
         }
+    }
+
+    protected function systemSetting()
+    {
+        date_default_timezone_set(config_key('timezone'));
     }
 
     public function getCommandList()
@@ -56,7 +53,7 @@ class console
 You can use `php console list` to get all command.
 
 See the log for more error information. 
-Log dir: cache/log/console/exception/
+Log dir: cache/log/console/
 EOT;
     }
 
@@ -79,7 +76,7 @@ EOT;
             throw new Exception('method ' . $this->method . ' not found');
         }
 
-        $result = shy('pipeline', new pipeline())
+        $result = shy(pipeline::class)
             ->send(...$this->params)
             ->through($namespaceClass)
             ->via($this->method)
@@ -99,18 +96,21 @@ EOT;
         array_shift($argv);
         $this->command = array_shift($argv);
         $this->params = $argv;
+
         $this->config = config('console');
-        if (isset($this->config[$this->command])) {
-            $route = $this->config[$this->command];
-            $route = explode('@', $route);
-            if (isset($route[0], $route[1])) {
-                $this->class = $route[0];
-                $this->method = $route[1];
-            } else {
-                throw new Exception('command ' . $this->command . ' config error');
-            }
-        } else {
+        if (!isset($this->config[$this->command])) {
             throw new Exception('command ' . $this->command . ' not find');
+        }
+        if (!is_string($this->config[$this->command])) {
+            throw new Exception('command ' . $this->command . ' config error');
+        }
+
+        $route = explode('@', $this->config[$this->command]);
+        if (isset($route[0], $route[1])) {
+            $this->class = $route[0];
+            $this->method = $route[1];
+        } else {
+            throw new Exception('command ' . $this->command . ' config error');
         }
     }
 

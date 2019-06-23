@@ -6,6 +6,9 @@
  * @link      http://lynncho.cn/
  */
 
+defined('CONFIG_DIR') or define('CONFIG_DIR', __DIR__ . '/config/');
+
+use shy\http;
 use shy\http\exception\handler;
 
 if (function_exists('shy')) {
@@ -15,7 +18,7 @@ if (function_exists('shy')) {
     /**
      * Run Framework In CLI mode
      */
-    shy('http')->run();
+    shy(http::class)->run();
 } else {
     /**
      * Composer Autoload
@@ -33,6 +36,6 @@ if (function_exists('shy')) {
     /**
      * Run Framework
      */
-    (container())->setExceptionHandler(new handler());
-    shy('http', 'shy\http')->run();
+    (container(CONFIG_DIR))->setExceptionHandler(new handler());
+    shy(http::class)->run();
 }

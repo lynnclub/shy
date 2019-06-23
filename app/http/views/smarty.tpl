@@ -27,13 +27,15 @@
     <br>
     <p>Loaded instance's abstract: </p>
     <ol>
-        {foreach shy_list_memory_used() as $abstract => $memoryUsed}
-            <li>{$abstract}  {$memoryUsed/1024} kb</li>
+        {foreach shy_list_memory_used() as $abstract => $instances}
+            {foreach $instances as $key => $memoryUsed}
+                <li>{$abstract}({$key + 1}) {$memoryUsed/1024} kb</li>
+            {/foreach}
         {/foreach}
     </ol>
     <br>
     <p>Config:</p>
-    {var_dump(config_all())}
+    <p class="var-dump">{var_dump(config_all())}</p>
 </div>
 {include file='component/footer.php'}
 </body>

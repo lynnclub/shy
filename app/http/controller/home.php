@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Home
  *
@@ -15,6 +14,7 @@ use app\http\facade\testBusiness;
 
 use shy\core\facade\redis;
 use shy\http\facade\capsule;
+use Illuminate\Database\Capsule\Manager;
 
 class home
 {
@@ -34,7 +34,7 @@ class home
 
         $title = 'Shy Framework';
 
-//        dd(shy('capsule')::table('users')->where('id', 1)->get());
+//        dd(shy(Manager::class)::table('users')->where('id', 1)->get());
 //        dd(capsule::table('users')->where('id', 2)->get());
 //        redis::instance();
 //        redis::close();

@@ -3,6 +3,7 @@
 namespace shy\http\facade;
 
 use shy\core\facade;
+use shy\http\response as shyResponse;
 
 class response extends facade
 {
@@ -13,6 +14,6 @@ class response extends facade
      */
     protected static function getInstance()
     {
-        return shy('response');
+        return shy(shyResponse::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace shy\http\facade;
 
 use shy\core\facade;
+use shy\http\request as realRequest;
 
 class request extends facade
 {
@@ -13,6 +14,6 @@ class request extends facade
      */
     protected static function getInstance()
     {
-        return shy('request');
+        return shy(realRequest::class);
     }
 }

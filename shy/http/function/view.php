@@ -17,7 +17,7 @@ if (!function_exists('view')) {
      */
     function view(string $view, array $params = [], string $layout = '')
     {
-        $view = make_new('view', 'shy\http\view')->view($view);
+        $view = make_new(shy\http\view::class)->view($view);
         if (isset($params)) {
             $view->with($params);
         }
@@ -38,7 +38,7 @@ if (!function_exists('include_view')) {
     {
         $filename = APP_PATH . 'http/views/' . $filename . '.php';
         if (file_exists($filename)) {
-            $params = shy('view')->getParams();
+            $params = shy(\shy\http\view::class)->getParams();
             if (!empty($params)) {
                 extract($params);
             }
@@ -47,7 +47,7 @@ if (!function_exists('include_view')) {
             include "{$filename}";
             ob_end_flush();
         } else {
-            shy('view')->error('[view] Include view ' . $filename . ' is not exist.');
+            shy(\shy\http\view::class)->error('[view] Include view ' . $filename . ' is not exist.');
         }
     }
 }
@@ -58,9 +58,10 @@ if (!function_exists('include_sub_view')) {
      */
     function include_sub_view()
     {
-        $subViewContent = shy('view')->getSubView();
+        $view = shy(\shy\http\view::class);
+        $subViewContent = $view->getSubView();
         if (empty($subViewContent) || !is_string($subViewContent)) {
-            shy('view')->error('[view] Layout ' . shy('view')->getLayout() . ' include sub view ' . shy('view')->getView() . ' failed.');
+            $view->error('[view] Layout ' . $view->getLayout() . ' include sub view ' . $view->getView() . ' failed.');
         } else {
             echo $subViewContent;
         }
@@ -76,7 +77,7 @@ if (!function_exists('param')) {
      */
     function param(string $key, bool $allowNotExist = false)
     {
-        $params = shy('view')->getParams();
+        $params = shy(\shy\http\view::class)->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
             echo $params[$key];
         } elseif (isset($GLOBALS[$key])) {
@@ -84,7 +85,7 @@ if (!function_exists('param')) {
         } elseif (defined($key)) {
             echo constant($key);
         } elseif (!$allowNotExist) {
-            shy('view')->error('[view] Param ' . $key . ' is not exist.');
+            shy(\shy\http\view::class)->error('[view] Param ' . $key . ' is not exist.');
         }
     }
 }
@@ -99,7 +100,7 @@ if (!function_exists('get_param')) {
      */
     function get_param(string $key, bool $allowNotExist = false)
     {
-        $params = shy('view')->getParams();
+        $params = shy(\shy\http\view::class)->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
             return $params[$key];
         } elseif (isset($GLOBALS[$key])) {
@@ -107,7 +108,7 @@ if (!function_exists('get_param')) {
         } elseif (defined($key)) {
             return constant($key);
         } elseif (!$allowNotExist) {
-            shy('view')->error('[view] Param ' . $key . ' is not exist.');
+            shy(\shy\http\view::class)->error('[view] Param ' . $key . ' is not exist.');
         }
     }
 }
@@ -182,7 +183,7 @@ if (!function_exists('set_lang')) {
 
 if (!function_exists('smarty')) {
     /**
-     * New view
+     * Smarty new view
      *
      * @param string $view
      * @param mixed $params
@@ -190,11 +191,20 @@ if (!function_exists('smarty')) {
      */
     function smarty(string $view, $params = [])
     {
-        if (config_key('smarty')) {
-            $params['GLOBALS'] = $GLOBALS;
-            return shy('smarty')->fetch($view, $params);
-        } else {
-            throw new RuntimeException('The Smarty module is closed and can be opened in the configuration file.');
+        $smarty = shy(Smarty::class);
+        $config = config('smarty');
+        $smarty->template_dir = VIEW_PATH;
+        $smarty->compile_dir = CACHE_PATH . 'smarty' . DIRECTORY_SEPARATOR;
+        $smarty->left_delimiter = $config['left_delimiter'];
+        $smarty->right_delimiter = $config['right_delimiter'];
+        $smarty->caching = $config['caching'];
+        $smarty->cache_lifetime = $config['cache_lifetime'];
+        $params['GLOBALS'] = $GLOBALS;
+
+        if (config_key('env') === 'development') {
+            $smarty->debugging = true;
         }
+
+        return $smarty->fetch($view, $params);
     }
 }

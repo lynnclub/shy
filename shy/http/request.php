@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Shy Framework Request
  *
@@ -17,6 +16,8 @@ use Exception;
 
 class request
 {
+    protected $isInit;
+
     /**
      * $_POST
      *
@@ -102,6 +103,13 @@ class request
 
         $this->method = null;
         $this->uri = null;
+
+        $this->isInit = true;
+    }
+
+    public function isInit()
+    {
+        return $this->isInit;
     }
 
     /**

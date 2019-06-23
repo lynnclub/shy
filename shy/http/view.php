@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Shy Framework View
  *
@@ -13,7 +12,6 @@ use RuntimeException;
 
 class view
 {
-
     /**
      * View file
      *

@@ -3,6 +3,7 @@
 namespace shy\http\facade;
 
 use shy\core\facade;
+use Illuminate\Database\Capsule\Manager;
 
 class capsule extends facade
 {
@@ -13,6 +14,6 @@ class capsule extends facade
      */
     protected static function getInstance()
     {
-        return shy('capsule');
+        return shy(Manager::class);
     }
 }

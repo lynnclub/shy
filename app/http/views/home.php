@@ -26,13 +26,19 @@ push_resource('js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.js', '']
     }
     ?>
     <br>
-    <p>Loaded instance's abstract: </p>
-    <ol>
-        <?php foreach (shy_list_memory_used() as $abstract => $memoryUsed) { ?>
-            <li><?php echo $abstract . '  ' . $memoryUsed / 1024 . ' kb'; ?></li>
-        <?php } ?>
-    </ol>
+    <p>Loaded instances memory used: </p>
+    <ul>
+        <?php
+        $instanceCount = 0;
+        foreach (shy_list_memory_used() as $abstract => $instances) {
+            foreach ($instances as $key => $memoryUsed) {
+                $instanceCount++;
+                ?>
+                <li><?php echo '[' . $instanceCount . '] ' . $abstract . '(' . ($key + 1) . ') ' . $memoryUsed / 1024 . ' kb'; ?></li>
+            <?php }
+        } ?>
+    </ul>
     <br>
     <p>Config:</p>
-    <?php var_dump(config_all()); ?>
+    <p class="var-dump"><?php var_dump(config_all()); ?></p>
 </div>

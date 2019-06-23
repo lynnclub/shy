@@ -87,26 +87,15 @@ return [
     'default_controller' => 'home',
 
     /*
-    | Illuminate Database
+    | Is use illuminate Database
     */
 
     'illuminate_database' => true,
 
     /*
-    | Smarty
+    | Is use smarty
     */
 
-    'smarty' => true,
-
-    /*
-    | Smarty Config
-    */
-
-    'smarty_config' => [
-        'left_delimiter' => '',
-        'right_delimiter' => '',
-        'caching' => false,
-        'cache_lifetime' => 120 //seconds
-    ]
+    'smarty_on' => true
 
 ];

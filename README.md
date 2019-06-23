@@ -424,7 +424,7 @@ composer require illuminate/database
 使用方式如下：
 
 ```php
-shy('capsule')::table('users')->where('id', 1)->get();
+capsule::table('users')->where('id', 1)->get();
 
 //或者
 
