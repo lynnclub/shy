@@ -119,14 +119,17 @@ if (!function_exists('push_resource')) {
      *
      * type support js, css
      *
+     * @param string $abstract
+     * @param string|array $resource
      * @param string $type
-     * @param string $resource
      */
-    function push_resource(string $type, $resource = '')
+    function push_resource(string $abstract, $resource = '', string $type = '')
     {
         if (is_array($resource)) {
             foreach ($resource as $item) {
-                push_resource($type, $item);
+                if (!empty($item)) {
+                    push_resource($abstract, $item, $type);
+                }
             }
         } else {
             if (!empty($resource)) {
@@ -137,12 +140,10 @@ if (!function_exists('push_resource')) {
                     case 'css':
                         $resource = '<link type="text/css" rel="stylesheet" href="' . $resource . '">';
                         break;
-                    default:
-                        throw new RuntimeException('push_resource() undefined type ' . $type);
                 }
             }
 
-            $array = config_array_push('push_' . $type, $resource);
+            $array = config_array_push('push_' . $abstract, $resource);
 
             if (empty($resource) && is_array($array) && !empty($array)) {
                 echo implode('', $array);

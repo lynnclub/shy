@@ -1,6 +1,6 @@
 <?php
 
-push_resource('js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.js', '']);
+push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.js', ''], 'js');
 
 ?>
 

@@ -8,11 +8,11 @@
     <meta name="renderer" content="webkit">
     <title><?php param('title') ?></title>
     <link type="text/css" rel="stylesheet" href="<?php param('BASE_URL') ?>css/app.css">
-    <?php push_resource('css') ?>
+    <?php push_resource('header-css') ?>
 </head>
 <body>
 <?php include_sub_view() ?>
 <?php include_view('component/footer') ?>
-<?php push_resource('js') ?>
+<?php push_resource('footer-js') ?>
 </body>
 </html>
