@@ -14,7 +14,7 @@ return [
     | Environment
     |
     | for error reporting.
-    | options: development, production.
+    | options: local, development, production.
     */
 
     'env' => 'development',
@@ -78,7 +78,7 @@ return [
     | Route By Path
     */
 
-    'route_by_path' => true,
+    'route_by_path' => false,
 
     /*
     | Default Controller

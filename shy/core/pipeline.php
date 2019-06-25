@@ -154,8 +154,9 @@ class pipeline
                 } else {
                     $method = $this->method;
                 }
-                $this->init();
+
                 $response = $pipe->{$method}(...$parameters);
+                $this->init();
 
                 return $response;
             };

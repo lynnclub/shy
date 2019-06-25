@@ -1,8 +1,8 @@
 <?php
-
 namespace app\http\facade;
 
 use shy\core\facade;
+use app\http\business\testBusiness as realTestBusiness;
 
 class testBusiness extends facade
 {
@@ -13,6 +13,6 @@ class testBusiness extends facade
      */
     protected static function getInstance()
     {
-        return shy('app\http\business\testBusiness');
+        return shy(realTestBusiness::class);
     }
 }

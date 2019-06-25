@@ -1,6 +1,6 @@
 <?php
 
-$base = dirname(realpath(__DIR__)) . DIRECTORY_SEPARATOR;
+$base = dirname(dirname(realpath(__DIR__))) . DIRECTORY_SEPARATOR;
 
 return [
     'base' => $base,

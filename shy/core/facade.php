@@ -6,7 +6,6 @@ use RuntimeException;
 
 abstract class facade
 {
-
     /**
      * Get Instance.
      *

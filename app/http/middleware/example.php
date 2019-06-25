@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Example Middleware
  *
@@ -24,7 +23,8 @@ class example implements middleware
         $response = $next();
 
         // response handle
-        $response = 'request: ' . json_encode($request) . ', example middleware, response: ' . json_encode($response);
+        $response = 'request: ' . json_encode($request) . ', example middleware response: ' . $response;
+
         return $response;
     }
 }

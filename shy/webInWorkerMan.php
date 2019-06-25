@@ -11,6 +11,7 @@ namespace shy;
 use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
+use Exception;
 use shy\http as shyHttp;
 
 class webInWorkerMan extends Worker
@@ -86,12 +87,12 @@ class webInWorkerMan extends Worker
     /**
      * Emit when process start.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function onWorkerStart()
     {
         if (empty($this->serverRoot)) {
-            Worker::safeEcho(new \Exception('server root not set, please use WebServer::addRoot($domain, $root_path) to set server root path'));
+            Worker::safeEcho(new Exception('server root not set, please use WebServer::addRoot($domain, $root_path) to set server root path'));
             exit(250);
         }
 
@@ -102,7 +103,7 @@ class webInWorkerMan extends Worker
         if ($this->_onWorkerStart) {
             try {
                 call_user_func($this->_onWorkerStart, $this);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 self::log($e);
                 exit(250);
             } catch (\Error $e) {
@@ -206,7 +207,7 @@ class webInWorkerMan extends Worker
                     $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
                     $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
                     include $workerman_file;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Jump_exit?
                     if ($e->getMessage() != 'jump_exit') {
                         Worker::safeEcho($e);

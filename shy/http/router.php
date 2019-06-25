@@ -10,6 +10,7 @@ namespace shy\http;
 
 use shy\core\pipeline;
 use shy\http\exception\httpException;
+use RuntimeException;
 
 class router
 {
@@ -83,9 +84,9 @@ class router
      */
     protected function init()
     {
+        $this->parseRouteSuccess = false;
         $this->controller = config_key('default_controller');
         $this->method = 'index';
-        $this->parseRouteSuccess = false;
         $this->middleware = [];
     }
 
@@ -153,34 +154,8 @@ class router
         /**
          * Read or build router index
          */
-        if (config_key('env') === 'development' || empty($routerIndex) || !is_array($routerIndex)) {
-            $router = config('router');
-            $routerIndex = [];
-            /**
-             * path
-             */
-            if (isset($router['path'])) {
-                foreach ($router['path'] as $path => $handle) {
-                    $routerIndex[$path] = ['handle' => $handle];
-                }
-            }
-            /**
-             * group
-             */
-            if (isset($router['group'])) {
-                foreach ($router['group'] as $oneGroup) {
-                    if (isset($oneGroup['path']) && is_array($oneGroup['path'])) {
-                        $prefix = '';
-                        if (isset($oneGroup['prefix']) && is_string($oneGroup['prefix']) && !empty($oneGroup['prefix'])) {
-                            $prefix = '/' . $oneGroup['prefix'];
-                        }
-                        foreach ($oneGroup['path'] as $path => $handle) {
-                            $routerIndex[$prefix . $path] = array_merge($oneGroup, ['handle' => $handle]);
-                        }
-                    }
-                }
-            }
-            file_put_contents(CACHE_PATH . 'app/router.cache', json_encode($routerIndex));
+        if (config_key('env') !== 'production' || empty($routerIndex) || !is_array($routerIndex)) {
+            $routerIndex = $this->buildRouterIndex();
         }
         /**
          * parse router
@@ -188,21 +163,92 @@ class router
         if (isset($routerIndex[$this->uri])) {
             $handle = $routerIndex[$this->uri]['handle'];
             list($this->controller, $this->method) = explode('@', $handle);
-
             /**
-             * Get middleware by config
+             * Middleware
              */
-            if (isset($routerIndex[$this->uri]['middleware']) && is_array($routerIndex[$this->uri]['middleware'])) {
-                $middlewareConfig = config('middleware');
-                foreach ($routerIndex[$this->uri]['middleware'] as $middleware) {
-                    if (isset($middlewareConfig[$middleware])) {
-                        $this->middleware[] = $middlewareConfig[$middleware];
-                    }
-                }
+            if (isset($routerIndex[$this->uri]['middleware'])) {
+                $this->middleware = $this->getMiddlewareClassByConfig($routerIndex[$this->uri]['middleware']);
             }
 
             $this->parseRouteSuccess = true;
         }
+    }
+
+    /**
+     * Build router index
+     */
+    protected function buildRouterIndex()
+    {
+        $router = config('router');
+        $routerIndex = [];
+        /**
+         * path
+         */
+        if (isset($router['path'])) {
+            foreach ($router['path'] as $path => $handle) {
+                $routerIndex[$path] = ['handle' => $handle];
+            }
+        }
+        /**
+         * group
+         */
+        if (isset($router['group'])) {
+            foreach ($router['group'] as $oneGroup) {
+                if (isset($oneGroup['path']) && is_array($oneGroup['path'])) {
+                    /**
+                     * prefix
+                     */
+                    $prefix = '';
+                    if (isset($oneGroup['prefix']) && is_string($oneGroup['prefix']) && !empty($oneGroup['prefix'])) {
+                        $prefix = '/' . $oneGroup['prefix'];
+                    }
+                    /**
+                     * middleware
+                     */
+                    $middleware = [];
+                    if (isset($oneGroup['middleware']) && is_array($oneGroup['middleware'])) {
+                        $middleware = $oneGroup['middleware'];
+                    }
+                    foreach ($oneGroup['path'] as $path => $handle) {
+                        $routerIndex[$prefix . $path] = ['handle' => $handle, 'middleware' => $middleware];
+                    }
+                }
+            }
+        }
+
+        file_put_contents(CACHE_PATH . 'app/router.cache', json_encode($routerIndex));
+
+        return $routerIndex;
+    }
+
+    /**
+     * Get middleware class by config
+     *
+     * @param $middlewareNames
+     * @return array
+     */
+    protected function getMiddlewareClassByConfig(array $middlewareNames)
+    {
+        $middleware = [];
+        if (!empty($middlewareNames)) {
+            $middlewareConfig = config('middleware');
+            foreach ($middlewareNames as $middlewareName) {
+                if (isset($middlewareConfig[$middlewareName])) {
+                    $middlewareClass = $middlewareConfig[$middlewareName];
+                    if (is_string($middlewareClass)) {
+                        $middleware[] = $middlewareClass;
+                    } elseif (is_array($middlewareClass)) {
+                        $middleware = array_merge($middleware, $middlewareClass);
+                    } else {
+                        throw new RuntimeException('Middleware name ' . $middlewareName . ' config error.');
+                    }
+                } else {
+                    throw new RuntimeException('Middleware name ' . $middlewareName . ' config not found.');
+                }
+            }
+        }
+
+        return $middleware;
     }
 
     /**

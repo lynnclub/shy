@@ -6,7 +6,8 @@
  * @link      http://lynncho.cn/
  */
 
-defined('CONFIG_DIR') or define('CONFIG_DIR', __DIR__ . '/config/');
+defined('ENVIRONMENT') or define('ENVIRONMENT', empty(getenv('ENVIRONMENT')) ? 'local' : getenv('ENVIRONMENT'));
+defined('CONFIG_DIR') or define('CONFIG_DIR', __DIR__ . '/config/' . ENVIRONMENT);
 
 use shy\http;
 use shy\http\exception\handler;
@@ -29,10 +30,6 @@ if (function_exists('shy')) {
      */
     require __DIR__ . '/shy/core/function/helpers.php';
     require __DIR__ . '/shy/http/function/view.php';
-    /**
-     * Config
-     */
-    config_set('SHY_START_TIME', microtime(true));
     /**
      * Run Framework
      */

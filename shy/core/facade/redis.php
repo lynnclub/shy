@@ -3,6 +3,7 @@
 namespace shy\core\facade;
 
 use shy\core\facade;
+use shy\core\library\redis as realRedis;
 
 class redis extends facade
 {
@@ -13,6 +14,6 @@ class redis extends facade
      */
     protected static function getInstance()
     {
-        return shy('shy_redis', 'shy\core\library\redis');
+        return shy(realRedis::class);
     }
 }

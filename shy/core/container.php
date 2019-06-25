@@ -36,14 +36,14 @@ class container
      *
      * @var mixed $binds
      */
-    private  $binds;
+    private $binds;
 
     /**
      * Instances container
      *
      * @var mixed $instances
      */
-    private  $instances;
+    private $instances;
 
     /**
      * Instances memory used
@@ -61,7 +61,8 @@ class container
      */
     public function __construct(string $configDir = '')
     {
-        $this->configDir = is_dir($configDir) ? $configDir : __DIR__ . '/../../config/';
+        $this->setConfig('SHY_START_TIME', microtime(true));
+        $this->configDir = is_dir($configDir) ? $configDir : __DIR__ . '/../../config/' . ENVIRONMENT . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -179,12 +180,11 @@ class container
         if (empty($abstract)) {
             throw new RuntimeException('Container: bind abstract' . $abstract . ' is empty');
         }
+        if (class_exists($abstract)) {
+            $concrete = $abstract;
+        }
         if (empty($concrete)) {
-            if (class_exists($abstract)) {
-                $concrete = $abstract;
-            } else {
-                throw new RuntimeException('Container: bind concrete' . $concrete . ' is empty');
-            }
+            throw new RuntimeException('Container: bind concrete' . $concrete . ' is empty');
         }
 
         if (

@@ -2,7 +2,7 @@
 
 return [
     'group' => [
-        ['middleware' => ['example'], 'path' => [
+        ['middleware' => ['example', 'group_example'], 'path' => [
             '/test2' => 'test2@test2',//echo string with middleware
             '/test3' => 'test2@test3'//return string with middleware
         ]],
@@ -12,6 +12,7 @@ return [
         ]]
     ],
     'path' => [
+        '/' => 'home@index',//view home
         '/home2' => 'home@test2',//return string
         '/smarty' => 'home@smarty',
         '/home3' => 'home@home3',//404

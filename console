@@ -22,7 +22,6 @@ require __DIR__ . '/shy/core/function/helpers.php';
  * Config
  */
 config_set('IS_CLI', true);
-config_set('SHY_START_TIME', microtime(true));
 /**
  * Run CLI mode
  */
