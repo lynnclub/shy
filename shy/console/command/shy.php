@@ -43,7 +43,7 @@ class shy
      */
     public function http()
     {
-        $config = config_key('worker_man_http');
+        $config = config_key('http', 'workerman');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
             throw new RuntimeException('WorkerMan setting error.');
         }
@@ -65,20 +65,20 @@ class shy
     /**
      * WorkerMan socket
      */
-    public function workerman()
+    public function worker_man()
     {
         global $argv;
         if (!isset($argv[0])) {
             throw new RuntimeException('WorkerMan socket config not specified.');
         }
-        $config = config_key('worker_man_socket');
+        $config = config_key('socket', 'workerman');
         if (isset($config[$argv[0]])) {
             $config = $config[$argv[0]];
         } else {
             throw new RuntimeException('WorkerMan socket config ' . $argv[0] . ' not found.');
         }
         if (!isset($config['address'], $config['worker'], $config['onConnect'], $config['onMessage'], $config['onClose']) || !is_int($config['worker'])) {
-            throw new RuntimeException('WorkerMan setting error');
+            throw new RuntimeException('WorkerMan socket setting error');
         }
 
         $worker = new Worker($config['address']);
@@ -87,7 +87,6 @@ class shy
         if (!empty($config['onConnect'])) {
             $onConnectClass = key($config['onConnect']);
             $onConnectMethod = current($config['onConnect']);
-            shy($onConnectClass);
             $worker->onConnect = function ($connection) use ($onConnectClass, $onConnectMethod) {
                 if (method_exists($onConnectClass, $onConnectMethod)) {
                     shy($onConnectClass)->$onConnectMethod($connection);
@@ -98,7 +97,6 @@ class shy
         if (!empty($config['onMessage'])) {
             $onMessageClass = key($config['onMessage']);
             $onMessageMethod = current($config['onMessage']);
-            shy($onMessageClass);
             $worker->onMessage = function ($connection, $data) use ($onMessageClass, $onMessageMethod) {
                 if (method_exists($onMessageClass, $onMessageMethod)) {
                     shy($onMessageClass)->$onMessageMethod($connection, $data);
@@ -109,7 +107,6 @@ class shy
         if (!empty($config['onClose'])) {
             $onCloseClass = key($config['onClose']);
             $onCloseMethod = current($config['onClose']);
-            shy($onCloseClass);
             $worker->onClose = function ($connection) use ($onCloseClass, $onCloseMethod) {
                 if (method_exists($onCloseClass, $onCloseMethod)) {
                     shy($onCloseClass)->$onCloseMethod($connection);

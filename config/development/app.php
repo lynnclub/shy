@@ -35,26 +35,10 @@ return [
     'default_lang' => 'zh-cn',
 
     /*
-    | WorkerMan Http
+    | Add log Function
     */
 
-    'worker_man_http' => [
-        'port' => 2348,
-        'worker' => 2
-    ],
-
-    /*
-    | WorkerMan Socket
-    */
-    'worker_man_socket' => [
-        'chat' => [
-            'address' => 'websocket://127.0.0.1:2349',
-            'worker' => 2,
-            'onConnect' => ['app\socket\example' => 'onConnect'],
-            'onMessage' => ['app\socket\example' => 'onMessage'],
-            'onClose' => ['app\socket\example' => 'onClose']
-        ],
-    ],
+    'add_log_function' => '',
 
     /*
     | Slow Log

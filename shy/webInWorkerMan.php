@@ -12,7 +12,6 @@ use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
 use Exception;
-use shy\http as shyHttp;
 
 class webInWorkerMan extends Worker
 {
@@ -68,7 +67,6 @@ class webInWorkerMan extends Worker
          * CLI Run http
          */
         require __DIR__ . '/../shy/http/function/view.php';
-        shy(shyHttp::class);
     }
 
     /**

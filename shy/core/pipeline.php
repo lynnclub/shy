@@ -155,8 +155,11 @@ class pipeline
                     $method = $this->method;
                 }
 
-                $response = $pipe->{$method}(...$parameters);
+                /**
+                 * Init param before execute
+                 */
                 $this->init();
+                $response = $pipe->{$method}(...$parameters);
 
                 return $response;
             };

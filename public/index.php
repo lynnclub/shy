@@ -28,6 +28,7 @@ if (function_exists('shy')) {
     /**
      * Helpers
      */
+    require __DIR__ . '/../shy/core/function/core.php';
     require __DIR__ . '/../shy/core/function/helpers.php';
     require __DIR__ . '/../shy/http/function/view.php';
     /**
