@@ -119,7 +119,6 @@ class router
          * Check controller
          */
         if ($this->parseRouteSuccess) {
-            $this->controller = 'app\\http\\controller\\' . $this->controller;
             if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
                 throw new httpException(404, 'Route not found 404');
             }
@@ -167,7 +166,7 @@ class router
              * Middleware
              */
             if (isset($routerIndex[$this->uri]['middleware'])) {
-                $this->middleware = $this->getMiddlewareClassByConfig($routerIndex[$this->uri]['middleware']);
+                $this->middleware = $routerIndex[$this->uri]['middleware'];
             }
 
             $this->parseRouteSuccess = true;
@@ -203,14 +202,21 @@ class router
                         $prefix = '/' . $oneGroup['prefix'];
                     }
                     /**
+                     * namespace
+                     */
+                    $namespace = 'app\\http\\controller\\';
+                    if (isset($oneGroup['namespace']) && is_string($oneGroup['namespace']) && !empty($oneGroup['namespace'])) {
+                        $namespace = $oneGroup['namespace'] . '\\';
+                    }
+                    /**
                      * middleware
                      */
                     $middleware = [];
                     if (isset($oneGroup['middleware']) && is_array($oneGroup['middleware'])) {
-                        $middleware = $oneGroup['middleware'];
+                        $middleware = $this->getMiddlewareClassByConfig($oneGroup['middleware']);
                     }
                     foreach ($oneGroup['path'] as $path => $handle) {
-                        $routerIndex[$prefix . $path] = ['handle' => $handle, 'middleware' => $middleware];
+                        $routerIndex[$prefix . $path] = ['handle' => $namespace . $handle, 'middleware' => $middleware];
                     }
                 }
             }
