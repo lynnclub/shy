@@ -12,7 +12,6 @@ use shy\core\pipeline;
 use shy\http\request;
 use shy\http\router;
 use shy\http\response;
-use shy\http\session;
 
 class http
 {
@@ -43,18 +42,20 @@ class http
         defined('CACHE_PATH') or define('CACHE_PATH', config_key('cache', 'path'));
         defined('PUBLIC_PATH') or define('PUBLIC_PATH', config_key('public', 'path'));
         defined('SHY_PATH') or define('SHY_PATH', config_key('shy', 'path'));
+        if (empty(config_key('base_url'))) {
+            defined('BASE_URL') or define('BASE_URL', shy(request::class)->getBaseUrl());
+        } else {
+            defined('BASE_URL') or define('BASE_URL', config_key('base_url'));
+        }
     }
 
     /**
-     * Run
+     * Run router
      */
-    public function run()
+    public function runRouter()
     {
-        $this->initRequest();
+        logger('request: ' . json_encode(shy(request::class)->all()));
 
-        /**
-         * Run Router
-         */
         $response = shy(pipeline::class)
             ->send(shy(request::class))
             ->through(router::class)
@@ -72,25 +73,7 @@ class http
     }
 
     /**
-     * Init request
-     */
-    protected function initRequest()
-    {
-        shy(session::class)->sessionStart();
-        $request = shy(request::class);
-        $request->init($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
-        logger('request: ' . json_encode($request->all()));
-
-        if (empty(config_key('base_url'))) {
-            defined('BASE_URL') or define('BASE_URL', $request->getBaseUrl());
-        } else {
-            defined('BASE_URL') or define('BASE_URL', config_key('base_url'));
-        }
-    }
-
-    /**
      * End handle
-     *
      */
     protected function end()
     {
@@ -111,6 +94,8 @@ class http
                 logger('slow: ' . json_encode($difference), 'NOTICE');
             }
         }
+
+        shy(request::class)->setInitFalse();
     }
 
 }

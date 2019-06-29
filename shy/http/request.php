@@ -16,7 +16,12 @@ use Exception;
 
 class request
 {
-    protected $isInit;
+    /**
+     * Is request init
+     *
+     * @var bool $isInit
+     */
+    protected $isInit = false;
 
     /**
      * $_POST
@@ -82,7 +87,7 @@ class request
     protected $uri;
 
     /**
-     * Request constructor.
+     * init Input.
      *
      * @param array $query $_GET
      * @param array $request $_POST
@@ -91,7 +96,7 @@ class request
      * @param array $server $_SERVER
      * @param string $content php://input
      */
-    public function init(array $query = [], array $request = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    public function initInput(array $query = [], array $request = [], array $cookies = [], array $files = [], array $server = [], $content = null)
     {
         $this->request = new ParameterBag($request);
         $this->query = new ParameterBag($query);
@@ -107,9 +112,22 @@ class request
         $this->isInit = true;
     }
 
+    /**
+     * Is init
+     *
+     * @return bool
+     */
     public function isInit()
     {
         return $this->isInit;
+    }
+
+    /**
+     * Set init false
+     */
+    public function setInitFalse()
+    {
+        $this->isInit = false;
     }
 
     /**

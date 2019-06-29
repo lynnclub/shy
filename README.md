@@ -277,11 +277,6 @@ shy_clear('web');
  */
 shy_clear(['web','test']);
 
-/**
- * 清除所有绑定和实例
- */
-shy_clear_all();
-
 ```
 
 ##### 2.5 配置操作

@@ -14,7 +14,7 @@ if (!function_exists('init_illuminate_database')) {
      */
     function init_illuminate_database()
     {
-        $capsule = shy('capsule', 'Illuminate\Database\Capsule\Manager');
+        $capsule = shy(Illuminate\Database\Capsule\Manager::class);
         $database = config_key('db', 'database');
         if (is_array($database)) {
             $capsule->setAsGlobal();
@@ -69,16 +69,8 @@ if (!function_exists('logger')) {
 
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] ';
         $request = shy(shy\http\request::class);
-        if (is_object($request) && $request->isInit()) {
-            $ips = $request->getClientIps();
-            if (!empty($ips)) {
-                $prefix .= '[' . implode(',', $ips);
-            }
-
-            $url = $request->getUrl();
-            if (!empty($url)) {
-                $prefix .= ' ' . $url . '] ';
-            }
+        if ($request->isInit()) {
+            $prefix .= '[' . implode(',', $request->getClientIps()) . ' ' . $request->getUrl() . '] ';
         }
 
         if (!is_string($msg)) {

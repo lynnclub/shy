@@ -14,6 +14,7 @@
     {$info}
 </div>
 <div id="system">
+    <p>Container Start Id: {container_id()}</p>
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
     <p>Used Time: {microtime(true) - config('SHY_START_TIME')} second</p>
     {assign var="cycleStartTime" value="{config('SHY_CYCLE_START_TIME')}"}

@@ -64,21 +64,19 @@
     <div class="title">
         <div class="message"><?php echo $e->getMessage(); ?></div>
         <div class="file">
-            flie: <?php echo $e->getFile(); ?>
-            line: <?php echo $e->getLine(); ?>
+            Flie: <?php echo $e->getFile(); ?>
+        </div>
+        <div class="file">
+            Line: <?php echo $e->getLine(); ?>
+        </div>
+        <div class="file">
+            Error Code: <?php echo $e->getCode(); ?>
         </div>
     </div>
     <div class="trace">
         <div class="title">Trace:</div>
         <?php
         foreach ($e->getTrace() as $key => $trace) {
-            foreach ($trace['args'] as $argKey => $arg) {
-                if (is_object($arg)) {
-                    $trace['args'][$argKey] = '(object)' . get_class($arg);
-                } elseif (is_array($arg)) {
-                    $trace['args'][$argKey] = '(array)' . json_encode($arg) . '';
-                }
-            }
             ?>
             <div class="file">
                 <?php
@@ -94,6 +92,17 @@
                 <?php
                 if (isset($trace['class'])) {
                     echo $trace['class'] . '->';
+                }
+                if (isset($trace['args'])) {
+                    foreach ($trace['args'] as $argKey => $arg) {
+                        if (is_object($arg)) {
+                            $trace['args'][$argKey] = '(object)' . get_class($arg);
+                        } elseif (is_array($arg)) {
+                            $trace['args'][$argKey] = '(array)' . json_encode($arg);
+                        }
+                    }
+                } else {
+                    $trace['args'] = [];
                 }
                 echo $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
                 ?>

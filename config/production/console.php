@@ -1,12 +1,17 @@
 <?php
-/**
- * Config of console command
- */
 
 return [
+    /*
+     * Framework command
+     */
     'list' => 'shy@list',
     'version' => 'shy@version',
     'http' => 'shy@http',
     'workerman' => 'shy@worker_man',
-    'test' => 'example@test'
+
+    /*
+     * Customer command
+     */
+    'test' => 'example@test',
+    'test2' => 'app\\console\\example@test'
 ];

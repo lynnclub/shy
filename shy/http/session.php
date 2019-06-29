@@ -12,19 +12,13 @@ use Workerman\Protocols\Http;
 
 class session
 {
-    protected $lastCycleCount = 0;
-
     /**
      * Session Start
      */
     public function sessionStart()
     {
         if (config('IS_CLI')) {
-            $cycleCount = config('SHY_CYCLE_COUNT');
-            if ($cycleCount > $this->lastCycleCount) {
-                $this->lastCycleCount = $cycleCount;
-                Http::sessionStart();
-            }
+            Http::sessionStart();
         } else {
             session_start();
         }

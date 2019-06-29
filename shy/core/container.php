@@ -12,10 +12,19 @@ use Closure;
 use RuntimeException;
 use ReflectionClass;
 use ReflectionException;
+use shy\http\request;
+use Exception;
 
 class container
 {
     use exceptionHandlerRegister;
+
+    /**
+     * Start id
+     *
+     * @var string $startId
+     */
+    private $startId;
 
     /**
      * Config dir
@@ -61,8 +70,31 @@ class container
      */
     public function __construct(string $configDir = '')
     {
+        $this->startId = uniqid();
         $this->setConfig('SHY_START_TIME', microtime(true));
         $this->configDir = is_dir($configDir) ? $configDir : __DIR__ . '/../../config/' . ENVIRONMENT . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Get start id
+     *
+     * @return string
+     */
+    public function getStartId()
+    {
+        return $this->startId;
+    }
+
+    /**
+     * Fork process no add to start id
+     *
+     * @param int $no
+     */
+    public function forkProcessNoAddToStartId(int $no)
+    {
+        if (!strpos($this->startId, '_')) {
+            $this->startId .= '_' . $no;
+        }
     }
 
     /**
@@ -212,6 +244,7 @@ class container
     public function getOrMakeNew(string $abstract, $concrete = null, ...$parameters)
     {
         if (isset($this->instances[$abstract])) {
+            $this->instancesRecord($abstract, 'use');
             return $this->instances[$abstract];
         }
 
@@ -257,6 +290,7 @@ class container
         }
         unset($this->binds[$abstract]);
         $this->countMakeInstanceMemoryUsed($abstract);
+        $this->instancesRecord($abstract, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemoryUsed[$abstract])]);
 
         return $this->instances[$abstract];
     }
@@ -304,21 +338,79 @@ class container
     {
         if (is_array($abstract)) {
             foreach ($abstract as $item) {
+                $this->instancesRecord($item, 'clear');
                 unset($this->binds[$item], $this->instancesMemoryUsed[$item], $this->instances[$item]);
             }
         } else {
+            $this->instancesRecord($abstract, 'clear');
             unset($this->binds[$abstract], $this->instancesMemoryUsed[$abstract], $this->instances[$abstract]);
         }
     }
 
     /**
-     * Clear all instances
+     * Instances record
+     *
+     * data format: key1 ^^ value1 ... ^^ key2 ^^ value2 ...
+     *
+     * start id ^^ class abstract ^^ operation ^^ time ^^ isCli ^^ url ^^ ips ^^ trace ...customer params
+     *
+     * @todo Records data for instances intelligent scheduling
+     *
+     * @param string $abstract
+     * @param string $operation
+     * @param array $params
+     * @return bool
      */
-    public function clearAll()
+    private function instancesRecord(string $abstract, string $operation, array $params = [])
     {
-        $this->binds = [];
-        $this->instancesMemoryUsed = [];
-        $this->instances = [];
+        if (!config_key('switch', 'instances_scheduling')) {
+            return false;
+        }
+        if (in_array($abstract, config_key('avoid_list', 'instances_scheduling'))) {
+            return false;
+        }
+
+        $structure = [
+            'startId' => $this->startId,
+            'abstract' => $abstract,
+            'operation' => $operation,
+            'time' => time(),
+            'isCli' => $this->getConfig('IS_CLI'),
+            'url' => '',
+            'ips' => '',
+            'trace' => ''
+        ];
+
+        $request = shy(request::class);
+        if ($request->isInit()) {
+            $structure['url'] = $request->getUrl();
+            $structure['ips'] = implode(',', $request->getClientIps());
+        }
+
+        try {
+            throw new Exception('Get trace');
+        } catch (Exception $exception) {
+            $structure['trace'] = json_encode($exception->getTrace());
+        }
+
+        if (!empty($params)) {
+            foreach ($params as $key => $value) {
+                if (is_array($value)) {
+                    $structure[$key] = json_encode($value);
+                } else {
+                    $structure[$key] = $value;
+                }
+            }
+        }
+
+        $finalStructure = [];
+        foreach ($structure as $key => $value) {
+            $finalStructure[] = $key;
+            $finalStructure[] = $value;
+        }
+
+        file_put_contents(config_key('cache', 'path') . 'instances_record/' . date('Ymd') . '.log', implode('^^', $finalStructure) . PHP_EOL, FILE_APPEND);
+
     }
 
     /**
@@ -345,12 +437,12 @@ class container
      * Is in instances list
      *
      * @param string $abstract
-     * @return bool
+     * @return object|bool
      */
     public function inList(string $abstract)
     {
         if (isset($this->instances[$abstract])) {
-            return true;
+            return $this->instances[$abstract];
         }
 
         return false;

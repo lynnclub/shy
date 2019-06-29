@@ -12,6 +12,8 @@ use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
 use Exception;
+use Throwable;
+use shy\http\exception\handler;
 
 class webInWorkerMan extends Worker
 {
@@ -66,6 +68,7 @@ class webInWorkerMan extends Worker
         /**
          * CLI Run http
          */
+        container()->setExceptionHandler(new handler());
         require __DIR__ . '/../shy/http/function/view.php';
     }
 
@@ -204,12 +207,9 @@ class webInWorkerMan extends Worker
                     // $_SERVER.
                     $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
                     $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
-                    include $workerman_file;
-                } catch (Exception $e) {
-                    // Jump_exit?
-                    if ($e->getMessage() != 'jump_exit') {
-                        Worker::safeEcho($e);
-                    }
+                    include "$workerman_file";
+                } catch (Throwable $e) {
+                    container()->handleException($e);
                 }
                 $content = ob_get_clean();
                 ini_set('display_errors', 'on');

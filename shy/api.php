@@ -8,9 +8,10 @@
 
 namespace shy;
 
-use shy\http\request;
 use shy\core\pipeline;
+use shy\http\request;
 use shy\http\router;
+use shy\http\response;
 
 class api
 {
@@ -32,14 +33,20 @@ class api
         shy(pipeline::class)
             ->send(shy(request::class))
             ->through(router::class)
-            ->then(function () {
-                $this->end();
+            ->then(function ($response) {
+                if (!empty($response)) {
+                    shy(response::class)->send($response);
+                }
+
+                return $response;
             });
+
+        $this->end();
     }
 
     public function end()
     {
-        //echo 'end';
+        shy(request::class)->setInitFalse();
     }
 
 }

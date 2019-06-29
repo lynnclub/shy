@@ -9,6 +9,7 @@ push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.j
     <?php param('not_exist_param', true) ?>
 </div>
 <div id="system">
+    <p>Container Start Id: <?php echo container_id(); ?></p>
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
     <p>Used Time: <?php echo microtime(true) - config('SHY_START_TIME'); ?> second</p>
     <?php

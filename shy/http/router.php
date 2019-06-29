@@ -153,21 +153,19 @@ class router
         /**
          * Read or build router index
          */
-        if (config_key('env') !== 'production' || empty($routerIndex) || !is_array($routerIndex)) {
+        if (config_key('debug') || empty($routerIndex) || !is_array($routerIndex)) {
             $routerIndex = $this->buildRouterIndex();
         }
         /**
          * parse router
          */
         if (isset($routerIndex[$this->uri])) {
-            $handle = $routerIndex[$this->uri]['handle'];
-            list($this->controller, $this->method) = explode('@', $handle);
-            /**
-             * Middleware
-             */
             if (isset($routerIndex[$this->uri]['middleware'])) {
                 $this->middleware = $routerIndex[$this->uri]['middleware'];
             }
+
+            $handle = $routerIndex[$this->uri]['handle'];
+            list($this->controller, $this->method) = explode('@', $handle);
 
             $this->parseRouteSuccess = true;
         }
@@ -180,12 +178,13 @@ class router
     {
         $router = config('router');
         $routerIndex = [];
+        $controllerNamespace = 'app\\http\\controller\\';
         /**
          * path
          */
         if (isset($router['path'])) {
             foreach ($router['path'] as $path => $handle) {
-                $routerIndex[$path] = ['handle' => $handle];
+                $routerIndex[$path] = ['handle' => $controllerNamespace . $handle];
             }
         }
         /**
@@ -204,9 +203,8 @@ class router
                     /**
                      * namespace
                      */
-                    $namespace = 'app\\http\\controller\\';
                     if (isset($oneGroup['namespace']) && is_string($oneGroup['namespace']) && !empty($oneGroup['namespace'])) {
-                        $namespace = $oneGroup['namespace'] . '\\';
+                        $controllerNamespace = $oneGroup['namespace'] . '\\';
                     }
                     /**
                      * middleware
@@ -216,7 +214,7 @@ class router
                         $middleware = $this->getMiddlewareClassByConfig($oneGroup['middleware']);
                     }
                     foreach ($oneGroup['path'] as $path => $handle) {
-                        $routerIndex[$prefix . $path] = ['handle' => $namespace . $handle, 'middleware' => $middleware];
+                        $routerIndex[$prefix . $path] = ['handle' => $controllerNamespace . $handle, 'middleware' => $middleware];
                     }
                 }
             }

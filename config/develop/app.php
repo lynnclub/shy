@@ -11,13 +11,12 @@ return [
     'base_url' => '',
 
     /*
-    | Environment
+    | Debug
     |
     | for error reporting.
-    | options: local, development, production.
     */
 
-    'env' => 'development',
+    'debug' => true,
 
     /*
     | Time Zone
@@ -74,6 +73,12 @@ return [
     | Is use illuminate Database
     */
 
-    'illuminate_database' => true
+    'illuminate_database' => true,
+
+    /*
+    | Intelligent Scheduling
+    */
+
+    'intelligent_scheduling' => true
 
 ];

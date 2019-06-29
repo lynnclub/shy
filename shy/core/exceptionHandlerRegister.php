@@ -1,4 +1,10 @@
 <?php
+/**
+ * Exception register
+ *
+ * @author    lynn<admin@lynncho.cn>
+ * @link      http://lynncho.cn/
+ */
 
 namespace shy\core;
 
@@ -18,7 +24,7 @@ trait exceptionHandlerRegister
      *
      * @param handler $handler
      */
-    public function setExceptionHandler(handler $handler)
+    public function setExceptionHandler(handler $handler = null)
     {
         $this->handler = $handler;
 
@@ -27,7 +33,9 @@ trait exceptionHandlerRegister
         set_exception_handler([$this, 'handleException']);
         register_shutdown_function([$this, 'handleShutdown']);
 
-        if (config_key('env') === 'production') {
+        if (config_key('debug')) {
+            ini_set('display_errors', 'On');
+        } else {
             ini_set('display_errors', 'Off');
         }
     }
@@ -39,12 +47,11 @@ trait exceptionHandlerRegister
      * @param  string $message
      * @param  string $file
      * @param  int $line
-     * @param  array $context
      * @return void
      *
      * @throws ErrorException
      */
-    public function handleError($level, $message, $file = '', $line = 0, $context = [])
+    public function handleError($level, $message, $file = '', $line = 0)
     {
         if (error_reporting() & $level) {
             throw new ErrorException($message, 0, $level, $file, $line);
@@ -67,13 +74,62 @@ trait exceptionHandlerRegister
         if (!$e instanceof Exception) {
             $e = new fatalThrowableError($e);
         }
+
+        $traceString = $this->getTraceString($e);
+        logger('exception: ' . $traceString, 'ERROR');
+
         try {
-            $this->handler->run($e);
+            if (isset($this->handler)) {
+                $this->handler->run($e);
+            } else {
+                echo config('IS_CLI') ? $traceString : nl2br($traceString);
+            }
         } catch (Throwable $e) {
-            echo 'File: ' . $e->getFile() . ' Line: ' . $e->getLine() . PHP_EOL .
-                'Message:' . $e->getMessage() . ' Error Code: ' . $e->getCode() . PHP_EOL .
-                $e->getTraceAsString() . PHP_EOL;
+            echo config('IS_CLI') ? $traceString : nl2br($traceString);
         }
+    }
+
+    /**
+     * Get trace string
+     *
+     * @param Throwable $e
+     * @return string
+     */
+    protected function getTraceString(Throwable $e)
+    {
+        $traceString = '';
+        foreach ($e->getTrace() as $key => $trace) {
+            $traceString .= '[' . $key . '] ';
+
+            if (isset($trace['file'], $trace['line'])) {
+                $traceString .= $trace['file'] . ' ' . $trace['line'] . PHP_EOL;
+            } else {
+                $traceString .= 'none' . PHP_EOL;
+            }
+
+            if (isset($trace['class'])) {
+                $traceString .= $trace['class'] . '->';
+            }
+            if (isset($trace['args'])) {
+                foreach ($trace['args'] as $argKey => $arg) {
+                    if (is_object($arg)) {
+                        $trace['args'][$argKey] = '(object)' . get_class($arg);
+                    } elseif (is_array($arg)) {
+                        $trace['args'][$argKey] = '(array)' . json_encode($arg);
+                    }
+                }
+            } else {
+                $trace['args'] = [];
+            }
+            $traceString .= $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
+        }
+
+        return PHP_EOL . 'Message: ' . $e->getMessage() . PHP_EOL .
+            'File: ' . $e->getFile() . PHP_EOL .
+            'Line: ' . $e->getLine() . PHP_EOL .
+            'Error Code: ' . $e->getCode() . PHP_EOL .
+            'Trace: ' . PHP_EOL .
+            $traceString . PHP_EOL;
     }
 
     /**

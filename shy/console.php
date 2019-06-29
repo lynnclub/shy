@@ -13,14 +13,25 @@ use shy\core\pipeline;
 
 class console
 {
-    protected $config = [];
-
-    protected $command = '';
-
+    /**
+     * Command params
+     *
+     * @var array $params
+     */
     protected $params = [];
 
+    /**
+     * Handle class
+     *
+     * @var string $class
+     */
     protected $class;
 
+    /**
+     * Handle method
+     *
+     * @var $method
+     */
     protected $method;
 
     /**
@@ -41,20 +52,14 @@ class console
         date_default_timezone_set(config_key('timezone'));
     }
 
+    /**
+     * Get Command list
+     *
+     * @return array
+     */
     public function getCommandList()
     {
-        return array_keys($this->config);
-    }
-
-    public function exceptionNotice()
-    {
-        return <<<EOT
-
-You can use `php console list` to get all command.
-
-See the log for more error information. 
-Log dir: cache/log/console/
-EOT;
+        return array_keys(config('console'));
     }
 
     /**
@@ -62,23 +67,13 @@ EOT;
      *
      * @throws Exception
      */
-    public function run()
+    public function runCommand()
     {
         $this->bootstrap();
 
-        if (
-            !class_exists($namespaceClass = 'app\\console\\' . $this->class)
-            && !class_exists($namespaceClass = 'shy\\console\\command\\' . $this->class)
-        ) {
-            throw new Exception('class ' . $this->class . ' not found');
-        }
-        if (!method_exists($namespaceClass, $this->method)) {
-            throw new Exception('method ' . $this->method . ' not found');
-        }
-
         $result = shy(pipeline::class)
             ->send(...$this->params)
-            ->through($namespaceClass)
+            ->through($this->class)
             ->via($this->method)
             ->run();
 
@@ -92,26 +87,59 @@ EOT;
      */
     protected function bootstrap()
     {
+        /**
+         * Params
+         */
         global $argv;
         array_shift($argv);
-        $this->command = array_shift($argv);
+        $command = array_shift($argv);
         $this->params = $argv;
-
-        $this->config = config('console');
-        if (!isset($this->config[$this->command])) {
-            throw new Exception('command ' . $this->command . ' not find');
+        /**
+         * Config
+         */
+        $config = config('console');
+        if (!isset($config[$command])) {
+            die($this->commandNotFoundNotice());
         }
-        if (!is_string($this->config[$this->command])) {
-            throw new Exception('command ' . $this->command . ' config error');
+        if (!is_string($config[$command])) {
+            throw new Exception('Command ' . $command . ' config error.');
         }
+        /**
+         * Router
+         */
+        $route = explode('@', $config[$command]);
+        if (isset($route[0], $route[1]) && !empty($route[0]) && !empty($route[1])) {
+            if (!class_exists($class = 'shy\\console\\command\\' . $route[0])
+                && !class_exists($class = 'app\\console\\' . $route[0])
+                && !class_exists($class = $route[0])
+            ) {
+                throw new Exception('Class {' . $route[0] . '} not found.');
+            }
+            if (!method_exists($class, $route[1])) {
+                throw new Exception('Method {' . $route[1] . '} in class {' . $class . '} not found.');
+            }
 
-        $route = explode('@', $this->config[$this->command]);
-        if (isset($route[0], $route[1])) {
-            $this->class = $route[0];
+            $this->class = $class;
             $this->method = $route[1];
         } else {
-            throw new Exception('command ' . $this->command . ' config error');
+            throw new Exception('Command ' . $command . ' config error.');
         }
+    }
+
+    /**
+     * Command not found notice
+     *
+     * @return string
+     */
+    protected function commandNotFoundNotice()
+    {
+        return <<<EOT
+        
+Command not find.
+You can run `php console list` to get all commands.
+
+
+EOT;
     }
 
 }

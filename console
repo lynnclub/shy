@@ -11,7 +11,6 @@ defined('ENVIRONMENT') or define('ENVIRONMENT', empty(getenv('ENVIRONMENT')) ? '
 defined('CONFIG_DIR') or define('CONFIG_DIR', __DIR__ . '/config/' . ENVIRONMENT . DIRECTORY_SEPARATOR);
 
 use shy\console;
-use shy\console\exception\handler;
 
 /**
  * Composer Autoload
@@ -23,11 +22,7 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/shy/core/function/core.php';
 require __DIR__ . '/shy/core/function/helpers.php';
 /**
- * Config
- */
-config_set('IS_CLI', true);
-/**
  * Run CLI mode
  */
-(container(CONFIG_DIR))->setExceptionHandler(new handler());
-shy(console::class)->run();
+config_set('IS_CLI', true);
+shy(console::class)->runCommand();

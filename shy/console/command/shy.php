@@ -55,10 +55,11 @@ class shy
         if (isset($argv[0])) {
             $argv[1] = $argv[0];
         }
-        $web = new webInWorkerMan('http://0.0.0.0:' . $config['port']);
+        $web = shy(webInWorkerMan::class, 'http://0.0.0.0:' . $config['port']);
         $web->count = $config['worker'];
         $web->addRoot('localhost', config_key('public', 'path'));
 
+        Worker::$stdoutFile = config_key('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'console' . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log';
         Worker::runAll();
     }
 
@@ -81,7 +82,7 @@ class shy
             throw new RuntimeException('WorkerMan socket setting error');
         }
 
-        $worker = new Worker($config['address']);
+        $worker = shy(Worker::class, $config['address']);
         $worker->count = $config['worker'];
 
         if (!empty($config['onConnect'])) {

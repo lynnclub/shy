@@ -24,6 +24,18 @@ if (!function_exists('container')) {
     }
 }
 
+if (!function_exists('container_id')) {
+    /**
+     * Get container id
+     *
+     * @return string
+     */
+    function container_id()
+    {
+        return container()->getStartId();
+    }
+}
+
 if (!function_exists('config_set')) {
     /**
      * Set config
@@ -254,22 +266,12 @@ if (!function_exists('shy_clear')) {
     }
 }
 
-if (!function_exists('shy_clear_all')) {
-    /**
-     * Clear all instances
-     */
-    function shy_clear_all()
-    {
-        container()->clearAll();
-    }
-}
-
 if (!function_exists('in_shy_list')) {
     /**
      * Is in instances list
      *
      * @param string $abstract
-     * @return bool
+     * @return object|bool
      */
     function in_shy_list(string $abstract)
     {

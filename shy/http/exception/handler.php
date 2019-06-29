@@ -1,11 +1,16 @@
 <?php
+/**
+ * Http exception handler
+ *
+ * @author    lynn<admin@lynncho.cn>
+ * @link      http://lynncho.cn/
+ */
 
 namespace shy\http\exception;
 
 use shy\core\exception\handler as handlerInterface;
 use Exception;
-use shy\http\facade\response;
-use shy\http\facade\request;
+use shy\http\response;
 
 class handler implements handlerInterface
 {
@@ -33,15 +38,6 @@ class handler implements handlerInterface
         if (method_exists($e, 'report')) {
             return $e->report();
         }
-
-        logger('exception: ' . $this->getErrorString($e), 'ERROR');
-    }
-
-    private function getErrorString(Exception $e)
-    {
-        return 'File: ' . $e->getFile() . ' Line: ' . $e->getLine() . PHP_EOL .
-            'Message:' . $e->getMessage() . ' Error Code: ' . $e->getCode() . PHP_EOL .
-            $e->getTraceAsString() . PHP_EOL;
     }
 
     /**
@@ -53,22 +49,21 @@ class handler implements handlerInterface
      */
     public function response(Exception $e)
     {
+        if (!config_key('debug')) {
+            return false;
+        }
+
+        $response = shy(response::class);
         if (method_exists($e, 'getStatusCode') && method_exists($e, 'getHeaders')) {
-            response::setCode($e->getStatusCode())->setHeader($e->getHeaders());
+            $response->setCode($e->getStatusCode())->setHeader($e->getHeaders());
             if ($e->getStatusCode() === 404) {
-                return response::set(view('errors/404'))->send();
+                return $response->set(view('errors/404'))->send();
             }
         } else {
-            response::setCode(500);
+            $response->setCode(500);
         }
 
-        response::set('');
-        if (config_key('env') !== 'production') {
-            request::expectsJson()
-                ? response::set($this->getErrorString($e))
-                : response::set(view('errors/exception', compact('e')));
-        }
-
-        response::send();
+        $response->set(view('errors/exception', compact('e')))->send();
     }
+
 }

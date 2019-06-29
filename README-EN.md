@@ -215,11 +215,6 @@ If you need to replace an instance in a container, you should not use the shy fu
  */
 shy_clear('web');
 
-/**
- * Clear all bindings and instances
- */
-shy_clear_all();
-
 ```
 
 

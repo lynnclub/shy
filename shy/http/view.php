@@ -57,12 +57,12 @@ class view
     /**
      * Set view file
      *
-     * @param $view
-     * @return $this
+     * @param string $view
+     * @return view
      */
-    public function view($view)
+    public function view(string $view)
     {
-        if (empty($view) || !is_string($view)) {
+        if (empty($view)) {
             throw new RuntimeException('Invalid view.');
         }
 

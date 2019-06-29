@@ -17,13 +17,14 @@ if (!function_exists('view')) {
      */
     function view(string $view, array $params = [], string $layout = '')
     {
-        $view = make_new(shy\http\view::class)->view($view);
+        $view = shy(shy\http\view::class)->view($view);
         if (isset($params)) {
             $view->with($params);
         }
         if (isset($layout)) {
             $view->layout($layout);
         }
+
         return $view;
     }
 }
@@ -202,7 +203,7 @@ if (!function_exists('smarty')) {
         $smarty->cache_lifetime = $config['cache_lifetime'];
         $params['GLOBALS'] = $GLOBALS;
 
-        if (config_key('env') === 'development') {
+        if (config_key('debug')) {
             $smarty->debugging = true;
         }
 
