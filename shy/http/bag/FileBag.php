@@ -24,7 +24,7 @@ class FileBag extends ParameterBag
     /**
      * @param array $parameters An array of HTTP files
      */
-    public function     __construct(array $parameters = array())
+    public function __construct(array $parameters = array())
     {
         $this->replace($parameters);
     }

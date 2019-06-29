@@ -24,5 +24,6 @@ require __DIR__ . '/shy/core/function/helpers.php';
 /**
  * Run CLI mode
  */
+container(CONFIG_DIR)->setExceptionHandler();
 config_set('IS_CLI', true);
 shy(console::class)->runCommand();
