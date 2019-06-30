@@ -210,23 +210,27 @@ class container
     public function bind(string $abstract, $concrete)
     {
         if (empty($abstract)) {
-            throw new RuntimeException('Container: bind abstract' . $abstract . ' is empty');
+            throw new RuntimeException('Container: binding abstract' . $abstract . ' is empty.');
         }
-        if (class_exists($abstract)) {
-            $concrete = $abstract;
-        }
-        if (empty($concrete)) {
-            throw new RuntimeException('Container: bind concrete' . $concrete . ' is empty');
+        if (is_array($concrete)) {
+            $concrete = null;
         }
 
-        if (
-            $concrete instanceof Closure
+        if ($concrete instanceof Closure
             || is_object($concrete)
             || class_exists($concrete)
         ) {
             $this->binds[$abstract] = $concrete;
         } else {
-            throw new RuntimeException('Container: bind concrete type invalid:' . $abstract);
+            if (class_exists($abstract)) {
+                $this->binds[$abstract] = $abstract;
+            } else {
+                if (empty($concrete)) {
+                    throw new RuntimeException('Container: binding concrete' . $concrete . ' is empty.');
+                } else {
+                    throw new RuntimeException('Container: abstract ' . $abstract . ' binding concrete type invalid.');
+                }
+            }
         }
 
         return $this;
@@ -275,18 +279,18 @@ class container
          * Join
          */
         $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
-        if (is_string($this->binds[$abstract]) && class_exists($this->binds[$abstract])) {
-            if (!class_exists($concrete)) {
-                array_unshift($parameters, $concrete);
-            }
-            $this->instances[$abstract] = $this->makeClassByReflection($this->binds[$abstract], ...$parameters);
-        } elseif ($this->binds[$abstract] instanceof Closure) {
+        if ($this->binds[$abstract] instanceof Closure) {
             if (!$concrete instanceof Closure) {
                 array_unshift($parameters, $concrete);
             }
             $this->instances[$abstract] = call_user_func($this->binds[$abstract], ...$parameters);
         } elseif (is_object($this->binds[$abstract])) {
             $this->instances[$abstract] = $this->binds[$abstract];
+        } elseif (is_string($this->binds[$abstract]) && class_exists($this->binds[$abstract])) {
+            if (!is_string($concrete) || !class_exists($concrete)) {
+                array_unshift($parameters, $concrete);
+            }
+            $this->instances[$abstract] = $this->makeClassByReflection($this->binds[$abstract], ...$parameters);
         }
         unset($this->binds[$abstract]);
         $this->countMakeInstanceMemoryUsed($abstract);
@@ -387,11 +391,7 @@ class container
             $structure['ips'] = implode(',', $request->getClientIps());
         }
 
-        try {
-            throw new Exception('Get trace');
-        } catch (Exception $exception) {
-            $structure['trace'] = json_encode($exception->getTrace());
-        }
+        $structure['trace'] = json_encode(debug_backtrace());
 
         if (!empty($params)) {
             foreach ($params as $key => $value) {

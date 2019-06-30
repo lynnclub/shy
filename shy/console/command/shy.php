@@ -10,6 +10,7 @@ namespace shy\console\command;
 
 use shy\console;
 use RuntimeException;
+use shy\socketInWorkerMan;
 use shy\webInWorkerMan;
 use Workerman\Worker;
 
@@ -82,7 +83,7 @@ class shy
             throw new RuntimeException('WorkerMan socket setting error');
         }
 
-        $worker = shy(Worker::class, $config['address']);
+        $worker = shy(socketInWorkerMan::class, $config['address']);
         $worker->count = $config['worker'];
 
         if (!empty($config['onConnect'])) {
@@ -115,8 +116,7 @@ class shy
             };
         }
 
-        Worker::$stdoutFile = config_key('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'console' . DIRECTORY_SEPARATOR . 'socket-' . date('Y-m-d') . '.log';
-        Worker::runAll();
+        socketInWorkerMan::runAll();
     }
 
 }
