@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Shy Framework Http Entry
  *
@@ -23,7 +24,7 @@ if (function_exists('shy')) {
     /**
      * Run Framework In CLI mode
      */
-    shy(request::class)->initInput($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+    shy(request::class)->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
     shy(session::class)->sessionStart();
     shy(http::class)->runRouter();
 } else {
@@ -41,7 +42,7 @@ if (function_exists('shy')) {
      * Run Framework
      */
     container(CONFIG_DIR)->setExceptionHandler(new handler());
-    shy(request::class)->initInput($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+    shy(request::class)->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
     shy(session::class)->sessionStart();
     shy(http::class)->runRouter();
 }

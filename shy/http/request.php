@@ -1,10 +1,4 @@
 <?php
-/**
- * Shy Framework Request
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 namespace shy\http;
 
@@ -17,77 +11,88 @@ use Exception;
 class request
 {
     /**
-     * Is request init
+     * Is request initialized.
      *
-     * @var bool $isInit
+     * @var bool
      */
     protected $isInit = false;
 
     /**
      * $_POST
      *
-     * @var ParameterBag $request
+     * @var ParameterBag
      */
     protected $request;
 
     /**
      * $_GET
      *
-     * @var ParameterBag $query
+     * @var ParameterBag
      */
     protected $query;
 
     /**
      * $_COOKIE
      *
-     * @var ParameterBag $cookies
+     * @var ParameterBag
      */
     protected $cookies;
 
     /**
      * $_FILES
      *
-     * @var FileBag $files
+     * @var FileBag
      */
     protected $files;
 
     /**
      * $_SERVER
      *
-     * @var ServerBag $server
+     * @var ServerBag
      */
     protected $server;
 
     /**
-     * Json or Stream
+     * php://input
      *
-     * @var string
+     * @var string|resource|null
      */
     protected $content;
 
     /**
-     * Http Header
+     * Header in $_SERVER
      *
-     * @var HeaderBag $headers
+     * @var HeaderBag
      */
     protected $headers;
 
     /**
-     * Get or Post
-     *
-     * @var $method
+     * @var string
+     */
+    protected $basePath;
+
+    /**
+     * @var string
+     */
+    protected $requestUri;
+
+    /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * @var string
+     */
+    protected $pathInfo;
+
+    /**
+     * @var string
      */
     protected $method;
 
     /**
-     * Base Url Path
-     *
-     * @var string
-     */
-    protected $uri;
-
-    /**
-     * init Input.
+     * Initialize request.
      *
      * @param array $query $_GET
      * @param array $request $_POST
@@ -96,7 +101,7 @@ class request
      * @param array $server $_SERVER
      * @param string $content php://input
      */
-    public function initInput(array $query = [], array $request = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    public function initialize(array $query = [], array $request = [], array $cookies = [], array $files = [], array $server = [], $content = null)
     {
         $this->request = new ParameterBag($request);
         $this->query = new ParameterBag($query);
@@ -107,13 +112,16 @@ class request
         $this->content = $content;
 
         $this->method = null;
-        $this->uri = null;
+        $this->requestUri = null;
+        $this->baseUrl = null;
+        $this->pathInfo = null;
+        $this->basePath = null;
 
         $this->isInit = true;
     }
 
     /**
-     * Is init
+     * Is request initialized.
      *
      * @return bool
      */
@@ -123,7 +131,7 @@ class request
     }
 
     /**
-     * Set init false
+     * Set is initialized false.
      */
     public function setInitFalse()
     {
@@ -131,7 +139,7 @@ class request
     }
 
     /**
-     * Get a parameter
+     * Get a parameter.
      *
      * @param $key
      * @param null $default
@@ -151,7 +159,7 @@ class request
     }
 
     /**
-     * Get all parameters
+     * Get all parameters.
      *
      * @return array
      */
@@ -164,7 +172,7 @@ class request
     }
 
     /**
-     * Is Https On
+     * Is HTTPS on.
      *
      * @return bool
      */
@@ -186,7 +194,7 @@ class request
     }
 
     /**
-     * Get Port
+     * Get port.
      *
      * @return int
      */
@@ -268,66 +276,322 @@ class request
     }
 
     /**
-     * Get url
+     * Returns the requested URI (path and query string).
+     *
+     * @return string The raw URI (i.e. not URI decoded)
+     */
+    public function getRequestUri()
+    {
+        if (null === $this->requestUri) {
+            $this->requestUri = $this->prepareRequestUri();
+        }
+
+        return $this->requestUri;
+    }
+
+    protected function prepareRequestUri()
+    {
+        $requestUri = '';
+
+        if ('1' == $this->server->get('IIS_WasUrlRewritten') && '' != $this->server->get('UNENCODED_URL')) {
+            // IIS7 with URL Rewrite: make sure we get the unencoded URL (double slash problem)
+            $requestUri = $this->server->get('UNENCODED_URL');
+            $this->server->remove('UNENCODED_URL');
+            $this->server->remove('IIS_WasUrlRewritten');
+        } elseif ($this->server->has('REQUEST_URI')) {
+            $requestUri = $this->server->get('REQUEST_URI');
+
+            if ('' !== $requestUri && '/' === $requestUri[0]) {
+                // To only use path and query remove the fragment.
+                if (false !== $pos = strpos($requestUri, '#')) {
+                    $requestUri = substr($requestUri, 0, $pos);
+                }
+            } else {
+                // HTTP proxy reqs setup request URI with scheme and host [and port] + the URL path,
+                // only use URL path.
+                $uriComponents = parse_url($requestUri);
+
+                if (isset($uriComponents['path'])) {
+                    $requestUri = $uriComponents['path'];
+                }
+
+                if (isset($uriComponents['query'])) {
+                    $requestUri .= '?' . $uriComponents['query'];
+                }
+            }
+        } elseif ($this->server->has('ORIG_PATH_INFO')) {
+            // IIS 5.0, PHP as CGI
+            $requestUri = $this->server->get('ORIG_PATH_INFO');
+            if ('' != $this->server->get('QUERY_STRING')) {
+                $requestUri .= '?' . $this->server->get('QUERY_STRING');
+            }
+            $this->server->remove('ORIG_PATH_INFO');
+        }
+
+        // normalize the request URI to ease creating sub-requests from this request
+        $this->server->set('REQUEST_URI', $requestUri);
+
+        return $requestUri;
+    }
+
+    /**
+     * Returns the root URL from which this request is executed.
+     *
+     * The base URL never ends with a /.
+     *
+     * This is similar to getBasePath(), except that it also includes the
+     * script filename (e.g. index.php) if one exists.
+     *
+     * @return string The raw URL (i.e. not urldecoded)
+     */
+    public function getBaseUrl()
+    {
+        if (null === $this->baseUrl) {
+            $this->baseUrl = $this->prepareBaseUrl();
+        }
+
+        return $this->baseUrl;
+    }
+
+    protected function prepareBaseUrl()
+    {
+        $filename = basename($this->server->get('SCRIPT_FILENAME'));
+
+        if (basename($this->server->get('SCRIPT_NAME')) === $filename) {
+            $baseUrl = $this->server->get('SCRIPT_NAME');
+        } elseif (basename($this->server->get('PHP_SELF')) === $filename) {
+            $baseUrl = $this->server->get('PHP_SELF');
+        } elseif (basename($this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
+            $baseUrl = $this->server->get('ORIG_SCRIPT_NAME'); // 1and1 shared hosting compatibility
+        } else {
+            // Backtrack up the script_filename to find the portion matching
+            // php_self
+            $path = $this->server->get('PHP_SELF', '');
+            $file = $this->server->get('SCRIPT_FILENAME', '');
+            $segs = explode('/', trim($file, '/'));
+            $segs = array_reverse($segs);
+            $index = 0;
+            $last = count($segs);
+            $baseUrl = '';
+            do {
+                $seg = $segs[$index];
+                $baseUrl = '/' . $seg . $baseUrl;
+                ++$index;
+            } while ($last > $index && (false !== $pos = strpos($path, $baseUrl)) && 0 != $pos);
+        }
+
+        // Does the baseUrl have anything in common with the request_uri?
+        $requestUri = $this->getRequestUri();
+        if ('' !== $requestUri && '/' !== $requestUri[0]) {
+            $requestUri = '/' . $requestUri;
+        }
+
+        if ($baseUrl && false !== $prefix = $this->getUrlencodedPrefix($requestUri, $baseUrl)) {
+            // full $baseUrl matches
+            return $prefix;
+        }
+
+        if ($baseUrl && false !== $prefix = $this->getUrlencodedPrefix($requestUri, rtrim(dirname($baseUrl), '/' . DIRECTORY_SEPARATOR) . '/')) {
+            // directory portion of $baseUrl matches
+            return rtrim($prefix, '/' . DIRECTORY_SEPARATOR);
+        }
+
+        $truncatedRequestUri = $requestUri;
+        if (false !== $pos = strpos($requestUri, '?')) {
+            $truncatedRequestUri = substr($requestUri, 0, $pos);
+        }
+
+        $basename = basename($baseUrl);
+        if (empty($basename) || !strpos(rawurldecode($truncatedRequestUri), $basename)) {
+            // no match whatsoever; set it blank
+            return '';
+        }
+
+        // If using mod_rewrite or ISAPI_Rewrite strip the script filename
+        // out of baseUrl. $pos !== 0 makes sure it is not matching a value
+        // from PATH_INFO or QUERY_STRING
+        if (strlen($requestUri) >= strlen($baseUrl) && (false !== $pos = strpos($requestUri, $baseUrl)) && 0 !== $pos) {
+            $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
+        }
+
+        return rtrim($baseUrl, '/' . DIRECTORY_SEPARATOR);
+    }
+
+    /**
+     * Returns the prefix as encoded in the string when the string starts with
+     * the given prefix, false otherwise.
+     *
+     * @param string
+     * @param string
+     * @return string|false The prefix as it is encoded in $string, or false
+     */
+    private function getUrlencodedPrefix(string $string, string $prefix)
+    {
+        if (0 !== strpos(rawurldecode($string), $prefix)) {
+            return false;
+        }
+
+        $len = strlen($prefix);
+
+        if (preg_match(sprintf('#^(%%[[:xdigit:]]{2}|.){%d}#', $len), $string, $match)) {
+            return $match[0];
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the path being requested relative to the executed script.
+     *
+     * The path info always starts with a /.
+     *
+     * Suppose this request is instantiated from /mysite on localhost:
+     *
+     *  * http://localhost/mysite              returns an empty string
+     *  * http://localhost/mysite/about        returns '/about'
+     *  * http://localhost/mysite/enco%20ded   returns '/enco%20ded'
+     *  * http://localhost/mysite/about?var=1  returns '/about'
+     *
+     * @return string The raw path (i.e. not urldecoded)
+     */
+    public function getPathInfo()
+    {
+        if (null === $this->pathInfo) {
+            $this->pathInfo = $this->preparePathInfo();
+        }
+
+        return $this->pathInfo;
+    }
+
+    protected function preparePathInfo()
+    {
+        if (null === ($requestUri = $this->getRequestUri())) {
+            return '/';
+        }
+
+        // Remove the query string from REQUEST_URI
+        if (false !== $pos = strpos($requestUri, '?')) {
+            $requestUri = substr($requestUri, 0, $pos);
+        }
+        if ('' !== $requestUri && '/' !== $requestUri[0]) {
+            $requestUri = '/' . $requestUri;
+        }
+
+        if (null === ($baseUrl = $this->getBaseUrl())) {
+            return $requestUri;
+        }
+
+        $pathInfo = substr($requestUri, strlen($baseUrl));
+        if (false === $pathInfo || '' === $pathInfo) {
+            // If substr() returns false then PATH_INFO is set to an empty string
+            return '/';
+        }
+
+        return (string)$pathInfo;
+    }
+
+    /**
+     * Returns the root path from which this request is executed.
+     *
+     * Suppose that an index.php file instantiates this request object:
+     *
+     *  * http://localhost/index.php         returns an empty string
+     *  * http://localhost/index.php/page    returns an empty string
+     *  * http://localhost/web/index.php     returns '/web'
+     *  * http://localhost/we%20b/index.php  returns '/we%20b'
+     *
+     * @return string The raw path (i.e. not urldecoded)
+     */
+    public function getBasePath()
+    {
+        if (null === $this->basePath) {
+            $this->basePath = $this->prepareBasePath();
+        }
+
+        return $this->basePath;
+    }
+
+    protected function prepareBasePath()
+    {
+        $baseUrl = $this->getBaseUrl();
+        if (empty($baseUrl)) {
+            return '';
+        }
+
+        $filename = basename($this->server->get('SCRIPT_FILENAME'));
+        if (basename($baseUrl) === $filename) {
+            $basePath = \dirname($baseUrl);
+        } else {
+            $basePath = $baseUrl;
+        }
+
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $basePath = str_replace('\\', '/', $basePath);
+        }
+
+        return rtrim($basePath, '/');
+    }
+
+    /**
+     * Generates a normalized URI (URL) for the Request.
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getUri()
+    {
+        if (null !== $qs = $this->getQueryString()) {
+            $qs = '?' . $qs;
+        }
+
+        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo() . $qs;
+    }
+
+    /**
+     * Generates the normalized query string for the Request.
+     *
+     * It builds a normalized query string, where keys/value pairs are alphabetized
+     * and have consistent escaping.
+     *
+     * @return string|null A normalized query string for the Request
+     */
+    public function getQueryString()
+    {
+        $qs = $this->normalizeQueryString($this->server->get('QUERY_STRING'));
+
+        return '' === $qs ? null : $qs;
+    }
+
+    /**
+     * Normalizes a query string.
+     *
+     * It builds a normalized query string, where keys/value pairs are alphabetized,
+     * have consistent escaping and unneeded delimiters are removed.
+     *
+     * @param $qs
+     * @return string
+     */
+    public function normalizeQueryString($qs)
+    {
+        if ('' == $qs) {
+            return '';
+        }
+
+        parse_str($qs, $qs);
+        ksort($qs);
+
+        return http_build_query($qs, '', '&', PHP_QUERY_RFC3986);
+    }
+
+    /**
+     * Get the URL (no query string) for the request.
      *
      * @return string
      * @throws Exception
      */
     public function getUrl()
     {
-        return $this->getSchemeAndHttpHost() . $this->server->get('REQUEST_URI');
-    }
-
-    /**
-     * Get Base Url Path
-     *
-     * @return string|null
-     */
-    public function getUri()
-    {
-        if (isset($this->uri)) {
-            return $this->uri;
-        }
-
-        $uri = parse_url($this->server->get('REQUEST_URI'));
-        $uri = isset($uri['path']) ? $uri['path'] : '';
-
-        $scriptName = $this->server->get('SCRIPT_NAME');
-        if (isset($scriptName[0]) && strpos($uri, $scriptName) === 0) {
-            $uri = substr($uri, strlen($scriptName));
-        }
-
-        if (trim($uri, '/') !== '') {
-            if (DIRECTORY_SEPARATOR === '/') {
-                $uri = str_ireplace(config_key('public', 'path'), '', $this->server->get('DOCUMENT_ROOT') . $uri);
-            } else {
-                $uri = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT') . $uri);
-                $uri = str_ireplace(config_key('public', 'path'), '', $uri);
-                $uri = str_replace(DIRECTORY_SEPARATOR, '/', $uri);
-            }
-        }
-
-        $this->uri = isset($uri[0]) && '/' === $uri[0] ? $uri : '/' . $uri;
-
-        return $this->uri;
-    }
-
-    /**
-     * Get Base Url
-     *
-     * @return string
-     * @throws Exception
-     */
-    public function getBaseUrl()
-    {
-        $path = '/';
-        if (!config('IS_CLI')) {
-            $DOCUMENT_ROOT = str_replace('/', DIRECTORY_SEPARATOR, $this->server->get('DOCUMENT_ROOT'));
-            $path = str_ireplace($DOCUMENT_ROOT, '', config_key('public', 'path'));
-            $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
-        }
-
-        return $this->getSchemeAndHttpHost() . $path;
+        return rtrim(preg_replace('/\?.*/', '', $this->getUri()), '/');
     }
 
     /**
@@ -401,18 +665,6 @@ class request
     public function userAgent()
     {
         return $this->headers->get('User-Agent');
-    }
-
-    /**
-     * Is Resource
-     */
-    public function isResource()
-    {
-        if (preg_match('/.+\.(css|ico|gif|jpg|jpeg|bmp|png)$/i', $this->getUri())) {
-            return true;
-        }
-
-        return false;
     }
 
 }

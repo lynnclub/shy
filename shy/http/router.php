@@ -1,10 +1,4 @@
 <?php
-/**
- * Shy Framework Router
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 namespace shy\http;
 
@@ -15,18 +9,24 @@ use RuntimeException;
 class router
 {
     /**
-     * Controller
-     *
      * @var string
      */
     protected $controller;
 
     /**
-     * Method of Controller
-     *
      * @var string
      */
     protected $method;
+
+    /**
+     * @var string
+     */
+    protected $pathInfo;
+
+    /**
+     * @var array
+     */
+    protected $middleware;
 
     /**
      * Is Parse Route Success
@@ -36,22 +36,18 @@ class router
     protected $parseRouteSuccess;
 
     /**
-     * Base Url Path
-     *
-     * @var string
+     * Init in cycle
      */
-    protected $uri;
+    protected function init()
+    {
+        $this->parseRouteSuccess = false;
+        $this->controller = config_key('default_controller');
+        $this->method = 'index';
+        $this->pathInfo = '/';
+        $this->middleware = [];
+    }
 
     /**
-     * Middleware
-     *
-     * @var array
-     */
-    protected $middleware;
-
-    /**
-     * Get Controller Name
-     *
      * @return string
      */
     public function getController()
@@ -60,8 +56,6 @@ class router
     }
 
     /**
-     * Get Method Name
-     *
      * @return string
      */
     public function getMethod()
@@ -70,24 +64,11 @@ class router
     }
 
     /**
-     * Get Middleware Name
-     *
      * @return array
      */
     public function getMiddleware()
     {
         return $this->middleware;
-    }
-
-    /**
-     * Init in cycle
-     */
-    protected function init()
-    {
-        $this->parseRouteSuccess = false;
-        $this->controller = config_key('default_controller');
-        $this->method = 'index';
-        $this->middleware = [];
     }
 
     /**
@@ -101,8 +82,8 @@ class router
     {
         $this->init();
 
-        $this->uri = $request->getUri();
-        if (!is_string($this->uri)) {
+        $this->pathInfo = $request->getPathInfo();
+        if (!is_string($this->pathInfo)) {
             throw new httpException(404, 'Route not found 404');
         }
 
@@ -159,12 +140,12 @@ class router
         /**
          * parse router
          */
-        if (isset($routerIndex[$this->uri])) {
-            if (isset($routerIndex[$this->uri]['middleware'])) {
-                $this->middleware = $routerIndex[$this->uri]['middleware'];
+        if (isset($routerIndex[$this->pathInfo])) {
+            if (isset($routerIndex[$this->pathInfo]['middleware'])) {
+                $this->middleware = $routerIndex[$this->pathInfo]['middleware'];
             }
 
-            $handle = $routerIndex[$this->uri]['handle'];
+            $handle = $routerIndex[$this->pathInfo]['handle'];
             list($this->controller, $this->method) = explode('@', $handle);
 
             $this->parseRouteSuccess = true;
@@ -266,7 +247,7 @@ class router
             return false;
         }
 
-        $path = explode('/', $this->uri);
+        $path = explode('/', $this->pathInfo);
         if (isset($path[1])) {
             if (!empty($path[1])) {
                 $this->controller = lcfirst($path[1]);
