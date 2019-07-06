@@ -7,9 +7,6 @@
  * @link      http://lynncho.cn/
  */
 
-defined('ENVIRONMENT') or define('ENVIRONMENT', empty(getenv('ENVIRONMENT')) ? 'local' : getenv('ENVIRONMENT'));
-defined('CONFIG_DIR') or define('CONFIG_DIR', __DIR__ . '/config/' . ENVIRONMENT . DIRECTORY_SEPARATOR);
-
 use shy\console;
 
 /**
@@ -17,13 +14,11 @@ use shy\console;
  */
 require __DIR__ . '/vendor/autoload.php';
 /**
- * Helpers
+ * Bootstrap
  */
-require __DIR__ . '/shy/core/function/core.php';
-require __DIR__ . '/shy/core/function/helpers.php';
+require __DIR__ . '/bootstrap/console.php';
 /**
  * Run CLI mode
  */
-container(CONFIG_DIR)->setExceptionHandler();
 config_set('IS_CLI', true);
 shy(console::class)->runCommand();
