@@ -76,7 +76,7 @@ trait exceptionHandlerRegister
         }
 
         $traceString = $this->getTraceString($e);
-        logger('exception: ' . $traceString, 'ERROR');
+        logger('exception', $traceString, 'ERROR');
 
         try {
             if (isset($this->handler)) {

@@ -54,7 +54,7 @@ class http
      */
     public function runRouter()
     {
-        logger('request: ' . json_encode(shy(request::class)->all()));
+        logger('request', shy(request::class)->all());
 
         $response = shy(pipeline::class)
             ->send(shy(request::class))
@@ -85,13 +85,13 @@ class http
             $usedTime = microtime(true) - $shyStartTime;
             if ($usedTime > config_key('slow_log_limit')) {
                 $router = shy(router::class);
-                $difference = [
+
+                logger('slow', [
                     'controller' => $router->getController(),
                     'method' => $router->getMethod(),
                     'middleware' => $router->getMiddleware(),
                     'usedTime' => $usedTime
-                ];
-                logger('slow: ' . json_encode($difference), 'NOTICE');
+                ], 'NOTICE');
             }
         }
 
