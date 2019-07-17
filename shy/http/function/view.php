@@ -91,6 +91,27 @@ if (!function_exists('param')) {
     }
 }
 
+if (!function_exists('param_array')) {
+    /**
+     * output param in array
+     *
+     * @param string
+     * @param string
+     * @param bool $allowNotExist
+     */
+    function param_array(string $arrayKey, string $key, bool $allowNotExist = false)
+    {
+        $params = shy(\shy\http\view::class)->getParams();
+        if (isset($params[$arrayKey][$key]) && (is_string($params[$arrayKey][$key]) || is_numeric($params[$arrayKey][$key]))) {
+            echo $params[$arrayKey][$key];
+        } elseif (isset($GLOBALS[$arrayKey][$key])) {
+            echo $GLOBALS[$arrayKey][$key];
+        } elseif (!$allowNotExist) {
+            shy(\shy\http\view::class)->error('[view] Param array ' . $arrayKey . ' key ' . $key . ' is not exist.');
+        }
+    }
+}
+
 if (!function_exists('get_param')) {
     /**
      * get param

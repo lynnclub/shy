@@ -31,7 +31,7 @@ return [
     | Default language
     */
 
-    'default_lang' => 'zh-cn',
+    'default_lang' => 'zh-CN',
 
     /*
     | Add log Function

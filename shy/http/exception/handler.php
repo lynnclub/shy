@@ -44,26 +44,27 @@ class handler implements handlerInterface
      * Response an exception.
      *
      * @param Exception $e
-     * @throws
-     * @return bool
      */
     public function response(Exception $e)
     {
-        if (!config_key('debug')) {
-            return false;
-        }
-
         $response = shy(response::class);
-        if (method_exists($e, 'getStatusCode') && method_exists($e, 'getHeaders')) {
-            $response->setCode($e->getStatusCode())->setHeader($e->getHeaders());
-            if ($e->getStatusCode() === 404) {
-                return $response->set(view('errors/404'))->send();
-            }
-        } else {
-            $response->setCode(500);
-        }
 
-        $response->set(view('errors/exception', compact('e')))->send();
+        if ($e instanceof httpException) {
+            $response->setCode($e->getStatusCode())->setHeader($e->getHeaders());
+
+            if ($e->getStatusCode() === 404) {
+                $response->set(view('errors/404'));
+            } else {
+                $response->set(view('errors/common', compact('e')));
+            }
+
+            $response->send();
+        } elseif (config_key('debug')) {
+            $response->setCode(500)
+                ->setHeader([])
+                ->set(view('errors/exception', compact('e')))
+                ->send();
+        }
     }
 
 }
