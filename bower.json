@@ -1,23 +1,23 @@
 {
-  "name": "shy",
-  "description": "This is a mini but powerful framework, concise and expansive, which can meet many needs.",
-  "main": "index.js",
-  "authors": [
-    "Lynn <admin@lynncho.cn>"
-  ],
-  "license": "MIT",
-  "keywords": [
-    "shy"
-  ],
-  "homepage": "https://lynncho.cn",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "jquery": "^3.4.1"
-  }
+    "name": "shy",
+    "description": "This is a mini but powerful framework, concise and expansive, which can meet many needs.",
+    "main": "index.js",
+    "authors": [
+        "Lynn <admin@lynncho.cn>"
+    ],
+    "license": "MIT",
+    "keywords": [
+        "shy"
+    ],
+    "homepage": "https://lynncho.cn",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "jquery": "^3.4.1"
+    }
 }

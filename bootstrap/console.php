@@ -7,11 +7,15 @@
  * @link      http://lynncho.cn/
  */
 
+
+$http = new Shy\Console();
+
+new Shy\Core\Exceptions\HandlerRegister(new Shy\Http\Exceptions\Handler());
+
 /**
  * Load helpers
  */
-require __DIR__ . '/../shy/core/function/core.php';
-require __DIR__ . '/../shy/core/function/helpers.php';
+
 
 /**
  * Base define

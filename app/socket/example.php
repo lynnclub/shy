@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Example socket
  *
@@ -7,12 +6,12 @@
  * @link      http://lynncho.cn/
  */
 
-namespace app\socket;
+namespace App\Socket;
 
 use Workerman\Connection\ConnectionInterface as Connection;
-use shy\socket\workerMan;
+use Shy\Socket\WorkerMan;
 
-class example implements workerMan
+class Example implements WorkerMan
 {
     public function onConnect(Connection $connection)
     {

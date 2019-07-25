@@ -1,12 +1,14 @@
 <?php
 
-namespace shy\http;
+namespace Shy\Http;
 
-use shy\core\pipeline;
-use shy\http\exception\httpException;
+use Shy\Http\Contracts\Router as RouterContract;
+use Shy\Http\Contracts\Request as RequestContract;
+use Shy\Core\Contracts\Pipeline;
+use Shy\Http\Exceptions\HttpException;
 use RuntimeException;
 
-class router
+class Router implements RouterContract
 {
     /**
      * @var string
@@ -36,9 +38,9 @@ class router
     protected $parseRouteSuccess;
 
     /**
-     * Init in cycle
+     * Initialize in cycle
      */
-    protected function init()
+    protected function initialize()
     {
         $this->parseRouteSuccess = false;
         $this->controller = config_key('default_controller');
@@ -75,12 +77,12 @@ class router
      * Pipeline Handle
      *
      * @param \Closure $next
-     * @param \shy\http\request $request
+     * @param RequestContract $request
      * @return string|view
      */
-    public function handle($next, $request)
+    public function handle($next, RequestContract $request)
     {
-        $this->init();
+        $this->initialize();
 
         $this->pathInfo = $request->getPathInfo();
         if (!is_string($this->pathInfo)) {
@@ -96,30 +98,32 @@ class router
         if (config_key('route_by_path')) {
             $this->parseRouteByPath();
         }
+
         /**
          * Check controller
          */
-        if ($this->parseRouteSuccess) {
-            if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-                throw new httpException(404, 'Route not found 404');
-            }
-        } else {
+        if (!$this->parseRouteSuccess) {
             throw new httpException(404, 'Route not found 404');
         }
+        if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
+            throw new httpException(404, 'Route not found 404');
+        }
+
+
         /**
          * Run controller and middleware
          */
         if (empty($this->middleware)) {
             $response = $this->runController();
         } else {
-            $response = shy(pipeline::class)
+            $response = shy(Pipeline::class)
                 ->through($this->middleware)
                 ->then(function () {
                     return $this->runController();
                 });
-            shy_clear(array_values($this->middleware));
+            //shy_clear(array_values($this->middleware));
         }
-        shy_clear($this->controller);
+        //shy_clear($this->controller);
 
         return $next($response);
     }
@@ -159,13 +163,13 @@ class router
     {
         $router = config('router');
         $routerIndex = [];
-        $controllerNamespace = 'app\\http\\controller\\';
+        $controllerNamespace = 'App\\Http\\Controllers\\';
         /**
          * path
          */
         if (isset($router['path'])) {
             foreach ($router['path'] as $path => $handle) {
-                $routerIndex[$path] = ['handle' => $controllerNamespace . $handle];
+                $routerIndex[$path] = ['handle' => $controllerNamespace . ucfirst($handle)];
             }
         }
         /**
@@ -195,7 +199,7 @@ class router
                         $middleware = $this->getMiddlewareClassByConfig($oneGroup['middleware']);
                     }
                     foreach ($oneGroup['path'] as $path => $handle) {
-                        $routerIndex[$prefix . $path] = ['handle' => $controllerNamespace . $handle, 'middleware' => $middleware];
+                        $routerIndex[$prefix . $path] = ['handle' => $controllerNamespace . ucfirst($handle), 'middleware' => $middleware];
                     }
                 }
             }
@@ -267,7 +271,7 @@ class router
      */
     protected function runController()
     {
-        return shy(pipeline::class)
+        return shy(Pipeline::class)
             ->through($this->controller)
             ->via($this->method)
             ->run();

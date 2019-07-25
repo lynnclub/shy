@@ -1,10 +1,10 @@
 <?php
 
-namespace shy\core;
+namespace Shy\Core;
 
 use RuntimeException;
 
-abstract class facade
+abstract class Facade
 {
     /**
      * Get Instance.

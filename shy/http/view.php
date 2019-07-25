@@ -1,16 +1,11 @@
 <?php
-/**
- * Shy Framework View
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\http;
+namespace Shy\Http;
 
+use Shy\Http\Contracts\View as ViewContract;
 use RuntimeException;
 
-class view
+class View implements ViewContract
 {
     /**
      * View file
@@ -66,7 +61,7 @@ class view
             throw new RuntimeException('Invalid view.');
         }
 
-        $view = config_key('app', 'path') . 'http/views/' . $view . '.php';
+        $view = config_key('app', 'path') . 'Http/Views/' . $view . '.php';
         if (file_exists($view)) {
             $this->view = $view;
         } else {
@@ -116,11 +111,13 @@ class view
      * Render view
      *
      * @return string
+     * @throws \Exception
      */
     public function render()
     {
         ob_start();
         extract($this->params);
+
         /**
          * View
          */
@@ -133,13 +130,12 @@ class view
         if (isset($this->layout)) {
             $this->subViewContent = ob_get_clean();
             $this->params = array_merge($this->params, get_defined_vars());
-            include "{$this->layout}";
+            require "{$this->layout}";
         }
-        $this->viewContent = ob_get_contents();
         /**
-         * Can not ob_end_clean(), worker man will no output
+         * Can not ob_end_clean(), WorkerMan will no output
          */
-        ob_clean();
+        $this->viewContent = ob_get_clean();
 
         if (empty($this->errorMsg)) {
             return $this->viewContent;

@@ -6,18 +6,18 @@
  * @link      http://lynncho.cn/
  */
 
-namespace shy\http\middleware;
+namespace Shy\Http\Middleware;
 
-use shy\core\middleware;
+use Shy\Core\Contracts\Middleware;
 use Closure;
-use shy\http\facade\request;
+use Shy\Http\Facades\Request;
 
-class csrf implements middleware
+class Csrf implements Middleware
 {
     public function handle(Closure $next, ...$passable)
     {
         // request handle
-        $request = request::all();
+        $request = Request::all();
 
         // run controller
         $response = $next();

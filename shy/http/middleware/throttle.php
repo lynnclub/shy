@@ -7,12 +7,12 @@
  * @link      http://lynncho.cn/
  */
 
-namespace shy\http\middleware;
+namespace Shy\Http\Middleware;
 
-use shy\core\middleware;
+use Shy\Core\Contracts\Middleware;
 use Closure;
 
-class throttle implements middleware
+class Throttle implements middleware
 {
     public function handle(Closure $next, ...$passable)
     {

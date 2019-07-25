@@ -10,9 +10,10 @@
 use shy\console;
 
 /**
- * Composer Autoload
+ * Composer autoload
  */
 require __DIR__ . '/vendor/autoload.php';
+
 /**
  * Bootstrap
  */

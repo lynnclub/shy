@@ -1,20 +1,14 @@
 <?php
-/**
- * Shy command
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\console\command;
+namespace Shy\Console\Command;
 
-use shy\console;
+use Shy\Console;
 use RuntimeException;
-use shy\socketInWorkerMan;
-use shy\webInWorkerMan;
+use Shy\SocketInWorkerMan;
+use Shy\WebInWorkerMan;
 use Workerman\Worker;
 
-class shy
+class Shy
 {
     /**
      * The List of Command

@@ -7,9 +7,9 @@
  * @link      http://lynncho.cn/
  */
 
-namespace app\http\business;
+namespace App\Http\Business;
 
-class testBusiness
+class TestBusiness
 {
     private $isMobile;
 

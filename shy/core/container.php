@@ -1,78 +1,79 @@
 <?php
-/**
- * Container
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\core;
+namespace Shy\Core;
 
+use Shy\Core\Contracts\Container as ContainerContract;
+use Shy\Core\Exceptions\Container\Exception;
+use Shy\Core\Exceptions\Container\NotFoundException;
 use Closure;
-use RuntimeException;
 use ReflectionClass;
+use ReflectionMethod;
+use ReflectionFunction;
 use ReflectionException;
-use shy\http\request;
-use Exception;
 
-class container
+class Container implements ContainerContract
 {
-    use exceptionHandlerRegister;
-
     /**
-     * Start id
-     *
-     * @var string $startId
+     * @var Container
      */
-    private $startId;
+    protected static $instance;
 
     /**
-     * Config dir
-     *
-     * @var string $configDir
+     * @var string
      */
-    private $configDir;
+    protected static $startId;
 
     /**
-     * Config
-     *
-     * @var mixed $config
-     */
-    private $config;
-
-    /**
-     * Bind ready to join
-     *
-     * @var mixed $binds
-     */
-    private $binds;
-
-    /**
-     * Instances container
-     *
-     * @var mixed $instances
-     */
-    private $instances;
-
-    /**
-     * Instances memory used
+     * Binding ready to join container
      *
      * @var array
      */
-    private $instancesMemoryUsed;
-
-    private $beforeMakeInstanceMemoryUsed;
+    protected $binds;
 
     /**
-     * Container constructor.
-     *
-     * @param string $configDir
+     * @var array
      */
-    public function __construct(string $configDir = '')
+    protected $aliases;
+
+    /**
+     * @var array
+     */
+    protected $instances;
+
+    /**
+     * Memory used by instances
+     *
+     * @var array
+     */
+    protected $instancesMemory;
+
+    protected $memoryUsedBeforeMakeInstance;
+
+    /**
+     * Get container
+     *
+     * @return Container
+     */
+    public static function getInstance()
     {
-        $this->startId = uniqid();
-        $this->setConfig('SHY_START_TIME', microtime(true));
-        $this->configDir = is_dir($configDir) ? $configDir : __DIR__ . '/../../config/' . ENVIRONMENT . DIRECTORY_SEPARATOR;
+        if (is_null(static::$instance)) {
+            static::$startId = uniqid();
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
+
+    /**
+     * Set container
+     *
+     * @param ContainerContract|null $container
+     * @return ContainerContract
+     */
+    public static function setInstance(ContainerContract $container = null)
+    {
+        static::$startId = uniqid();
+        return static::$instance = $container;
     }
 
     /**
@@ -80,87 +81,105 @@ class container
      *
      * @return string
      */
-    public function getStartId()
+    public function startId()
     {
-        return $this->startId;
+        return static::$startId;
     }
 
     /**
-     * Fork process no add to start id
+     * Add forked process id to start id
      *
-     * @param int $no
+     * @param int $forkedPid
      */
-    public function forkProcessNoAddToStartId(int $no)
+    public function addForkedPidToStartId(int $forkedPid)
     {
-        if (!strpos($this->startId, '_')) {
-            $this->startId .= '_' . $no;
+        if (!strpos(static::$startId, '_')) {
+            static::$startId .= '_' . $forkedPid;
         }
     }
 
     /**
-     * Set config
+     * Set instance
      *
-     * @param string $abstract
-     * @param $config
-     * @return mixed
+     * @param string $id
+     * @param $instance
      */
-    public function setConfig(string $abstract, $config)
+    public function set(string $id, $instance)
     {
-        if (isset($this->config[$abstract])) {
-            throw new RuntimeException('Config abstract ' . $abstract . ' exist and not empty.');
-        }
-        if (isset($config)) {
-            $this->config[$abstract] = $config;
-        } else {
-            throw new RuntimeException('Config abstract ' . $abstract . ' config is null.');
-        }
+        $this->instances[$id] = $instance;
+    }
 
-        return $this->config[$abstract];
+    public function sets(array $sets)
+    {
+        foreach ($sets as $id => $instance) {
+            $this->set($id, $instance);
+        }
     }
 
     /**
-     * Remove config
+     * Bind ready to make
      *
-     * @param string $abstract
+     * @param string $id
+     * @param $concrete
+     *
+     * @return Container
      */
-    public function removeConfig(string $abstract)
+    public function bind(string $id, $concrete = null)
     {
-        unset($this->config[$abstract]);
+        if (is_null($concrete)) {
+            $concrete = $id;
+        }
+
+        $this->binds[$id] = $this->getClosure($id, $concrete);
+
+        return $this;
     }
 
     /**
-     * Get config
+     * Get closure for make
      *
-     * @param string $abstract
-     * @param string $default
-     * @return mixed
+     * @param string $id
+     * @param $concrete
+     *
+     * @return Closure
      */
-    public function getConfig(string $abstract, $default = '')
+    protected function getClosure(string $id, $concrete)
     {
-        if (isset($this->config[$abstract])) {
-            return $this->config[$abstract];
-        }
+        return function (...$parameters) use ($id, $concrete) {
+            if (empty($id)) {
+                throw new Exception('Container: make id is empty');
+            }
 
-        /**
-         * autoload config file
-         */
-        $configFile = $this->configDir . $abstract . '.php';
-        if (file_exists($configFile) && $config = require_file($configFile)) {
-            return $this->setConfig($abstract, $config);
-        }
-
-        return $default;
+            if (is_string($concrete) && class_exists($concrete)) {
+                $this->instances[$id] = $this->makeViaReflectionClass($concrete, ...$parameters);
+            } elseif ($concrete instanceof Closure) {
+                $this->instances[$id] = $this->runViaReflectionFunction($concrete, ...$parameters);
+            } else {
+                $this->instances[$id] = $concrete;
+            }
+        };
     }
 
     /**
-     * Is config exist
+     * @param array $binds
+     */
+    public function binds(array $binds)
+    {
+        foreach ($binds as $id => $concrete) {
+            $this->bind($id, $concrete);
+        }
+    }
+
+    /**
+     * Is bound
      *
-     * @param string $abstract
+     * @param string $id
+     *
      * @return bool
      */
-    public function configExist(string $abstract)
+    public function bound(string $id)
     {
-        if (isset($this->config[$abstract])) {
+        if (isset($this->binds[$id])) {
             return true;
         }
 
@@ -168,155 +187,99 @@ class container
     }
 
     /**
-     * Get all config
+     * Get bound
      *
-     * @return mixed
+     * @param string $id
+     *
+     * @return string|\Closure|object|false
      */
-    public function getAllConfig()
+    public function getBound(string $id)
     {
-        return $this->config;
+        if (isset($this->binds[$id])) {
+            return $this->binds[$id];
+        }
+
+        return false;
     }
 
     /**
-     * Calc int in config
+     * Make instance and join the container
      *
-     * @param string $abstract
-     * @param int $int
-     * @return mixed
-     */
-    public function configIntCalc(string $abstract, int $int = 1)
-    {
-        if (isset($this->config[$abstract])) {
-            if (!is_int($this->config[$abstract])) {
-                throw new RuntimeException('Config Int Calc need config value is int.');
-            }
-        } else {
-            $this->config[$abstract] = 0;
-        }
-
-        $this->config[$abstract] += $int;
-
-        return $this->config[$abstract];
-    }
-
-    /**
-     * Bind instance or closure
-     *
-     * @param string $abstract
-     * @param string|Closure|object $concrete
-     * @throws RuntimeException
-     * @return $this
-     */
-    public function bind(string $abstract, $concrete)
-    {
-        if (empty($abstract)) {
-            throw new RuntimeException('Container: binding abstract' . $abstract . ' is empty.');
-        }
-        if (is_array($concrete)) {
-            $concrete = null;
-        }
-
-        if ($concrete instanceof Closure
-            || is_object($concrete)
-            || class_exists($concrete)
-        ) {
-            $this->binds[$abstract] = $concrete;
-        } else {
-            if (class_exists($abstract)) {
-                $this->binds[$abstract] = $abstract;
-            } else {
-                if (empty($concrete)) {
-                    throw new RuntimeException('Container: binding concrete' . $concrete . ' is empty.');
-                } else {
-                    throw new RuntimeException('Container: abstract ' . $abstract . ' binding concrete type invalid.');
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get instance or make new
-     *
-     * @param string $abstract
-     * @param object|string $concrete
+     * @param string $id
+     * @param object|string|null $concrete
      * @param array ...$parameters
-     * @return mixed
-     * @throws ReflectionException
-     */
-    public function getOrMakeNew(string $abstract, $concrete = null, ...$parameters)
-    {
-        if (isset($this->instances[$abstract])) {
-            $this->instancesRecord($abstract, 'use');
-            return $this->instances[$abstract];
-        }
-
-        return $this->makeNew($abstract, $concrete, ...$parameters);
-    }
-
-    /**
-     * Make new instance and join to container
      *
-     * @param string $abstract
-     * @param object|string $concrete
-     * @param array ...$parameters
-     * @return object
-     * @throws RuntimeException|ReflectionException
+     * @return mixed
      */
-    public function makeNew(string $abstract, $concrete = null, ...$parameters)
+    public function make(string $id, $concrete = null, ...$parameters)
     {
-        if (empty($abstract)) {
-            throw new RuntimeException('Container: make object abstract is empty');
+        if (isset($this->binds[$id])) {
+            array_unshift($parameters, $concrete);
+        } else {
+            $this->bind($id, $concrete);
         }
-        /**
-         * bind
-         */
-        if (!isset($this->binds[$abstract])) {
-            $this->bind($abstract, $concrete);
-        }
-        /**
-         * Join
-         */
-        $this->beforeMakeInstanceMemoryUsed = memory_get_usage();
-        if ($this->binds[$abstract] instanceof Closure) {
-            if (!$concrete instanceof Closure) {
-                array_unshift($parameters, $concrete);
-            }
-            $this->instances[$abstract] = call_user_func($this->binds[$abstract], ...$parameters);
-        } elseif (is_object($this->binds[$abstract])) {
-            $this->instances[$abstract] = $this->binds[$abstract];
-        } elseif (is_string($this->binds[$abstract]) && class_exists($this->binds[$abstract])) {
-            if (!is_string($concrete) || !class_exists($concrete)) {
-                array_unshift($parameters, $concrete);
-            }
-            $this->instances[$abstract] = $this->makeClassByReflection($this->binds[$abstract], ...$parameters);
-        }
-        unset($this->binds[$abstract]);
-        $this->countMakeInstanceMemoryUsed($abstract);
-        $this->instancesRecord($abstract, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemoryUsed[$abstract])]);
 
-        return $this->instances[$abstract];
+        $this->memoryUsedBeforeMakeInstance = memory_get_usage();
+        $this->binds[$id](...$parameters);
+        unset($this->binds[$id]);
+        $this->countMemoryUsedToNewInstance($id);
+        //$this->instancesRecord($id, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemory[$id])]);
+
+        return $this->instances[$id];
     }
 
     /**
-     * Make class by Reflection
+     * @param array $makes
+     */
+    public function makes(array $makes)
+    {
+        foreach ($makes as $id => $concrete) {
+            $this->make($id, $concrete);
+        }
+    }
+
+    public function alias(string $alias, string $id)
+    {
+        if ($alias === $id) {
+            throw new \LogicException("[{$id}] is aliased to itself.");
+        }
+
+        $this->aliases[$alias] = $id;
+    }
+
+    public function aliases(array $aliases)
+    {
+        foreach ($aliases as $alias => $id) {
+            $this->alias($alias, $id);
+        }
+    }
+
+    /**
+     * Make instance via ReflectionClass
      *
      * @param string $concrete
      * @param array ...$parameters
-     * @return mixed
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
      * @throws ReflectionException
+     *
+     * @return object
      */
-    private function makeClassByReflection(string $concrete, ...$parameters)
+    public function makeViaReflectionClass(string $concrete, ...$parameters)
     {
         $reflector = new ReflectionClass($concrete);
+
         if (!$reflector->isInstantiable()) {
-            throw new RuntimeException('Container: class ' . $concrete . ' is not instantiable');
+            throw new Exception('Container: class ' . $concrete . ' is not instantiable');
         }
 
-        if (is_null($reflector->getConstructor())) {
+        $constructor = $reflector->getConstructor();
+
+        if (is_null($constructor)) {
             $instance = $reflector->newInstanceWithoutConstructor();
         } else {
+            $parameters = $this->getDependencies($parameters, $constructor->getParameters());
+
             $instance = $reflector->newInstance(...$parameters);
         }
 
@@ -324,101 +287,109 @@ class container
     }
 
     /**
-     * Count memory used while make instance
+     * Run function via ReflectionFunction
      *
-     * @param $abstract
+     * @param $concrete
+     * @param array ...$parameters
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws ReflectionException
+     *
+     * @return mixed
      */
-    private function countMakeInstanceMemoryUsed(string $abstract)
+    public function runViaReflectionFunction($concrete, ...$parameters)
     {
-        $this->instancesMemoryUsed[$abstract][] = memory_get_usage() - $this->beforeMakeInstanceMemoryUsed;
+        $reflector = new ReflectionFunction($concrete);
+        $parameters = $this->getDependencies($parameters, $reflector->getParameters());
+
+        return call_user_func($concrete, ...$parameters);
     }
 
     /**
-     * Clear instance
+     * Dependency injection.
      *
-     * @param string|array $abstract
-     */
-    public function clear($abstract)
-    {
-        if (is_array($abstract)) {
-            foreach ($abstract as $item) {
-                $this->instancesRecord($item, 'clear');
-                unset($this->binds[$item], $this->instancesMemoryUsed[$item], $this->instances[$item]);
-            }
-        } else {
-            $this->instancesRecord($abstract, 'clear');
-            unset($this->binds[$abstract], $this->instancesMemoryUsed[$abstract], $this->instances[$abstract]);
-        }
-    }
-
-    /**
-     * Instances record
-     *
-     * data format: key1 ^^ value1 ... ^^ key2 ^^ value2 ...
-     *
-     * start id ^^ class abstract ^^ operation ^^ time ^^ isCli ^^ url ^^ ips ^^ trace ...customer params
-     *
-     * @todo Records data for instances intelligent scheduling
-     *
-     * @param string $abstract
-     * @param string $operation
-     * @param array $params
-     * @return bool
-     */
-    private function instancesRecord(string $abstract, string $operation, array $params = [])
-    {
-        if (!config_key('switch', 'instances_scheduling')) {
-            return false;
-        }
-        if (in_array($abstract, config_key('avoid_list', 'instances_scheduling'))) {
-            return false;
-        }
-
-        $structure = [
-            'startId' => $this->startId,
-            'abstract' => $abstract,
-            'operation' => $operation,
-            'time' => time(),
-            'isCli' => $this->getConfig('IS_CLI'),
-            'url' => '',
-            'ips' => '',
-            'trace' => ''
-        ];
-
-        $request = shy(request::class);
-        if ($request->isInit()) {
-            $structure['url'] = $request->getUrl();
-            $structure['ips'] = implode(',', $request->getClientIps());
-        }
-
-        $structure['trace'] = json_encode(debug_backtrace());
-
-        if (!empty($params)) {
-            foreach ($params as $key => $value) {
-                if (is_array($value)) {
-                    $structure[$key] = json_encode($value);
-                } else {
-                    $structure[$key] = $value;
-                }
-            }
-        }
-
-        $finalStructure = [];
-        foreach ($structure as $key => $value) {
-            $finalStructure[] = $key;
-            $finalStructure[] = $value;
-        }
-
-        file_put_contents(config_key('cache', 'path') . 'instances_record/' . date('Ymd') . '.log', implode('^^', $finalStructure) . PHP_EOL, FILE_APPEND);
-
-    }
-
-    /**
-     * Get the list of instances
+     * @param array $parameters
+     * @param array $dependencies
      *
      * @return array
      */
-    public function getList()
+    public function getDependencies(array $parameters, array $dependencies)
+    {
+        $results = [];
+
+        foreach ($dependencies as $key => $dependency) {
+            if (isset($parameters[$key])) {
+                $results[] = $parameters[$key];
+            } else {
+                $results[] = is_null($dependency->getClass())
+                    ? null
+                    : $this->getOrMake($dependency->getClass()->name);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get or make instance
+     *
+     * @param string $id
+     * @param object|string|null $concrete
+     * @param array ...$parameters
+     *
+     * @return object
+     */
+    public function getOrMake(string $id, $concrete = null, ...$parameters)
+    {
+        if (isset($this->instances[$id])) {
+            //$this->instancesRecord($id, 'use');
+
+            return $this->instances[$id];
+        } elseif (isset($this->aliases[$id])) {
+            if (isset($this->instances[$this->aliases[$id]])) {
+                return $this->instances[$this->aliases[$id]];
+            } else {
+                $id = $this->aliases[$id];
+            }
+        }
+
+        return $this->make($id, $concrete, ...$parameters);
+    }
+
+    /**
+     * Count the memory used to create the instance
+     *
+     * @param $id
+     */
+    protected function countMemoryUsedToNewInstance(string $id)
+    {
+        $this->instancesMemory[$id][] = memory_get_usage() - $this->memoryUsedBeforeMakeInstance;
+    }
+
+    /**
+     * Remove bind and instance
+     *
+     * @param string|array $id
+     */
+    public function remove($id)
+    {
+        if (is_array($id)) {
+            foreach ($id as $item) {
+                $this->remove($item);
+            }
+        } else {
+            //$this->instancesRecord($id, 'clear');
+
+            unset($this->binds[$id], $this->instancesMemory[$id], $this->instances[$id]);
+        }
+    }
+
+    /**
+     * Get the list of instances id
+     *
+     * @return array
+     */
+    public function list()
     {
         return array_keys($this->instances);
     }
@@ -428,24 +399,187 @@ class container
      *
      * @return array
      */
-    public function getListMemoryUsed()
+    public function memoryUsed()
     {
-        return $this->instancesMemoryUsed;
+        return $this->instancesMemory;
     }
 
     /**
-     * Is in instances list
+     * Finds an entry of the container by its identifier and returns it.
      *
-     * @param string $abstract
-     * @return object|bool
+     * @param string $id Identifier of the entry to look for.
+     *
+     * @throws NotFoundException  No entry was found for **this** identifier.
+     *
+     * @return mixed Entry.
      */
-    public function inList(string $abstract)
+    public function get($id)
     {
-        if (isset($this->instances[$abstract])) {
-            return $this->instances[$abstract];
+        if (isset($this->instances[$id])) {
+            //$this->instancesRecord($id, 'use');
+
+            return $this->instances[$id];
+        } elseif (isset($this->aliases[$id]) && isset($this->instances[$this->aliases[$id]])) {
+            return $this->instances[$this->aliases[$id]];
+        } else {
+            throw new NotFoundException('Failed to find the instance via ID ' . $id . '.');
+        }
+    }
+
+    /**
+     * Returns true if the container can return an entry for the given identifier.
+     * Returns false otherwise.
+     *
+     * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+     * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
+     *
+     * @param string $id Identifier of the entry to look for.
+     *
+     * @return bool
+     */
+    public function has($id)
+    {
+        if (isset($this->instances[$id])) {
+            return true;
+        }
+
+        if (isset($this->aliases[$id]) && isset($this->instances[$this->aliases[$id]])) {
+            return true;
         }
 
         return false;
     }
+
+    /**
+     * Whether a offset exists
+     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
+     * @param mixed $offset <p>
+     * An offset to check for.
+     * </p>
+     * @return boolean true on success or false on failure.
+     * </p>
+     * <p>
+     * The return value will be casted to boolean if non-boolean was returned.
+     *
+     * @since 5.0.0
+     */
+    public function offsetExists($offset)
+    {
+        return $this->has($offset);
+    }
+
+    /**
+     * Offset to retrieve
+     * @link http://php.net/manual/en/arrayaccess.offsetget.php
+     * @param mixed $offset <p>
+     * The offset to retrieve.
+     * </p>
+     * @return mixed Can return all value types.
+     *
+     * @throws \Psr\Container\NotFoundExceptionInterface  No entry was found for **this** identifier.
+     *
+     * @since 5.0.0
+     */
+    public function offsetGet($offset)
+    {
+        return $this->getOrMake($offset);
+    }
+
+    /**
+     * Offset to set
+     * @link http://php.net/manual/en/arrayaccess.offsetset.php
+     * @param mixed $offset <p>
+     * The offset to assign the value to.
+     * </p>
+     * @param mixed $value <p>
+     * The value to set.
+     * </p>
+     *
+     * @return void
+     *
+     * @since 5.0.0
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->set($offset, $value);
+    }
+
+    /**
+     * Offset to unset
+     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
+     * @param mixed $offset <p>
+     * The offset to unset.
+     * </p>
+     *
+     * @return void
+     *
+     * @since 5.0.0
+     */
+    public function offsetUnset($offset)
+    {
+        $this->remove($offset);
+    }
+
+//    /**
+//     * Instances record
+//     *
+//     * data format: key1 ^^ value1 ... ^^ key2 ^^ value2 ...
+//     *
+//     * start id ^^ class id ^^ operation ^^ time ^^ isCli ^^ url ^^ ips ^^ trace ...customer params
+//     *
+//     * @todo Records data for instances intelligent scheduling
+//     *
+//     * @param string $id
+//     * @param string $operation
+//     * @param array $params
+//     * @return bool
+//     */
+//    private function instancesRecord(string $id, string $operation, array $params = [])
+//    {
+//        if (!config_key('switch', 'instances_scheduling')) {
+//            return false;
+//        }
+//        if (in_array($id, config_key('avoid_list', 'instances_scheduling'))) {
+//            return false;
+//        }
+//
+//        $structure = [
+//            'startId' => $this->startId,
+//            'id' => $id,
+//            'operation' => $operation,
+//            'time' => time(),
+//            'isCli' => $this->getConfig('IS_CLI'),
+//            'url' => '',
+//            'ips' => '',
+//            'trace' => ''
+//        ];
+//
+//        $request = shy(request::class);
+//        if ($request->isInit()) {
+//            $structure['url'] = $request->getUrl();
+//            $structure['ips'] = implode(',', $request->getClientIps());
+//        }
+//
+//        $structure['trace'] = json_encode(debug_backtrace());
+//
+//        if (!empty($params)) {
+//            foreach ($params as $key => $value) {
+//                if (is_array($value)) {
+//                    $structure[$key] = json_encode($value);
+//                } else {
+//                    $structure[$key] = $value;
+//                }
+//            }
+//        }
+//
+//        $finalStructure = [];
+//        foreach ($structure as $key => $value) {
+//            $finalStructure[] = $key;
+//            $finalStructure[] = $value;
+//        }
+//
+//        file_put_contents(config_key('cache', 'path') . 'instances_record/' . date('Ymd') . '.log', implode('^^', $finalStructure) . PHP_EOL, FILE_APPEND);
+//
+//    }
 
 }

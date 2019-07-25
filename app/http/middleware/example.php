@@ -8,11 +8,11 @@
 
 namespace app\http\middleware;
 
-use shy\core\middleware;
+use Shy\Core\Contracts\Middleware;
 use Closure;
-use shy\http\facade\request;
+use Shy\Http\Facades\Request;
 
-class example implements middleware
+class Example implements Middleware
 {
     public function handle(Closure $next, ...$passable)
     {

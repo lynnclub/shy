@@ -1,17 +1,13 @@
 <?php
-/**
- * Pipeline
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\core;
+namespace Shy\Core;
 
+use Shy\Core\Contracts\Pipeline as PipelineContract;
 use Closure;
+use ReflectionMethod;
 use RuntimeException;
 
-class pipeline
+class Pipeline implements PipelineContract
 {
     /**
      * The object being passed through the pipeline.
@@ -33,6 +29,16 @@ class pipeline
      * @var string
      */
     protected $method = 'handle';
+
+    /**
+     * Initialize Pipeline
+     */
+    protected function initialize()
+    {
+        $this->passable = [];
+        $this->pipes = [];
+        $this->method = 'handle';
+    }
 
     /**
      * Set the object being sent through the pipeline.
@@ -107,16 +113,6 @@ class pipeline
     }
 
     /**
-     * Init Pipeline
-     */
-    protected function init()
-    {
-        $this->passable = [];
-        $this->pipes = [];
-        $this->method = 'handle';
-    }
-
-    /**
      * Get the final piece of the Closure onion.
      *
      * @param  Closure $destination
@@ -137,31 +133,36 @@ class pipeline
     protected function carry()
     {
         return function ($next, $pipe) {
-            return function (...$passable) use ($next, $pipe) {
+            $method = $this->method;
+            /**
+             * Initialize pipeline before execute
+             */
+            $this->initialize();
+
+            return function (...$passable) use ($next, $pipe, $method) {
                 if (is_callable($pipe)) {
-                    return $pipe($next, ...$passable);
-                } elseif (is_object($pipe)) {
-                    array_unshift($passable, $next);
-                    $parameters = $passable;
+                    return shy()->runViaReflectionFunction($pipe, $next, ...$passable);
                 } else {
-                    list($name, $parameters) = $this->parsePipeString($pipe);
-                    $pipe = shy($name);
-                    $parameters = array_merge([$next], $passable, $parameters);
+                    if (is_object($pipe)) {
+                        array_unshift($passable, $next);
+                        $parameters = $passable;
+                    } else {
+                        list($name, $parameters) = $this->parsePipeString($pipe);
+                        $pipe = shy($name);
+                        $parameters = array_merge([$next], $passable, $parameters);
+                    }
+
+                    if (method_exists($pipe, $method)) {
+                        $reflector = new ReflectionMethod($pipe, $method);
+                        $parameters = shy()->getDependencies($parameters, $reflector->getParameters());
+                    } else {
+                        throw new RuntimeException('Method ' . $method . ' not exist');
+                    }
+
+                    $response = $pipe->{$method}(...$parameters);
+
+                    return $response;
                 }
-
-                if (!method_exists($pipe, $this->method)) {
-                    throw new RuntimeException('Method ' . $this->method . ' not exist');
-                } else {
-                    $method = $this->method;
-                }
-
-                /**
-                 * Init param before execute
-                 */
-                $this->init();
-                $response = $pipe->{$method}(...$parameters);
-
-                return $response;
             };
         };
     }

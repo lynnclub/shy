@@ -1,127 +1,225 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use shy\core\container;
+use Shy\Core\Container;
 
-class containerTest extends TestCase
+class ContainerTest extends TestCase
 {
     protected $container;
 
-    public function setUp()
+    protected function setUp()
     {
-        global $_SHY_CONTAINER;
-        $this->container = $_SHY_CONTAINER = new container;
+        $this->container = Container::getInstance();
     }
 
-    public function testMakeClosureWithParam()
-    {
-        $object = $this->container->make('StdClass', function (...$param) {
-            return new StdClass(...$param);
-        }, 'test', 'test2');
-        $this->assertInstanceOf(StdClass::class, $object);
-        $this->assertInstanceOf(StdClass::class, shy('StdClass'));
-    }
-
-    /**
-     * @depends testMakeClosureWithParam
+    /*
+     * -------------------------------------
+     * Closure
+     * -------------------------------------
      */
-    public function testBindMakeClosureWithParam()
+
+    public function testBindClosure()
     {
-        $object = $this->container->bind('StdClass2', function (...$param) {
-            return new StdClass(...$param);
-        })->make('StdClass2', 'test', 'test2');
-        $this->assertInstanceOf(StdClass::class, $object);
-        $this->assertEquals(shy('StdClass'), shy('StdClass2'));
+        /**
+         * Bind without params
+         */
+        $this->container->bind('Closure\stdClass', function () {
+            return new stdClass();
+        });
+        $this->assertTrue($this->container->bound('Closure\stdClass'));
+
+        /**
+         * Bind with params
+         */
+        $this->container->bind('Closure\myClass2', function ($test1, $this2) {
+            return new myClass($test1, $this2);
+        });
+        $this->assertTrue($this->container->bound('Closure\myClass2'));
+
+        /**
+         * Bind with Closure params
+         */
+        $this->container->bind('Closure\myClass3', function (Closure $test1, $this2) {
+            return new myClass($test1, $this2);
+        });
     }
 
     /**
-     * @depends testBindMakeClosureWithParam
+     * @depends testBindClosure
      */
     public function testMakeClosure()
     {
-        $object = $this->container->make('StdClass3', function () {
-            return new StdClass();
-        });
-        $this->assertInstanceOf(StdClass::class, $object);
-        $this->assertEquals(shy('StdClass3'), shy('StdClass2'));
+        /**
+         * Make without params
+         */
+        $this->assertTrue($this->container->bound('Closure\stdClass'));
+        $object = $this->container->make('Closure\stdClass');
+        $this->assertInstanceOf(stdClass::class, $object);
+
+        /**
+         * Make with params
+         */
+        $object = $this->container->make('Closure\myClass2', 'param1', 'param2');
+        $this->assertInstanceOf(myClass::class, $object);
+        $this->assertEquals('param2', $object->getTest2());
+
+        /**
+         * Bind with Closure params
+         */
+        $object = $this->container->make('Closure\myClass3', function ($test) {
+            return 'Closure_' . $test;
+        }, 'param2');
+        $this->assertInstanceOf(myClass::class, $object);
+        $this->assertInstanceOf(Closure::class, $object->getTest());
+
+        /**
+         * Closure params without bind
+         */
+        $object = $this->container->make('Closure\myClass3', function ($test1, $this2) {
+            return new myClass($test1, $this2);
+        }, 'param1', 'param2');
+        $this->assertInstanceOf(myClass::class, $object);
+        $this->assertEquals('param1', $object->getTest());
+
+        /**
+         * Bind with Closure params
+         */
+        $object = $this->container->make('Closure\myDependencyClass', function ($test1, stdClass $this2) {
+            return new myDependencyClass($test1, $this2);
+        }, 'param1');
+        $this->assertInstanceOf(myDependencyClass::class, $object);
+        $this->assertInstanceOf(stdClass::class, $object->getTest2());
+    }
+
+    /*
+     * -------------------------------------
+     * Object
+     * -------------------------------------
+     */
+
+    public function testBindObject()
+    {
+        /**
+         * Bind without params
+         */
+        $this->container->bind('object\stdClass2', new stdClass());
+        $this->assertTrue($this->container->bound('object\stdClass2'));
+
+        /**
+         * Bind with params
+         */
+        $this->container->bind('object\myClass3', new myClass(1, 123));
+        $this->assertTrue($this->container->bound('object\myClass3'));
     }
 
     /**
-     * @depends testMakeClosure
-     * @expectedException RuntimeException
+     * @depends testBindObject
      */
-    public function testClear()
-    {
-        $this->container->clear('StdClass3');
-        shy('StdClass3');
-    }
-
-    public function testMakeObjectWithParam()
-    {
-        $this->container->make('StdClass3', new StdClass('test', 'test2'));
-        $this->assertEquals(shy('StdClass'), shy('StdClass3'));
-        $this->container->clear('StdClass3');
-    }
-
-    public function testBindMakeObjectWithParam()
-    {
-        $this->container->bind('StdClass3', new StdClass('test', 'test2'))->make('StdClass3');
-        $this->assertEquals(shy('StdClass'), shy('StdClass3'));
-        $this->container->clear('StdClass3');
-    }
-
     public function testMakeObject()
     {
-        $object = $this->container->make('StdClass3', new StdClass);
-        $this->assertEquals(shy('StdClass2'), shy('StdClass3'));
-        $this->assertInstanceOf(StdClass::class, $object);
+        /**
+         * Make without params
+         */
+        $this->assertTrue($this->container->bound('object\stdClass2'));
+        $object = $this->container->make('object\stdClass2');
+        $this->assertInstanceOf(stdClass::class, $object);
+
+        /**
+         * Make with params
+         */
+        $object = $this->container->make('object\myClass3');
+        $this->assertInstanceOf(myClass::class, $object);
+        $this->assertEquals(123, $object->getTest2());
     }
 
+    /*
+     * -------------------------------------
+     * Namespace class
+     * -------------------------------------
+     */
+
+    public function testBindClass()
+    {
+        $this->container->bind(myClass::class);
+        $this->assertTrue($this->container->bound(myClass::class));
+
+        $this->container->bind(myDependency::class, myDependencyClass::class);
+        $this->assertTrue($this->container->bound(myDependency::class));
+    }
+
+    /**
+     * @depends testBindClass
+     */
     public function testMakeClass()
     {
-        $object = $this->container->make('shy\core\container');
-        $this->assertEquals($this->container, $object);
-        $this->assertEquals($this->container, shy('shy\core\container'));
+        /**
+         * Make without params
+         */
+        $this->assertTrue($this->container->bound(myClass::class));
+        $object = $this->container->make(myClass::class);
+        $this->assertInstanceOf(myClass::class, $object);
+
+        /**
+         * Make with params
+         */
+        $object = $this->container->make(myDependency::class, 'param1');
+        $this->assertInstanceOf(stdClass::class, $object->getTest2());
     }
 
-    public function testMakeClassWithParam()
-    {
-        $object = $this->container->make('myConstruct', '1', '5', '3');
-        $new = new myConstruct('1', '5');
-        $this->assertEquals($new->getTest(), $object->getTest());
-        $this->assertEquals($new->getTest2(), $object->getTest2());
-    }
+    /*
+     * -------------------------------------
+     * Others
+     * -------------------------------------
+     */
 
     /**
-     * @depends testMakeClass testMakeClassWithParam
+     * @depends testMakeClass
      */
-    public function testGetList()
+    public function testOther()
     {
-        $list = $this->container->getList();
-        $this->assertArrayHasKey('myConstruct', $list);
-        $this->assertArrayHasKey('shy\core\container', $list);
-    }
-
-    /**
-     * @depends testMakeObject
-     * @expectedException RuntimeException
-     */
-    public function testClearAll()
-    {
-        $this->container->clearAll();
-        shy('StdClass2');
-        shy('shy\core\container');
+        $object = $this->container->get(myDependency::class);
+        $this->assertInstanceOf(myDependencyClass::class, $object);
+        $this->container->remove(myDependencyClass::class);
+        $this->assertFalse($this->container->has(myDependencyClass::class));
     }
 
 }
 
-class myConstruct
+class myClass
 {
     private $test;
 
     private $test2;
 
     public function __construct($test, $test2)
+    {
+        $this->test = $test;
+        $this->test2 = $test2;
+    }
+
+    public function getTest()
+    {
+        return $this->test;
+    }
+
+    public function getTest2()
+    {
+        return $this->test2;
+    }
+}
+
+interface myDependency
+{
+
+}
+
+class myDependencyClass implements myDependency
+{
+    private $test;
+
+    private $test2;
+
+    public function __construct($test, stdClass $test2)
     {
         $this->test = $test;
         $this->test2 = $test2;

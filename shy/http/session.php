@@ -1,24 +1,18 @@
 <?php
-/**
- * Session
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\http;
+namespace Shy\Http;
 
-use Workerman\Protocols\Http;
+use Shy\Http\Contracts\Session as SessionContract;
 
-class session
+class Session implements SessionContract
 {
     /**
      * Session Start
      */
     public function sessionStart()
     {
-        if (config('IS_CLI')) {
-            Http::sessionStart();
+        if (shy()->has('IS_CLI')) {
+            //Http::sessionStart();
         } else {
             session_start();
         }
@@ -54,8 +48,8 @@ class session
 
     public function sessionId()
     {
-        if (config('IS_CLI')) {
-            Http::sessionId();
+        if (shy()->has('IS_CLI')) {
+            //Http::sessionId();
         } else {
             return session_id();
         }

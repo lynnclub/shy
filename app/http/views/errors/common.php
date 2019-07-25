@@ -7,7 +7,6 @@
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
     <title>Http error</title>
-    <link type="text/css" rel="stylesheet" href="<?php param('BASE_URL'); ?>css/app.css">
     <style>
 
         * {
@@ -26,17 +25,23 @@
             margin: auto;
         }
 
-        .container > .title .message {
-            padding: 10px 0;
-            font-size: 30px;
+        .container .message, .container .return {
+            padding: 50px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .container .return a {
+            text-decoration: none;
         }
 
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="title">
-        <div class="message"><?php echo $e->getMessage(); ?></div>
+    <div class="message"><?php echo $e->getMessage(); ?></div>
+    <div class="return">
+        <a href="<?php param('BASE_URL') ?>">Back Home</a>
     </div>
 </div>
 </body>

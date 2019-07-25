@@ -7,18 +7,15 @@
  * @link      http://lynncho.cn/
  */
 
-use shy\http\request;
-use shy\http\session;
-use shy\http;
 
 /**
- * Is in cli cycle
+ * If is in cli mode cycling
  */
 if (function_exists('shy')) {
-    container()->forkProcessNoAddToStartId(shy(shy\webInWorkerMan::class)->id);
-    config_del('SHY_CYCLE_START_TIME');
-    config_set('SHY_CYCLE_START_TIME', microtime(true));
-    config_int_calc('SHY_CYCLE_COUNT');
+    /**
+     * Cycle start time
+     */
+    shy()->set('SHY_CYCLE_START_TIME', microtime(true));
 } else {
     /**
      * Composer autoload
@@ -34,6 +31,5 @@ if (function_exists('shy')) {
 /**
  * Run framework
  */
-shy(request::class)->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
-shy(session::class)->sessionStart();
-shy(http::class)->runRouter();
+
+shy()->runRouter();

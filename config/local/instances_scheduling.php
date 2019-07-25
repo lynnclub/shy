@@ -20,12 +20,12 @@ return [
 
     'avoid_list' => [
         shy\http::class,
-        shy\core\pipeline::class,
-        shy\http\request::class,
-        shy\http\router::class,
-        shy\http\view::class,
-        shy\http\session::class,
-        shy\http\response::class
+        shy\Core\pipeline::class,
+        shy\Http\request::class,
+        shy\Http\router::class,
+        shy\Http\view::class,
+        shy\Http\session::class,
+        shy\Http\response::class
     ]
 
 ];

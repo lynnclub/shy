@@ -1,14 +1,15 @@
 <?php
 
-namespace shy\http;
+namespace Shy\Http;
 
-use shy\http\bag\ParameterBag;
-use shy\http\bag\FileBag;
-use shy\http\bag\ServerBag;
-use shy\http\bag\HeaderBag;
+use Shy\Http\Contracts\Request as RequestContract;
+use Shy\Http\Bags\ParameterBag;
+use Shy\Http\Bags\FileBag;
+use Shy\Http\Bags\ServerBag;
+use Shy\Http\Bags\HeaderBag;
 use Exception;
 
-class request
+class Request implements RequestContract
 {
     /**
      * Is request initialized.
@@ -169,6 +170,14 @@ class request
         $request = $this->request->all();
 
         return array_merge($query, $request);
+    }
+
+    /**
+     * Get php://input
+     */
+    public function content()
+    {
+        return $this->content;
     }
 
     /**
@@ -335,6 +344,17 @@ class request
     }
 
     /**
+     * Return the root URL
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getBaseUrl()
+    {
+        return $this->getSchemeAndHttpHost() . $this->getBaseUrlPath() . '/';
+    }
+
+    /**
      * Returns the root URL from which this request is executed.
      *
      * The base URL never ends with a /.
@@ -344,7 +364,7 @@ class request
      *
      * @return string The raw URL (i.e. not urldecoded)
      */
-    public function getBaseUrl()
+    protected function getBaseUrlPath()
     {
         if (null === $this->baseUrl) {
             $this->baseUrl = $this->prepareBaseUrl();
@@ -477,7 +497,7 @@ class request
             $requestUri = '/' . $requestUri;
         }
 
-        if (null === ($baseUrl = $this->getBaseUrl())) {
+        if (null === ($baseUrl = $this->getBaseUrlPath())) {
             return $requestUri;
         }
 
@@ -513,7 +533,7 @@ class request
 
     protected function prepareBasePath()
     {
-        $baseUrl = $this->getBaseUrl();
+        $baseUrl = $this->getBaseUrlPath();
         if (empty($baseUrl)) {
             return '';
         }
@@ -544,7 +564,7 @@ class request
             $qs = '?' . $qs;
         }
 
-        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo() . $qs;
+        return $this->getSchemeAndHttpHost() . $this->getBaseUrlPath() . $this->getPathInfo() . $qs;
     }
 
     /**

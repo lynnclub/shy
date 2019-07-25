@@ -1,7 +1,7 @@
-.DS_Store
 /.idea
-/vendor
-composer.lock
-package-lock.json
 /node_modules
 /bower_components
+/vendor
+/public/uploads
+.DS_Store
+npm-debug.log

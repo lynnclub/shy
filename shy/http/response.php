@@ -1,16 +1,12 @@
 <?php
-/**
- * Response
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\http;
+namespace Shy\Http;
 
+use Shy\Http\Contracts\Response as ResponseContract;
+use Shy\Http\Contracts\View;
 use RuntimeException;
 
-class response
+class Response implements ResponseContract
 {
     /**
      * Http Code
@@ -34,9 +30,9 @@ class response
     protected $response;
 
     /**
-     * Init in cycle
+     * Initialize in cycle
      */
-    protected function init()
+    protected function initialize()
     {
         $this->code = null;
         $this->header = [];
@@ -86,34 +82,32 @@ class response
      * Send Response
      *
      * @param view|string $view
-     * @return bool
      */
     public function send($view = null)
     {
-        if ($this->code) {
-            header($this->httpCodeMessage($this->code));
-        }
-        if (!empty($this->header) && is_array($this->header)) {
-            foreach ($this->header as $key => $value) {
-                header($key, $value);
-            }
-        }
         if ($view) {
             $this->response = $view;
         }
 
-        if ($this->response instanceof view) {
+        if ($this->code) {
+            header($this->httpCodeMessage($this->code));
+        }
+        if (is_array($this->header)) {
+            foreach ($this->header as $key => $value) {
+                header($key, $value);
+            }
+        }
+
+        if ($this->response instanceof View) {
             echo $this->response->render();
-            shy_clear(view::class);
+            //shy_clear(view::class);
         } elseif (is_string($this->response)) {
             echo $this->response;
         } else {
             throw new RuntimeException('Invalid response');
         }
 
-        $this->init();
-
-        return true;
+        $this->initialize();
     }
 
     /**

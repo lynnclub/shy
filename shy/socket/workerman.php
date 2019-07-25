@@ -1,16 +1,10 @@
 <?php
-/**
- * WorkerMan Socket Interface
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
-namespace shy\socket;
+namespace Shy\Socket;
 
 use Workerman\Connection\ConnectionInterface as Connection;
 
-interface workerMan
+interface WorkerMan
 {
     /**
      * On Connect
