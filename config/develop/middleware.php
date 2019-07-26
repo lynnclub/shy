@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'example' => \app\http\middleware\example::class,
+    'example' => \App\Http\Middleware\Example::class,
     'group_example' => [
-        \shy\Http\middleware\csrf::class,
+        \Shy\Http\Middleware\Csrf::class,
     ]
 ];

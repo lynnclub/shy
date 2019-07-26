@@ -32,7 +32,7 @@ class Response implements ResponseContract
     /**
      * Initialize in cycle
      */
-    protected function initialize()
+    public function initialize()
     {
         $this->code = null;
         $this->header = [];
@@ -100,7 +100,7 @@ class Response implements ResponseContract
 
         if ($this->response instanceof View) {
             echo $this->response->render();
-            //shy_clear(view::class);
+            shy()->remove(View::class);
         } elseif (is_string($this->response)) {
             echo $this->response;
         } else {

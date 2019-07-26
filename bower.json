@@ -1,15 +1,6 @@
 {
-    "name": "shy",
-    "description": "This is a mini but powerful framework, concise and expansive, which can meet many needs.",
-    "main": "index.js",
-    "authors": [
-        "Lynn <admin@lynncho.cn>"
-    ],
-    "license": "MIT",
-    "keywords": [
-        "shy"
-    ],
-    "homepage": "https://lynncho.cn",
+    "name": "shy/framework",
+    "description": "The Shy Framework.",
     "ignore": [
         "**/.*",
         "node_modules",

@@ -3,7 +3,6 @@
 namespace Shy\Core\Contracts;
 
 use Throwable;
-use Psr\Log\LoggerInterface;
 use Shy\Http\Contracts\Response;
 
 interface ExceptionHandler
@@ -18,9 +17,9 @@ interface ExceptionHandler
     /**
      * Logging.
      *
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      */
-    public function logging(LoggerInterface $logger);
+    public function logging(Logger $logger);
 
     /**
      * Report.
@@ -32,6 +31,6 @@ interface ExceptionHandler
      *
      * @param Response $response
      */
-    public function response(Response $response);
+    public function response(Response $response = null);
 
 }

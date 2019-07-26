@@ -10,14 +10,14 @@ use Shy\Core\Contracts\Config;
 class Logger extends AbstractLogger implements LoggerContract
 {
     /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
      * @var Config
      */
     protected $config;
+
+    /**
+     * @var Request
+     */
+    protected $request;
 
     /**
      * Logger constructor.
@@ -25,11 +25,11 @@ class Logger extends AbstractLogger implements LoggerContract
      * @param Request $request
      * @param Config $config
      */
-    public function __construct(Request $request, Config $config)
+    public function __construct(Config $config, Request $request = null)
     {
-        $this->request = $request;
-
         $this->config = $config;
+
+        $this->request = $request;
     }
 
     /**
@@ -38,12 +38,14 @@ class Logger extends AbstractLogger implements LoggerContract
      * @param mixed $level
      * @param string $message
      * @param array $context
+     *
      * @throws Exceptions\Cache\InvalidArgumentException
+     * @throws \Exception
      */
     public function log($level, $message, array $context = array())
     {
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] ';
-        if ($this->request->isInit()) {
+        if (isset($this->request) && $this->request->isInitialized()) {
             $prefix .= '[' . implode(',', $this->request->getClientIps()) . ' ' . $this->request->getUrl() . '] ';
         }
 
@@ -52,7 +54,7 @@ class Logger extends AbstractLogger implements LoggerContract
         /**
          * File and path
          */
-        if (shy()->has('IS_CLI')) {
+        if (is_cli()) {
             $path = 'console/';
         } else {
             $path = 'web/';

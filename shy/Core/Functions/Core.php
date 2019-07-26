@@ -19,10 +19,10 @@ if (!function_exists('shy')) {
     function shy($id = null, $concrete = null, ...$parameters)
     {
         if (is_null($id)) {
-            return Shy\Core\Container::getInstance();
+            return Shy\Core\Container::getContainer();
         }
 
-        return Shy\Core\Container::getInstance()->getOrMake($id, $concrete, ...$parameters);
+        return Shy\Core\Container::getContainer()->getOrMake($id, $concrete, ...$parameters);
     }
 }
 
@@ -37,7 +37,7 @@ if (!function_exists('bind')) {
      */
     function bind(string $id, $concrete = null)
     {
-        return Shy\Core\Container::getInstance()->bind($id, $concrete);
+        return Shy\Core\Container::getContainer()->bind($id, $concrete);
     }
 }
 
@@ -87,3 +87,17 @@ if (!function_exists('require_file')) {
         }
     }
 }
+
+
+if (!function_exists('is_cli')) {
+    /**
+     * Determine if running in console.
+     *
+     * @return bool
+     */
+    function is_cli()
+    {
+        return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
+    }
+}
+

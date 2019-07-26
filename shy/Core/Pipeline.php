@@ -133,15 +133,9 @@ class Pipeline implements PipelineContract
     protected function carry()
     {
         return function ($next, $pipe) {
-            $method = $this->method;
-            /**
-             * Initialize pipeline before execute
-             */
-            $this->initialize();
-
-            return function (...$passable) use ($next, $pipe, $method) {
+            return function (...$passable) use ($next, $pipe) {
                 if (is_callable($pipe)) {
-                    return shy()->runViaReflectionFunction($pipe, $next, ...$passable);
+                    return shy()->runFunctionWithDependencyInjection($pipe, $next, ...$passable);
                 } else {
                     if (is_object($pipe)) {
                         array_unshift($passable, $next);
@@ -152,12 +146,18 @@ class Pipeline implements PipelineContract
                         $parameters = array_merge([$next], $passable, $parameters);
                     }
 
-                    if (method_exists($pipe, $method)) {
-                        $reflector = new ReflectionMethod($pipe, $method);
-                        $parameters = shy()->getDependencies($parameters, $reflector->getParameters());
+                    if (method_exists($pipe, $this->method)) {
+                        $reflector = new ReflectionMethod($pipe, $this->method);
+                        $parameters = shy()->getOrMakeDependencies($parameters, $reflector->getParameters());
+                        $method = $this->method;
                     } else {
-                        throw new RuntimeException('Method ' . $method . ' not exist');
+                        throw new RuntimeException('Method ' . $this->method . ' not exist');
                     }
+
+                    /**
+                     * Initialize pipeline before execute
+                     */
+                    $this->initialize();
 
                     $response = $pipe->{$method}(...$parameters);
 

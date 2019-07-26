@@ -4,7 +4,7 @@ namespace Shy\Http\Exceptions;
 
 use Shy\Core\Contracts\ExceptionHandler;
 use Throwable;
-use Psr\Log\LoggerInterface;
+use Shy\Core\Contracts\Logger;
 use Shy\Http\Contracts\Response;
 
 class Handler implements ExceptionHandler
@@ -63,7 +63,7 @@ class Handler implements ExceptionHandler
                 $trace['args'] = [];
             }
 
-            $array[] = $traceString . $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
+            $array[] = $traceString . $trace['function'] . '(' . implode(', ', $trace['args']) . ')' . PHP_EOL;
         }
 
         return $array;
@@ -72,11 +72,15 @@ class Handler implements ExceptionHandler
     /**
      * Logging.
      *
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      */
-    public function logging(LoggerInterface $logger)
+    public function logging(Logger $logger)
     {
-        $logger->error('Exception', $this->getTraceArray());
+        if ($this->throwable instanceof HttpException) {
+            $logger->error('Http Code ' . $this->throwable->getStatusCode() . ': ', [$this->throwable->getMessage()]);
+        } else {
+            $logger->error('Exception', $this->getTraceArray());
+        }
     }
 
     /**
@@ -94,10 +98,16 @@ class Handler implements ExceptionHandler
      *
      * @param Response $response
      */
-    public function response(Response $response)
+    public function response(Response $response = null)
     {
+        if (is_null($response)) {
+            echo implode(PHP_EOL, $this->getTraceArray());
+            return;
+        }
+
         if ($this->throwable instanceof HttpException) {
-            $response->setCode($this->throwable->getStatusCode())->setHeader($this->throwable->getHeaders());
+            $response->setCode($this->throwable->getStatusCode())
+                ->setHeader($this->throwable->getHeaders());
 
             if ($this->throwable->getStatusCode() === 404) {
                 $response->set(view('errors/404'));

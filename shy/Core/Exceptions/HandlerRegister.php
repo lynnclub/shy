@@ -5,6 +5,7 @@ namespace Shy\Core\Exceptions;
 use Shy\Core\Contracts\ExceptionHandler;
 use Shy\Core\Contracts\Logger;
 use Shy\Http\Contracts\Response;
+use Shy\Core\Contracts\Config;
 use Exception;
 use Throwable;
 use ErrorException;
@@ -27,16 +28,24 @@ class HandlerRegister
     protected $response;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * Set Exception Handler
      *
      * @param ExceptionHandler $exceptionHandler
+     * @param Config $config
      * @param Logger $logger
      * @param Response $response
-     * @param bool $debug
+     *
+     * @throws Cache\InvalidArgumentException
      */
-    public function __construct(ExceptionHandler $exceptionHandler, Logger $logger, Response $response, $debug = false)
+    public function __construct(ExceptionHandler $exceptionHandler, Config $config, Logger $logger, Response $response = null)
     {
         $this->exceptionHandler = $exceptionHandler;
+        $this->config = $config;
         $this->logger = $logger;
         $this->response = $response;
 
@@ -45,7 +54,7 @@ class HandlerRegister
         set_exception_handler([$this, 'handleException']);
         register_shutdown_function([$this, 'handleShutdown']);
 
-        if (!$debug) {
+        if (!$config->find('debug')) {
             ini_set('display_errors', 'Off');
         }
     }

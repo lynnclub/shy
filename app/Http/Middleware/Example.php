@@ -6,7 +6,7 @@
  * @link      http://lynncho.cn/
  */
 
-namespace app\http\middleware;
+namespace App\Http\Middleware;
 
 use Shy\Core\Contracts\Middleware;
 use Closure;
@@ -17,7 +17,7 @@ class Example implements Middleware
     public function handle(Closure $next, ...$passable)
     {
         // request handle
-        $request = request::all();
+        $request = Request::all();
 
         // run controller
         $response = $next();

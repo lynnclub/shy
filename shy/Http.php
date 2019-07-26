@@ -2,48 +2,41 @@
 
 namespace Shy;
 
-use Shy\Core\Container;
-use Shy\Core\Contracts\Http as HttpContract;
 use Shy\Http\Contracts\Router as RouterContract;
 
-class Http extends Container implements HttpContract
+class Http
 {
     /**
-     * Http constructor.
+     * Define
      */
-    public function __construct()
+    public function requestDefine()
     {
-        static::setInstance($this);
-
-        $this->set('SHY_START_TIME', microtime(true));
-
-        if (isset($this['WebInWorkerMan'])) {
-            $this->addForkedPidToStartId($this['WebInWorkerMan']->id);
+        if (!defined('BASE_URL')) {
+            if (empty(shy('config')->find('base_url'))) {
+                define('BASE_URL', shy('request')->getBaseUrl());
+            } else {
+                define('BASE_URL', shy('config')->find('base_url'));
+            }
         }
     }
 
     /**
-     * Run router
+     * Run
      */
-    public function runRouter()
+    public function run()
     {
-        $this['request']->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
-        $this['session']->sessionStart();
+        $request = shy('request');
 
-        if (empty($this['config']->find('base_url'))) {
-            defined('BASE_URL') or define('BASE_URL', $this['request']->getBaseUrl());
-        } else {
-            defined('BASE_URL') or define('BASE_URL', $this['config']->find('base_url'));
-        }
+        shy('logger')->info('Request', $request->all());
 
-        $this['logger']->info('request', $this['request']->all());
+        $this->requestDefine();
 
-        $response = $this['pipeline']
-            ->send($this['request'])
+        $response = shy('pipeline')
+            ->send($request)
             ->through(RouterContract::class)
             ->then(function ($response) {
                 if (!empty($response)) {
-                    $this['response']->send($response);
+                    shy('response')->send($response);
                 }
 
                 return $response;
@@ -59,25 +52,26 @@ class Http extends Container implements HttpContract
      */
     protected function end()
     {
+        shy('request')->setInitializedFalse();
+
         /**
          * Slow log
          */
-//        if (config_key('slow_log')) {
-//            $shyStartTime = config('SHY_CYCLE_START_TIME') ? config('SHY_CYCLE_START_TIME') : config('SHY_START_TIME');
-//            $usedTime = microtime(true) - $shyStartTime;
-//            if ($usedTime > config_key('slow_log_limit')) {
-//                $router = shy(RouterContract::class);
-//
-//                $this['logger']->notice('slow', [
-//                    'controller' => $router->getController(),
-//                    'method' => $router->getMethod(),
-//                    'middleware' => $router->getMiddleware(),
-//                    'usedTime' => $usedTime
-//                ]);
-//            }
-//        }
+        if (config_key('slow_log')) {
+            $startTime = shy()->has('SHY_CYCLE_START_TIME') ? shy()->get('SHY_CYCLE_START_TIME') : shy()->startTime();
+            $usedTime = microtime(true) - $startTime;
+            if ($usedTime > config_key('slow_log_limit')) {
 
-        $this['request']->setInitFalse();
+                $router = shy(RouterContract::class);
+
+                shy('logger')->notice('slow', [
+                    'controller' => $router->getController(),
+                    'method' => $router->getMethod(),
+                    'middleware' => $router->getMiddleware(),
+                    'usedTime' => $usedTime
+                ]);
+            }
+        }
     }
 
 }

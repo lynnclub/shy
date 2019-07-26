@@ -1,8 +1,9 @@
 <?php
 
-namespace Shy\Http;
+namespace Shy\Socket\WorkerMan;
 
 use Shy\Http\Contracts\Session as SessionContract;
+use Workerman\Protocols\Http;
 
 class Session implements SessionContract
 {
@@ -11,7 +12,7 @@ class Session implements SessionContract
      */
     public function sessionStart()
     {
-        session_start();
+        Http::sessionStart();
     }
 
     /**
@@ -44,7 +45,7 @@ class Session implements SessionContract
 
     public function sessionId()
     {
-        return session_id();
+        return Http::sessionId();
     }
 
 }

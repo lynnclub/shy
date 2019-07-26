@@ -7,8 +7,6 @@
  * @link      http://lynncho.cn/
  */
 
-use shy\console;
-
 /**
  * Composer autoload
  */
@@ -18,8 +16,9 @@ require __DIR__ . '/vendor/autoload.php';
  * Bootstrap
  */
 require __DIR__ . '/bootstrap/console.php';
+
 /**
  * Run CLI mode
  */
-config_set('IS_CLI', true);
-shy(console::class)->runCommand();
+
+shy('console')->run();

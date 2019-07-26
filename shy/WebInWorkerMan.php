@@ -5,9 +5,9 @@ namespace Shy;
 use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
+use Shy\Core\Exceptions\HandlerRegister;
 use Exception;
 use Throwable;
-use Shy\Http\Exceptions\Handler;
 
 class WebInWorkerMan extends Worker
 {
@@ -59,11 +59,11 @@ class WebInWorkerMan extends Worker
         list(, $address) = explode(':', $socket_name, 2);
         parent::__construct('http:' . $address, $context_option);
         $this->name = 'WebServer';
+
         /**
-         * CLI Run http
+         * Bootstrap In CLI
          */
-        container()->setExceptionHandler(new handler());
-        require __DIR__ . '/../shy/http/function/view.php';
+        require __DIR__ . '/../bootstrap/http-cli.php';
     }
 
     /**
@@ -106,6 +106,8 @@ class WebInWorkerMan extends Worker
                 exit(250);
             }
         }
+
+        shy()->addForkedPidToStartId($this->id);
     }
 
     /**
@@ -203,7 +205,7 @@ class WebInWorkerMan extends Worker
                     $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
                     include "$workerman_file";
                 } catch (Throwable $e) {
-                    container()->handleException($e);
+                    shy(HandlerRegister::class)->handleException($e);
                 }
                 $content = ob_get_clean();
                 ini_set('display_errors', 'on');

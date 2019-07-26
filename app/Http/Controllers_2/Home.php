@@ -2,62 +2,57 @@
 
 namespace App\Http\Controllers_2;
 
-use shy\Http\facade\session;
-use shy\Http\facade\request;
-use app\http\facade\testBusiness;
-
-use shy\Core\facade\redis;
-use shy\Http\facade\capsule;
-use Illuminate\Database\Capsule\Manager;
+use App\Http\Business\TestBusiness;
+use App\Http\Facades\TestBusiness as StaticTestBusiness;
+use Shy\Http\Session;
+use Shy\Http\Contracts\Request;
+use Shy\Core\Container;
 
 class Home
 {
-    public function index()
+    public function index(TestBusiness $business, Session $session)
     {
-        if (testBusiness::isMobile()) {
+        if ($business->isMobile()) {
             $info = 'Hello World in Mobile';
         } else {
             $info = 'Hello World';
         }
 
-        if (session::exist('user')) {
+        if ($session->exist('user')) {
             $info .= ' Again';
         } else {
-            session::set('user', 1);
+            $session->set('user', 1);
         }
 
         $title = 'Shy Framework';
 
-//        dd(shy(Manager::class)::table('users')->where('id', 1)->get());
-//        dd(capsule::table('users')->where('id', 2)->get());
-//        redis::instance();
-//        redis::close();
-//        redis::closeAll();
-
         return view('home', compact('title', 'info'))->layout('main');
     }
 
-    public function smarty()
+    public function smarty(Session $session)
     {
-        if (testBusiness::isMobile()) {
+        if (StaticTestBusiness::isMobile()) {
             $params['info'] = 'Hello World in Mobile';
         } else {
             $params['info'] = 'Hello World';
         }
 
-        if (session::exist('user')) {
+        if ($session->exist('user')) {
             $params['info'] .= ' Again';
         } else {
-            session::set('user', 1);
+            $session->set('user', 1);
         }
 
         $params['title'] = 'Shy Framework';
 
+        $params['shy'] = Container::getContainer();
+
         return smarty('smarty.tpl', $params);
     }
 
-    public function test()
+    public function test(Request $request)
     {
-        return 'controller echo test ' . json_encode(request::all());
+        return 'controller echo test ' . json_encode($request->all());
     }
+
 }

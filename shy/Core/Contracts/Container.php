@@ -4,15 +4,30 @@ namespace Shy\Core\Contracts;
 
 use Psr\Container\ContainerInterface;
 use ArrayAccess;
+use Countable;
 
-interface Container extends ContainerInterface, ArrayAccess
+interface Container extends ContainerInterface, ArrayAccess, Countable
 {
+    /**
+     * Get container
+     *
+     * @return Container
+     */
+    public static function getContainer();
+
     /**
      * Get start id
      *
      * @return string
      */
     public function startId();
+
+    /**
+     * Get start time
+     *
+     * @return string
+     */
+    public function startTime();
 
     /**
      * Add forked process id to start id
@@ -22,16 +37,34 @@ interface Container extends ContainerInterface, ArrayAccess
     public function addForkedPidToStartId(int $forkedPid);
 
     /**
+     * Set instance
+     *
+     * @param string $id
+     * @param $instance
+     */
+    public function set(string $id, $instance);
+
+    /**
+     * Set instances
+     *
+     * @param array $sets
+     */
+    public function sets(array $sets);
+
+    /**
      * Bind ready to make
      *
      * @param string $id
-     * @param string|\Closure|object|null $concrete
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
+     * @param $concrete
      *
      * @return Container
      */
-    public function bind(string $id, $concrete);
+    public function bind(string $id, $concrete = null);
+
+    /**
+     * @param array $binds
+     */
+    public function binds(array $binds);
 
     /**
      * Is bound
@@ -43,19 +76,38 @@ interface Container extends ContainerInterface, ArrayAccess
     public function bound(string $id);
 
     /**
-     * Get bound
+     * Make instance and join to container
      *
      * @param string $id
+     * @param object|string|null $concrete
+     * @param array ...$parameters
      *
-     * @return string|\Closure|object|false
+     * @return mixed
      */
-    public function getBound(string $id);
+    public function make(string $id, $concrete = null, ...$parameters);
 
     /**
-     * Make instance and join the container
+     * @param array $makes
+     */
+    public function makes(array $makes);
+
+    /**
+     * Set alias of instance id
      *
+     * @param string $alias
      * @param string $id
-     * @param object|string $concrete
+     */
+    public function alias(string $alias, string $id);
+
+    /**
+     * @param array $aliases
+     */
+    public function aliases(array $aliases);
+
+    /**
+     * Make an instance with dependency injection
+     *
+     * @param string $concrete
      * @param array ...$parameters
      *
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -63,7 +115,31 @@ interface Container extends ContainerInterface, ArrayAccess
      *
      * @return object
      */
-    public function make(string $id, $concrete = null, ...$parameters);
+    public function makeClassWithDependencyInjection(string $concrete, ...$parameters);
+
+    /**
+     * Run function with dependency injection
+     *
+     * @param $concrete
+     * @param array ...$parameters
+     *
+     * @throws \ReflectionException
+     *
+     * @return mixed
+     */
+    public function runFunctionWithDependencyInjection($concrete, ...$parameters);
+
+    /**
+     * Get or make dependency object
+     *
+     * @param array $parameters
+     * @param \ReflectionParameter[] $dependencies
+     *
+     * @return array
+     *
+     * @throws \Shy\Core\Exceptions\Container\NotFoundException
+     */
+    public function getOrMakeDependencies(array $parameters, array $dependencies);
 
     /**
      * Get or Make instance

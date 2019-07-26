@@ -4,7 +4,7 @@ namespace Shy\Core;
 
 use Shy\Core\Contracts\Config as ConfigContract;
 
-class Config extends Cache implements ConfigContract
+class Config extends MemoryCache implements ConfigContract
 {
     /**
      * @var string

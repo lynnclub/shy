@@ -16,7 +16,7 @@ class Request implements RequestContract
      *
      * @var bool
      */
-    protected $isInit = false;
+    protected $isInitialized = false;
 
     /**
      * $_POST
@@ -118,7 +118,7 @@ class Request implements RequestContract
         $this->pathInfo = null;
         $this->basePath = null;
 
-        $this->isInit = true;
+        $this->isInitialized = true;
     }
 
     /**
@@ -126,17 +126,17 @@ class Request implements RequestContract
      *
      * @return bool
      */
-    public function isInit()
+    public function isInitialized()
     {
-        return $this->isInit;
+        return $this->isInitialized;
     }
 
     /**
      * Set is initialized false.
      */
-    public function setInitFalse()
+    public function setInitializedFalse()
     {
-        $this->isInit = false;
+        $this->isInitialized = false;
     }
 
     /**

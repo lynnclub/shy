@@ -17,7 +17,7 @@ class Shy
      */
     public function list()
     {
-        $list = shy(console::class)->getCommandList();
+        $list = shy(Console::class)->getCommandList();
         return implode(PHP_EOL, $list);
     }
 
@@ -34,7 +34,9 @@ class Shy
     }
 
     /**
-     * WorkerMan http
+     * WorkerMan http service
+     *
+     * @throws \Exception
      */
     public function http()
     {
@@ -50,7 +52,11 @@ class Shy
         if (isset($argv[0])) {
             $argv[1] = $argv[0];
         }
-        $web = shy(webInWorkerMan::class, 'http://0.0.0.0:' . $config['port']);
+        $web = shy(WebInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
+        if (!$web instanceof WebInWorkerMan) {
+            throw new \Exception('Class Worker not found.');
+        }
+
         $web->count = $config['worker'];
         $web->addRoot('localhost', config_key('public', 'path'));
 
@@ -61,7 +67,7 @@ class Shy
     /**
      * WorkerMan socket
      */
-    public function worker_man()
+    public function workerMan()
     {
         global $argv;
         if (!isset($argv[0])) {
@@ -77,7 +83,7 @@ class Shy
             throw new RuntimeException('WorkerMan socket setting error');
         }
 
-        $worker = shy(socketInWorkerMan::class, $config['address']);
+        $worker = shy(SocketInWorkerMan::class, null, $config['address']);
         $worker->count = $config['worker'];
 
         if (!empty($config['onConnect'])) {
@@ -110,7 +116,7 @@ class Shy
             };
         }
 
-        socketInWorkerMan::runAll();
+        SocketInWorkerMan::runAll();
     }
 
 }

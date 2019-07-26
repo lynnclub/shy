@@ -32,4 +32,7 @@ if (function_exists('shy')) {
  * Run framework
  */
 
-shy()->runRouter();
+shy('request')->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+shy('session')->sessionStart();
+
+shy('http')->run();

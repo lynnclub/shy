@@ -9,6 +9,11 @@ return [
         ['prefix' => 'route', 'path' => [
             '/home' => 'home@index',//view home
             '/test' => 'home@test'//return string
+        ]],
+        ['prefix' => 'controller_2', 'namespace' => 'App\\Http\\Controllers_2', 'path' => [
+            '/home' => 'home@index',//view home
+            '/test' => 'home@test',//return string
+            '/smarty' => 'home@smarty'
         ]]
     ],
     'path' => [

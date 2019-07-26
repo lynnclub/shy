@@ -8,22 +8,79 @@
  */
 
 
-$http = new Shy\Console();
-
-new Shy\Core\Exceptions\HandlerRegister(new Shy\Http\Exceptions\Handler());
-
-/**
- * Load helpers
+/*
+ * --------------------------
+ * Register Exception Handler
+ * --------------------------
  */
 
+try {
+    $container = Shy\Core\Container::getContainer();
+
+    /**
+     * Bind Dependencies
+     */
+    $container->binds([
+        Shy\Core\Contracts\Config::class => Shy\Core\Config::class,
+        Shy\Core\Contracts\Logger::class => Shy\Core\Logger::class,
+        Shy\Core\Contracts\ExceptionHandler::class => Shy\Http\Exceptions\Handler::class
+    ]);
+
+    /**
+     * Register Handler
+     */
+    $container->make(Shy\Core\Exceptions\HandlerRegister::class);
+
+} catch (Throwable $throwable) {
+    echo nl2br($throwable->getMessage() . PHP_EOL . $throwable->getTraceAsString());
+    exit(1);
+}
+
+/*
+ * --------------------------
+ * Bootstrap
+ * --------------------------
+ */
 
 /**
- * Base define
+ * Binding console dependencies
  */
-defined('ENVIRONMENT') or define('ENVIRONMENT', empty(getenv('ENVIRONMENT')) ? 'local' : getenv('ENVIRONMENT'));
-defined('CONFIG_DIR') or define('CONFIG_DIR', __DIR__ . '/config/' . ENVIRONMENT . DIRECTORY_SEPARATOR);
+$container->binds([
+    Shy\Core\Contracts\Pipeline::class => Shy\Core\Pipeline::class,
+    Shy\Core\Contracts\Cache::class => Shy\Core\MemoryCache::class
+]);
 
 /**
- * New container and set exception handler
+ * Core services aliases
  */
-container(CONFIG_DIR)->setExceptionHandler();
+$container->aliases([
+    'console' => Shy\Console::class,
+    'config' => Shy\Core\Contracts\Config::class,
+    'pipeline' => Shy\Core\Contracts\Pipeline::class,
+    'logger' => Shy\Core\Contracts\Logger::class
+]);
+
+/**
+ * Define constants
+ */
+defined('BASE_PATH') or define('BASE_PATH', $container['config']->find('base', 'path'));
+defined('APP_PATH') or define('APP_PATH', $container['config']->find('app', 'path'));
+defined('VIEW_PATH') or define('VIEW_PATH', $container['config']->find('view', 'path'));
+defined('CACHE_PATH') or define('CACHE_PATH', $container['config']->find('cache', 'path'));
+
+/**
+ * Setting
+ */
+date_default_timezone_set($container['config']->find('timezone'));
+
+if ($container['config']->find('illuminate_database')) {
+    init_illuminate_database();
+}
+
+/*
+ * --------------------------
+ * Make Console Service
+ * --------------------------
+ */
+
+$container->make(Shy\Console::class);

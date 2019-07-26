@@ -142,16 +142,16 @@ if (!function_exists('push_resource')) {
      *
      * type support js, css
      *
-     * @param string $abstract
+     * @param string $id
      * @param string|array $resource
      * @param string $type
      */
-    function push_resource(string $abstract, $resource = '', string $type = '')
+    function push_resource(string $id, $resource = '', string $type = '')
     {
         if (is_array($resource)) {
             foreach ($resource as $item) {
                 if (!empty($item)) {
-                    push_resource($abstract, $item, $type);
+                    push_resource($id, $item, $type);
                 }
             }
         } else {
@@ -166,10 +166,19 @@ if (!function_exists('push_resource')) {
                 }
             }
 
-            $array = config_array_push('push_' . $abstract, $resource);
+            $old = shy('config')->get('push_' . $id);
+            if (empty($old)) {
+                $old = [];
+            }
+            if (!is_array($old)) {
+                throw new InvalidArgumentException('Resource value of id ' . $id . ' type error.');
+            }
+            array_push($old, $resource);
+            $old = array_unique($old);
+            shy('config')->set('push_' . $id, $old);
 
-            if (empty($resource) && is_array($array) && !empty($array)) {
-                echo implode('', $array);
+            if (empty($resource) && is_array($old) && !empty($old)) {
+                echo implode('', $old);
             }
         }
     }
@@ -184,7 +193,7 @@ if (!function_exists('lang')) {
      */
     function lang(int $code)
     {
-        $language = shy\Http\facade\session::get('language');
+        $language = Shy\Http\Facades\Session::get('language');
         if (empty($language)) {
             $language = config_key('default_lang');
         }
@@ -216,6 +225,10 @@ if (!function_exists('smarty')) {
     function smarty(string $view, $params = [])
     {
         $smarty = shy(Smarty::class);
+        if (!is_object($smarty)) {
+            throw new RuntimeException('Class Smarty not found.');
+        }
+
         $config = config('smarty');
         $smarty->template_dir = VIEW_PATH;
         $smarty->compile_dir = CACHE_PATH . 'smarty' . DIRECTORY_SEPARATOR;

@@ -2,8 +2,6 @@
 
 namespace Shy\Http\Contracts;
 
-use Workerman\Protocols\Http;
-
 interface Session
 {
     /**

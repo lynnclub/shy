@@ -14,29 +14,21 @@
     {$info}
 </div>
 <div id="system">
-    <p>Container Start Id: {container_id()}</p>
+    <p>Container Start Id: {$shy->startId()}</p>
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
-    <p>Used Time: {microtime(true) - config('SHY_START_TIME')} second</p>
-    {assign var="cycleStartTime" value="{config('SHY_CYCLE_START_TIME')}"}
-    {if isset($cycleStartTime) && !empty($cycleStartTime)}
-        <p>Cycle Used Time: {microtime(true) - $cycleStartTime} second</p>
-    {/if}
-    {assign var="cycleCount" value="{config('SHY_CYCLE_COUNT')}"}
-    {if isset($cycleCount) && !empty($cycleCount)}
-        <p>Cycle Count: {$cycleCount}</p>
+    <p>Used Time: {microtime(true) - $shy->startTime()} second</p>
+    {if $shy->has('SHY_CYCLE_START_TIME')}
+        <p>Cycle Used Time: {microtime(true) - $shy->get('SHY_CYCLE_START_TIME')} second</p>
     {/if}
     <br>
     <p>Loaded instance's abstract: </p>
     <ol>
-        {foreach shy_list_memory_used() as $abstract => $instances}
+        {foreach $shy->memoryUsed() as $abstract => $instances}
             {foreach $instances as $key => $memoryUsed}
                 <li>{$abstract}({$key + 1}) {$memoryUsed/1024} kb</li>
             {/foreach}
         {/foreach}
     </ol>
-    <br>
-    <p>Config:</p>
-    <p class="var-dump">{var_dump(config_all())}</p>
 </div>
 {include file='component/footer.php'}
 </body>

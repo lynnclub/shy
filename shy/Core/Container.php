@@ -3,20 +3,20 @@
 namespace Shy\Core;
 
 use Shy\Core\Contracts\Container as ContainerContract;
-use Shy\Core\Exceptions\Container\Exception;
+use Shy\Core\Exceptions\Container\ContainerException;
 use Shy\Core\Exceptions\Container\NotFoundException;
 use Closure;
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionFunction;
-use ReflectionException;
+use InvalidArgumentException;
+use LogicException;
 
 class Container implements ContainerContract
 {
     /**
      * @var Container
      */
-    protected static $instance;
+    protected static $container;
 
     /**
      * @var string
@@ -24,13 +24,20 @@ class Container implements ContainerContract
     protected static $startId;
 
     /**
-     * Binding ready to join container
+     * @var string
+     */
+    protected static $startTime;
+
+    /**
+     * Binding ready to make
      *
      * @var array
      */
     protected $binds;
 
     /**
+     * Alias of instance id
+     *
      * @var array
      */
     protected $aliases;
@@ -49,31 +56,25 @@ class Container implements ContainerContract
 
     protected $memoryUsedBeforeMakeInstance;
 
+    private function __construct()
+    {
+        //
+    }
+
     /**
      * Get container
      *
      * @return Container
      */
-    public static function getInstance()
+    public static function getContainer()
     {
-        if (is_null(static::$instance)) {
+        if (is_null(static::$container)) {
             static::$startId = uniqid();
-            static::$instance = new static;
+            static::$startTime = microtime(true);
+            static::$container = new static;
         }
 
-        return static::$instance;
-    }
-
-    /**
-     * Set container
-     *
-     * @param ContainerContract|null $container
-     * @return ContainerContract
-     */
-    public static function setInstance(ContainerContract $container = null)
-    {
-        static::$startId = uniqid();
-        return static::$instance = $container;
+        return static::$container;
     }
 
     /**
@@ -87,14 +88,25 @@ class Container implements ContainerContract
     }
 
     /**
+     * Get start time
+     *
+     * @return string
+     */
+    public function startTime()
+    {
+        return static::$startTime;
+    }
+
+    /**
      * Add forked process id to start id
      *
      * @param int $forkedPid
      */
     public function addForkedPidToStartId(int $forkedPid)
     {
-        if (!strpos(static::$startId, '_')) {
-            static::$startId .= '_' . $forkedPid;
+        if (!strpos(static::$startId, '_fork')) {
+            static::$startId .= '_fork' . $forkedPid;
+            static::$startTime = microtime(true);
         }
     }
 
@@ -109,6 +121,11 @@ class Container implements ContainerContract
         $this->instances[$id] = $instance;
     }
 
+    /**
+     * Set instances
+     *
+     * @param array $sets
+     */
     public function sets(array $sets)
     {
         foreach ($sets as $id => $instance) {
@@ -147,13 +164,13 @@ class Container implements ContainerContract
     {
         return function (...$parameters) use ($id, $concrete) {
             if (empty($id)) {
-                throw new Exception('Container: make id is empty');
+                throw new InvalidArgumentException('making instance id is empty');
             }
 
             if (is_string($concrete) && class_exists($concrete)) {
-                $this->instances[$id] = $this->makeViaReflectionClass($concrete, ...$parameters);
+                $this->instances[$id] = $this->makeClassWithDependencyInjection($concrete, ...$parameters);
             } elseif ($concrete instanceof Closure) {
-                $this->instances[$id] = $this->runViaReflectionFunction($concrete, ...$parameters);
+                $this->instances[$id] = $this->runFunctionWithDependencyInjection($concrete, ...$parameters);
             } else {
                 $this->instances[$id] = $concrete;
             }
@@ -187,23 +204,7 @@ class Container implements ContainerContract
     }
 
     /**
-     * Get bound
-     *
-     * @param string $id
-     *
-     * @return string|\Closure|object|false
-     */
-    public function getBound(string $id)
-    {
-        if (isset($this->binds[$id])) {
-            return $this->binds[$id];
-        }
-
-        return false;
-    }
-
-    /**
-     * Make instance and join the container
+     * Make instance and join to container
      *
      * @param string $id
      * @param object|string|null $concrete
@@ -220,8 +221,10 @@ class Container implements ContainerContract
         }
 
         $this->memoryUsedBeforeMakeInstance = memory_get_usage();
+
         $this->binds[$id](...$parameters);
         unset($this->binds[$id]);
+
         $this->countMemoryUsedToNewInstance($id);
         //$this->instancesRecord($id, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemory[$id])]);
 
@@ -238,15 +241,24 @@ class Container implements ContainerContract
         }
     }
 
+    /**
+     * Set alias of instance id
+     *
+     * @param string $alias
+     * @param string $id
+     */
     public function alias(string $alias, string $id)
     {
         if ($alias === $id) {
-            throw new \LogicException("[{$id}] is aliased to itself.");
+            throw new LogicException("[{$id}] is aliased to itself.");
         }
 
         $this->aliases[$alias] = $id;
     }
 
+    /**
+     * @param array $aliases
+     */
     public function aliases(array $aliases)
     {
         foreach ($aliases as $alias => $id) {
@@ -255,22 +267,22 @@ class Container implements ContainerContract
     }
 
     /**
-     * Make instance via ReflectionClass
+     * Make an instance with dependency injection
      *
      * @param string $concrete
      * @param array ...$parameters
      *
      * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws ReflectionException
+     * @throws \ReflectionException
      *
      * @return object
      */
-    public function makeViaReflectionClass(string $concrete, ...$parameters)
+    public function makeClassWithDependencyInjection(string $concrete, ...$parameters)
     {
         $reflector = new ReflectionClass($concrete);
 
         if (!$reflector->isInstantiable()) {
-            throw new Exception('Container: class ' . $concrete . ' is not instantiable');
+            throw new ContainerException('Class ' . $concrete . ' is not instantiable');
         }
 
         $constructor = $reflector->getConstructor();
@@ -278,7 +290,7 @@ class Container implements ContainerContract
         if (is_null($constructor)) {
             $instance = $reflector->newInstanceWithoutConstructor();
         } else {
-            $parameters = $this->getDependencies($parameters, $constructor->getParameters());
+            $parameters = $this->getOrMakeDependencies($parameters, $constructor->getParameters());
 
             $instance = $reflector->newInstance(...$parameters);
         }
@@ -287,43 +299,54 @@ class Container implements ContainerContract
     }
 
     /**
-     * Run function via ReflectionFunction
+     * Run function with dependency injection
      *
      * @param $concrete
      * @param array ...$parameters
      *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws ReflectionException
+     * @throws \ReflectionException
      *
      * @return mixed
      */
-    public function runViaReflectionFunction($concrete, ...$parameters)
+    public function runFunctionWithDependencyInjection($concrete, ...$parameters)
     {
         $reflector = new ReflectionFunction($concrete);
-        $parameters = $this->getDependencies($parameters, $reflector->getParameters());
+        $parameters = $this->getOrMakeDependencies($parameters, $reflector->getParameters());
 
         return call_user_func($concrete, ...$parameters);
     }
 
     /**
-     * Dependency injection.
+     * Get or make dependency object
      *
      * @param array $parameters
-     * @param array $dependencies
+     * @param \ReflectionParameter[] $dependencies
      *
      * @return array
+     *
+     * @throws NotFoundException
      */
-    public function getDependencies(array $parameters, array $dependencies)
+    public function getOrMakeDependencies(array $parameters, array $dependencies)
     {
         $results = [];
 
         foreach ($dependencies as $key => $dependency) {
+            $results[$key] = null;
+
             if (isset($parameters[$key])) {
-                $results[] = $parameters[$key];
-            } else {
-                $results[] = is_null($dependency->getClass())
-                    ? null
-                    : $this->getOrMake($dependency->getClass()->name);
+                $results[$key] = $parameters[$key];
+            } elseif (!is_null($class = $dependency->getClass())) {
+                $className = $class->name;
+
+                if ($this->bound($className)) {
+                    $results[$key] = $this->make($className);
+                } elseif ($this->has($className)) {
+                    $results[$key] = $this->get($className);
+                } elseif ($dependency->isDefaultValueAvailable()) {
+                    $results[$key] = $dependency->getDefaultValue();
+                } elseif (class_exists($className)) {
+                    $results[$key] = $this->make($className);
+                }
             }
         }
 
@@ -422,7 +445,7 @@ class Container implements ContainerContract
         } elseif (isset($this->aliases[$id]) && isset($this->instances[$this->aliases[$id]])) {
             return $this->instances[$this->aliases[$id]];
         } else {
-            throw new NotFoundException('Failed to find the instance via ID ' . $id . '.');
+            throw new NotFoundException('instance id ' . $id . ' not found.');
         }
     }
 
@@ -518,6 +541,20 @@ class Container implements ContainerContract
     public function offsetUnset($offset)
     {
         $this->remove($offset);
+    }
+
+    /**
+     * Count elements of an object
+     * @link http://php.net/manual/en/countable.count.php
+     * @return int The custom count as an integer.
+     * </p>
+     * <p>
+     * The return value is cast to an integer.
+     * @since 5.1.0
+     */
+    public function count()
+    {
+        return count($this->instances);
     }
 
 //    /**

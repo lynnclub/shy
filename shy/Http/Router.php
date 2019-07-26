@@ -109,7 +109,6 @@ class Router implements RouterContract
             throw new httpException(404, 'Route not found 404');
         }
 
-
         /**
          * Run controller and middleware
          */
@@ -121,9 +120,9 @@ class Router implements RouterContract
                 ->then(function () {
                     return $this->runController();
                 });
-            //shy_clear(array_values($this->middleware));
+            shy()->remove(array_values($this->middleware));
         }
-        //shy_clear($this->controller);
+        shy()->remove($this->controller);
 
         return $next($response);
     }

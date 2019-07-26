@@ -1,15 +1,11 @@
 <?php
 
-namespace shy;
+namespace Shy;
 
-use Shy\Core\Container;
-use Shy\Core\Contracts\Config as ConfigContract;
-use Shy\Core\Config;
 use Shy\Core\Contracts\Pipeline;
-use Shy\Core\Contracts\Pipeline as PipelineContract;
 use Exception;
 
-class Console extends Container
+class Console
 {
     /**
      * Command params
@@ -32,32 +28,6 @@ class Console extends Container
      */
     protected $method;
 
-    public function __construct(string $configDir = '')
-    {
-        static::setInstance($this);
-
-        $this->make(ConfigContract::class, new Config($configDir));
-
-        $this->registerAliases();
-
-        $this->systemSetting();
-
-        if (config_key('illuminate_database')) {
-            init_illuminate_database();
-        }
-    }
-
-    protected function registerAliases()
-    {
-        $this->alias(ConfigContract::class, 'config');
-        $this->alias(PipelineContract::class, 'pipeline');
-    }
-
-    protected function systemSetting()
-    {
-        date_default_timezone_set(config_key('timezone'));
-    }
-
     /**
      * Get Command list
      *
@@ -73,11 +43,11 @@ class Console extends Container
      *
      * @throws Exception
      */
-    public function runCommand()
+    public function run()
     {
-        $this->bootstrap();
+        $this->parseCommand();
 
-        $result = shy(pipeline::class)
+        $result = shy(Pipeline::class)
             ->send(...$this->params)
             ->through($this->class)
             ->via($this->method)
@@ -87,11 +57,11 @@ class Console extends Container
     }
 
     /**
-     * Bootstrap
+     * Parse Command
      *
      * @throws Exception
      */
-    protected function bootstrap()
+    protected function parseCommand()
     {
         /**
          * Params
@@ -107,26 +77,24 @@ class Console extends Container
         if (!isset($config[$command])) {
             die($this->commandNotFoundNotice());
         }
-        if (!is_string($config[$command])) {
+        if (!is_array($config[$command])) {
             throw new Exception('Command ' . $command . ' config error.');
         }
         /**
          * Router
          */
-        $route = explode('@', $config[$command]);
-        if (isset($route[0], $route[1]) && !empty($route[0]) && !empty($route[1])) {
-            if (!class_exists($class = 'shy\\console\\command\\' . $route[0])
-                && !class_exists($class = 'app\\console\\' . $route[0])
-                && !class_exists($class = $route[0])
-            ) {
-                throw new Exception('Class {' . $route[0] . '} not found.');
+        $class = key($config[$command]);
+        $method = current($config[$command]);
+        if (isset($class, $method) && !empty($class) && !empty($method)) {
+            if (!class_exists($class)) {
+                throw new Exception('Class {' . $class . '} not found.');
             }
-            if (!method_exists($class, $route[1])) {
-                throw new Exception('Method {' . $route[1] . '} in class {' . $class . '} not found.');
+            if (!method_exists($class, $method)) {
+                throw new Exception('Method {' . $method . '} in class {' . $class . '} not found.');
             }
 
             $this->class = $class;
-            $this->method = $route[1];
+            $this->method = $method;
         } else {
             throw new Exception('Command ' . $command . ' config error.');
         }

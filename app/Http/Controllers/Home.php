@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Business\TestBusiness;
 use App\Http\Facades\TestBusiness as StaticTestBusiness;
 use Shy\Http\Session;
-use Shy\Http\Facades\Request;
+use Shy\Http\Contracts\Request;
+use Shy\Core\Container;
 
 class Home
 {
@@ -44,12 +45,14 @@ class Home
 
         $params['title'] = 'Shy Framework';
 
+        $params['shy'] = Container::getContainer();
+
         return smarty('smarty.tpl', $params);
     }
 
-    public function test()
+    public function test(Request $request)
     {
-        return 'controller echo test ' . json_encode(Request::all());
+        return 'controller echo test ' . json_encode($request->all());
     }
 
     public function test2()

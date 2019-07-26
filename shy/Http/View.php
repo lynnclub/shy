@@ -132,10 +132,11 @@ class View implements ViewContract
             $this->params = array_merge($this->params, get_defined_vars());
             require "{$this->layout}";
         }
+        $this->viewContent = ob_get_contents();
         /**
-         * Can not ob_end_clean(), WorkerMan will no output
+         * Can not ob_get_clean() or ob_end_clean(), WorkerMan will no output
          */
-        $this->viewContent = ob_get_clean();
+        ob_clean();
 
         if (empty($this->errorMsg)) {
             return $this->viewContent;
