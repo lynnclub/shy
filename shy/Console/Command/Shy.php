@@ -5,7 +5,7 @@ namespace Shy\Console\Command;
 use Shy\Console;
 use RuntimeException;
 use Shy\SocketInWorkerMan;
-use Shy\WebInWorkerMan;
+use Shy\HttpInWorkerMan;
 use Workerman\Worker;
 
 class Shy
@@ -52,8 +52,8 @@ class Shy
         if (isset($argv[0])) {
             $argv[1] = $argv[0];
         }
-        $web = shy(WebInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
-        if (!$web instanceof WebInWorkerMan) {
+        $web = shy(HttpInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
+        if (!$web instanceof HttpInWorkerMan) {
             throw new \Exception('Class Worker not found.');
         }
 

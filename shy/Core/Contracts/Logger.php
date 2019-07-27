@@ -14,4 +14,12 @@ interface Logger extends LoggerInterface
      * @param Config $config
      */
     public function __construct(Config $config, Request $request = null);
+
+    /**
+     * Set request
+     *
+     * @param Request $request
+     */
+    public function setRequest(Request $request);
+
 }

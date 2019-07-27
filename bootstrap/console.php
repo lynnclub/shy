@@ -23,7 +23,19 @@ try {
     $container->binds([
         Shy\Core\Contracts\Config::class => Shy\Core\Config::class,
         Shy\Core\Contracts\Logger::class => Shy\Core\Logger::class,
-        Shy\Core\Contracts\ExceptionHandler::class => Shy\Http\Exceptions\Handler::class
+        Shy\Core\Contracts\ExceptionHandler::class => Shy\Http\Exceptions\Handler::class,
+        Shy\Core\Contracts\Pipeline::class => Shy\Core\Pipeline::class,
+        Shy\Core\Contracts\Cache::class => Shy\Core\MemoryCache::class
+    ]);
+
+    /**
+     * Core Services Aliases
+     */
+    $container->aliases([
+        'console' => Shy\Console::class,
+        'config' => Shy\Core\Contracts\Config::class,
+        'pipeline' => Shy\Core\Contracts\Pipeline::class,
+        'logger' => Shy\Core\Contracts\Logger::class
     ]);
 
     /**
@@ -38,27 +50,9 @@ try {
 
 /*
  * --------------------------
- * Bootstrap
+ * Make Console Service
  * --------------------------
  */
-
-/**
- * Binding console dependencies
- */
-$container->binds([
-    Shy\Core\Contracts\Pipeline::class => Shy\Core\Pipeline::class,
-    Shy\Core\Contracts\Cache::class => Shy\Core\MemoryCache::class
-]);
-
-/**
- * Core services aliases
- */
-$container->aliases([
-    'console' => Shy\Console::class,
-    'config' => Shy\Core\Contracts\Config::class,
-    'pipeline' => Shy\Core\Contracts\Pipeline::class,
-    'logger' => Shy\Core\Contracts\Logger::class
-]);
 
 /**
  * Define constants
@@ -76,11 +70,5 @@ date_default_timezone_set($container['config']->find('timezone'));
 if ($container['config']->find('illuminate_database')) {
     init_illuminate_database();
 }
-
-/*
- * --------------------------
- * Make Console Service
- * --------------------------
- */
 
 $container->make(Shy\Console::class);

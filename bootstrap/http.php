@@ -18,7 +18,7 @@ try {
     $container = Shy\Core\Container::getContainer();
 
     /**
-     * Bind dependencies
+     * Bind Dependencies
      */
     $container->binds([
         Shy\Core\Contracts\Config::class => Shy\Core\Config::class,
@@ -33,7 +33,7 @@ try {
     ]);
 
     /**
-     * Core services aliases
+     * Core Services Aliases
      */
     $container->aliases([
         'config' => Shy\Core\Contracts\Config::class,
@@ -46,7 +46,7 @@ try {
     ]);
 
     /**
-     * Register handler
+     * Register Handler
      */
     $container->make(Shy\Core\Exceptions\HandlerRegister::class);
 
@@ -57,12 +57,12 @@ try {
 
 /*
  * --------------------------
- * Setting
+ * Make Http Service
  * --------------------------
  */
 
 /**
- * Define constants
+ * Define Constants
  */
 defined('BASE_PATH') or define('BASE_PATH', $container['config']->find('base', 'path'));
 defined('APP_PATH') or define('APP_PATH', $container['config']->find('app', 'path'));
@@ -77,12 +77,6 @@ date_default_timezone_set($container['config']->find('timezone'));
 if ($container['config']->find('illuminate_database')) {
     init_illuminate_database();
 }
-
-/*
- * --------------------------
- * Make Http Service
- * --------------------------
- */
 
 /**
  * Load helper functions

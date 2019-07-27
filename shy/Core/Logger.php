@@ -33,6 +33,16 @@ class Logger extends AbstractLogger implements LoggerContract
     }
 
     /**
+     * Set request
+     *
+     * @param Request $request
+     */
+    public function setRequest(Request $request = null)
+    {
+        $this->request = $request;
+    }
+
+    /**
      * Logs with an arbitrary level.
      *
      * @param mixed $level

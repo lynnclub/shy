@@ -176,4 +176,11 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      */
     public function memoryUsed();
 
+    /**
+     * Set instances intelligent scheduling on
+     *
+     * @param string $recordDir
+     */
+    public function instancesIntelligentSchedulingOn(string $recordDir);
+
 }

@@ -1,6 +1,5 @@
 {
     "name": "shy/framework",
-    "version": "1.0.0",
     "description": "The Shy Framework.",
     "private": true,
     "dependencies": {},

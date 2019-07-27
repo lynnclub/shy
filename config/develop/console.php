@@ -4,14 +4,14 @@ return [
     /*
      * Framework command
      */
-    'list' => 'shy@list',
-    'version' => 'shy@version',
-    'http' => 'shy@http',
-    'workerman' => 'shy@worker_man',
+    'list' => [Shy\Console\Command\Shy::class => 'list'],
+    'version' => [Shy\Console\Command\Shy::class => 'version'],
+    'http' => [Shy\Console\Command\Shy::class => 'http'],
+    'workerMan' => [Shy\Console\Command\Shy::class => 'workerMan'],
 
     /*
      * Customer command
      */
-    'test' => 'example@test',
-    'test2' => 'app\\console\\example@test'
+    'test' => [App\Console\Command\Example::class => 'test'],
+    'test2' => [App\Console\Command\Example::class => 'test'],
 ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Socket;
+namespace Shy\Socket\Contracts;
 
 use Workerman\Connection\ConnectionInterface as Connection;
 

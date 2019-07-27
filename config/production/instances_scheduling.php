@@ -1,10 +1,4 @@
 <?php
-/**
- * Instances scheduling
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 return [
 
@@ -19,13 +13,18 @@ return [
     */
 
     'avoid_list' => [
-        shy\http::class,
-        shy\Core\pipeline::class,
-        shy\Http\request::class,
-        shy\Http\router::class,
-        shy\Http\view::class,
-        shy\Http\session::class,
-        shy\Http\response::class
+        Shy\Core\Contracts\Config::class,
+        Shy\Core\Contracts\Logger::class,
+        Shy\Core\Contracts\ExceptionHandler::class,
+        Shy\Core\Contracts\Pipeline::class,
+        Shy\Core\Contracts\Cache::class,
+        Shy\Http::class,
+        Shy\Http\Contracts\Request::class,
+        Shy\Http\Contracts\Router::class,
+        Shy\Http\Contracts\View::class,
+        Shy\Http\Contracts\Session::class,
+        Shy\Http\Contracts\Response::class,
+        Shy\Console::class,
     ]
 
 ];

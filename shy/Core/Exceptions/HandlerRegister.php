@@ -60,6 +60,16 @@ class HandlerRegister
     }
 
     /**
+     * Set response
+     *
+     * @param Response $response
+     */
+    public function setResponse(Response $response = null)
+    {
+        $this->response = $response;
+    }
+
+    /**
      * Convert PHP errors to ErrorException instances.
      *
      * @param $level

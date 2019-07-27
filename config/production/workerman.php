@@ -1,10 +1,4 @@
 <?php
-/**
- * WorkerMan
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 return [
 
@@ -25,9 +19,9 @@ return [
         'chat' => [
             'address' => 'websocket://127.0.0.1:2349',
             'worker' => 2,
-            'onConnect' => [app\socket\example::class => 'onConnect'],
-            'onMessage' => [app\socket\example::class => 'onMessage'],
-            'onClose' => [app\socket\example::class => 'onClose']
+            'onConnect' => [App\Socket\Example::class => 'onConnect'],
+            'onMessage' => [App\Socket\Example::class => 'onMessage'],
+            'onClose' => [App\Socket\Example::class => 'onClose']
         ],
     ]
 

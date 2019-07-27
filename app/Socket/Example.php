@@ -9,7 +9,7 @@
 namespace App\Socket;
 
 use Workerman\Connection\ConnectionInterface as Connection;
-use Shy\Socket\WorkerMan;
+use Shy\Socket\Contracts\WorkerMan;
 
 class Example implements WorkerMan
 {

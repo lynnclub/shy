@@ -6,7 +6,7 @@
  * @link      http://lynncho.cn/
  */
 
-namespace App\Console;
+namespace App\Console\Command;
 
 class Example
 {

@@ -9,7 +9,7 @@ use Shy\Core\Exceptions\HandlerRegister;
 use Exception;
 use Throwable;
 
-class WebInWorkerMan extends Worker
+class HttpInWorkerMan extends Worker
 {
     /**
      * Virtual host to path mapping.
@@ -63,7 +63,7 @@ class WebInWorkerMan extends Worker
         /**
          * Bootstrap In CLI
          */
-        require __DIR__ . '/../bootstrap/http-cli.php';
+        require __DIR__ . '/../bootstrap/http-workerman.php';
     }
 
     /**

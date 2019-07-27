@@ -34,12 +34,6 @@ return [
     'default_lang' => 'zh-CN',
 
     /*
-    | Add log Function
-    */
-
-    'add_log_function' => '',
-
-    /*
     | Slow Log
     */
 
@@ -70,15 +64,9 @@ return [
     'default_controller' => 'home',
 
     /*
-    | Is use illuminate Database
+    | Is using illuminate Database
     */
 
-    'illuminate_database' => true,
-
-    /*
-    | Intelligent Scheduling
-    */
-
-    'intelligent_scheduling' => true
+    'illuminate_database' => true
 
 ];

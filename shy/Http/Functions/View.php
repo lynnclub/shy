@@ -231,7 +231,7 @@ if (!function_exists('smarty')) {
 
         $config = config('smarty');
         $smarty->template_dir = VIEW_PATH;
-        $smarty->compile_dir = CACHE_PATH . 'smarty' . DIRECTORY_SEPARATOR;
+        $smarty->compile_dir = CACHE_PATH . 'app/smarty' . DIRECTORY_SEPARATOR;
         $smarty->left_delimiter = $config['left_delimiter'];
         $smarty->right_delimiter = $config['right_delimiter'];
         $smarty->caching = $config['caching'];

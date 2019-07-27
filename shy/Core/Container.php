@@ -56,6 +56,10 @@ class Container implements ContainerContract
 
     protected $memoryUsedBeforeMakeInstance;
 
+    protected $instancesIntelligentScheduling = false;
+
+    protected $instancesRecordDir;
+
     private function __construct()
     {
         //
@@ -223,10 +227,11 @@ class Container implements ContainerContract
         $this->memoryUsedBeforeMakeInstance = memory_get_usage();
 
         $this->binds[$id](...$parameters);
-        unset($this->binds[$id]);
 
         $this->countMemoryUsedToNewInstance($id);
-        //$this->instancesRecord($id, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemory[$id])]);
+
+        unset($this->binds[$id]);
+        $this->instancesRecord($id, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemory[$id])]);
 
         return $this->instances[$id];
     }
@@ -365,7 +370,7 @@ class Container implements ContainerContract
     public function getOrMake(string $id, $concrete = null, ...$parameters)
     {
         if (isset($this->instances[$id])) {
-            //$this->instancesRecord($id, 'use');
+            $this->instancesRecord($id, 'use');
 
             return $this->instances[$id];
         } elseif (isset($this->aliases[$id])) {
@@ -401,7 +406,7 @@ class Container implements ContainerContract
                 $this->remove($item);
             }
         } else {
-            //$this->instancesRecord($id, 'clear');
+            $this->instancesRecord($id, 'remove');
 
             unset($this->binds[$id], $this->instancesMemory[$id], $this->instances[$id]);
         }
@@ -439,7 +444,7 @@ class Container implements ContainerContract
     public function get($id)
     {
         if (isset($this->instances[$id])) {
-            //$this->instancesRecord($id, 'use');
+            $this->instancesRecord($id, 'use');
 
             return $this->instances[$id];
         } elseif (isset($this->aliases[$id]) && isset($this->instances[$this->aliases[$id]])) {
@@ -557,66 +562,76 @@ class Container implements ContainerContract
         return count($this->instances);
     }
 
-//    /**
-//     * Instances record
-//     *
-//     * data format: key1 ^^ value1 ... ^^ key2 ^^ value2 ...
-//     *
-//     * start id ^^ class id ^^ operation ^^ time ^^ isCli ^^ url ^^ ips ^^ trace ...customer params
-//     *
-//     * @todo Records data for instances intelligent scheduling
-//     *
-//     * @param string $id
-//     * @param string $operation
-//     * @param array $params
-//     * @return bool
-//     */
-//    private function instancesRecord(string $id, string $operation, array $params = [])
-//    {
-//        if (!config_key('switch', 'instances_scheduling')) {
-//            return false;
-//        }
-//        if (in_array($id, config_key('avoid_list', 'instances_scheduling'))) {
-//            return false;
-//        }
-//
-//        $structure = [
-//            'startId' => $this->startId,
-//            'id' => $id,
-//            'operation' => $operation,
-//            'time' => time(),
-//            'isCli' => $this->getConfig('IS_CLI'),
-//            'url' => '',
-//            'ips' => '',
-//            'trace' => ''
-//        ];
-//
-//        $request = shy(request::class);
-//        if ($request->isInit()) {
-//            $structure['url'] = $request->getUrl();
-//            $structure['ips'] = implode(',', $request->getClientIps());
-//        }
-//
-//        $structure['trace'] = json_encode(debug_backtrace());
-//
-//        if (!empty($params)) {
-//            foreach ($params as $key => $value) {
-//                if (is_array($value)) {
-//                    $structure[$key] = json_encode($value);
-//                } else {
-//                    $structure[$key] = $value;
-//                }
-//            }
-//        }
-//
-//        $finalStructure = [];
-//        foreach ($structure as $key => $value) {
-//            $finalStructure[] = $key;
-//            $finalStructure[] = $value;
-//        }
-//
-//        file_put_contents(config_key('cache', 'path') . 'instances_record/' . date('Ymd') . '.log', implode('^^', $finalStructure) . PHP_EOL, FILE_APPEND);
-//
-//    }
+    /**
+     * Set instances intelligent scheduling on
+     *
+     * @param string $recordDir
+     */
+    public function instancesIntelligentSchedulingOn(string $recordDir)
+    {
+        $this->instancesRecordDir = $recordDir;
+        $this->instancesIntelligentScheduling = true;
+    }
+
+    /**
+     * Instances record
+     *
+     * data format: key1 ^^ value1 ... ^^ key2 ^^ value2 ...
+     *
+     * start id ^^ class id ^^ operation ^^ time ^^ isCli ^^ url ^^ ips ^^ trace ...customer params
+     *
+     * @todo Records data for instances intelligent scheduling
+     *
+     * @param string $id
+     * @param string $operation
+     * @param array $params
+     *
+     * @return bool
+     */
+    private function instancesRecord(string $id, string $operation, array $params = [])
+    {
+        if (!$this->instancesIntelligentScheduling) {
+            return false;
+        }
+
+        $structure = [
+            'startId' => self::$startId,
+            'id' => $id,
+            'operation' => $operation,
+            'time' => time(),
+            'isCli' => is_cli(),
+            'url' => '',
+            'ips' => '',
+            'trace' => ''
+        ];
+
+        if ($this->has('request')) {
+            $request = $this['request'];
+            if ($request->isInitialized()) {
+                $structure['url'] = $request->getUrl();
+                $structure['ips'] = implode(',', $request->getClientIps());
+            }
+        }
+
+        $structure['trace'] = json_encode(debug_backtrace());
+
+        if (!empty($params)) {
+            foreach ($params as $key => $value) {
+                if (is_array($value)) {
+                    $structure[$key] = json_encode($value);
+                } else {
+                    $structure[$key] = $value;
+                }
+            }
+        }
+
+        $finalStructure = [];
+        foreach ($structure as $key => $value) {
+            $finalStructure[] = $key;
+            $finalStructure[] = $value;
+        }
+
+        file_put_contents($this->instancesRecordDir . date('Ymd') . '.log', implode('^^', $finalStructure) . PHP_EOL, FILE_APPEND);
+    }
 
 }
