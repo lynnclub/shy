@@ -123,6 +123,7 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      * @param $concrete
      * @param array ...$parameters
      *
+     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \ReflectionException
      *
      * @return mixed
@@ -137,7 +138,7 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      *
      * @return array
      *
-     * @throws \Shy\Core\Exceptions\Container\NotFoundException
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getOrMakeDependencies(array $parameters, array $dependencies);
 

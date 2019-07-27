@@ -2,6 +2,7 @@
 
 namespace Shy\Core;
 
+use Shy\Core\Cache\MemoryCache;
 use Shy\Core\Contracts\Config as ConfigContract;
 
 class Config extends MemoryCache implements ConfigContract

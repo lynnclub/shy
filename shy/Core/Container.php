@@ -309,6 +309,7 @@ class Container implements ContainerContract
      * @param $concrete
      * @param array ...$parameters
      *
+     * @throws NotFoundException
      * @throws \ReflectionException
      *
      * @return mixed
@@ -347,11 +348,11 @@ class Container implements ContainerContract
                     $results[$key] = $this->make($className);
                 } elseif ($this->has($className)) {
                     $results[$key] = $this->get($className);
-                } elseif ($dependency->isDefaultValueAvailable()) {
-                    $results[$key] = $dependency->getDefaultValue();
                 } elseif (class_exists($className)) {
                     $results[$key] = $this->make($className);
                 }
+            } elseif ($dependency->isDefaultValueAvailable()) {
+                $results[$key] = $dependency->getDefaultValue();
             }
         }
 
@@ -588,7 +589,7 @@ class Container implements ContainerContract
      *
      * @return bool
      */
-    private function instancesRecord(string $id, string $operation, array $params = [])
+    protected function instancesRecord(string $id, string $operation, array $params = [])
     {
         if (!$this->instancesIntelligentScheduling) {
             return false;

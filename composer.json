@@ -49,7 +49,7 @@
         "ext-redis": "Required to use the redis.",
         "smarty/smarty": "Required to use smarty.",
         "workerman/workerman": "Required to use the socket.",
-        "illuminate/database": "Required to use the database."
+        "illuminate/database": "Required to use the database. Support version <= 5.5.44"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

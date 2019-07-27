@@ -61,12 +61,6 @@ return [
     | Default Controller
     */
 
-    'default_controller' => 'home',
-
-    /*
-    | Is using illuminate Database
-    */
-
-    'illuminate_database' => true
+    'default_controller' => 'home'
 
 ];

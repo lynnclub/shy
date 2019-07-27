@@ -1,11 +1,11 @@
 <?php
 
-namespace Shy\Http\Facades;
+namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
-use Illuminate\Database\Capsule\Manager;
+use Shy\Core\Contracts\DataBase;
 
-class Capsule extends Facade
+class DB extends Facade
 {
     /**
      * Get the instance.
@@ -14,6 +14,6 @@ class Capsule extends Facade
      */
     protected static function getInstance()
     {
-        return shy(Manager::class);
+        return shy(DataBase::class);
     }
 }

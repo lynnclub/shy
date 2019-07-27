@@ -25,7 +25,8 @@ try {
         Shy\Core\Contracts\Logger::class => Shy\Core\Logger::class,
         Shy\Core\Contracts\ExceptionHandler::class => Shy\Http\Exceptions\Handler::class,
         Shy\Core\Contracts\Pipeline::class => Shy\Core\Pipeline::class,
-        Shy\Core\Contracts\Cache::class => Shy\Core\MemoryCache::class
+        Shy\Core\Contracts\Cache::class => Shy\Core\Cache\RedisCache::class,
+        Shy\Core\Contracts\DataBase::class => Shy\Core\DataBase\Pdo::class
     ]);
 
     /**
@@ -66,9 +67,5 @@ defined('CACHE_PATH') or define('CACHE_PATH', $container['config']->find('cache'
  * Setting
  */
 date_default_timezone_set($container['config']->find('timezone'));
-
-if ($container['config']->find('illuminate_database')) {
-    init_illuminate_database();
-}
 
 $container->make(Shy\Console::class);
