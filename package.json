@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {},
     "devDependencies": {
-        "gulp": "^4.0",
+        "gulp": "^3.9",
         "jquery": "^3.4"
     },
     "scripts": {}
