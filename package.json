@@ -1,8 +1,11 @@
 {
-    "name": "shy/framework",
+    "name": "shy",
     "description": "The Shy Framework.",
     "private": true,
     "dependencies": {},
-    "devDependencies": {},
+    "devDependencies": {
+        "gulp": "^4.0",
+        "jquery": "^3.4"
+    },
     "scripts": {}
 }
