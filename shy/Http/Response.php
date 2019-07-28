@@ -100,7 +100,6 @@ class Response implements ResponseContract
 
         if ($this->response instanceof View) {
             echo $this->response->render();
-            shy()->remove(View::class);
         } elseif (is_string($this->response)) {
             echo $this->response;
         } else {
