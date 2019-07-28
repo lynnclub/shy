@@ -11,11 +11,10 @@ push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.j
 <div id="system">
     <p>Container Start Id: <?php echo shy()->startId(); ?></p>
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
-    <p>Used Time: <?php echo microtime(true) - shy()->startTime(); ?> second</p>
+    <p>Running Time: <?php echo microtime(true) - shy()->startTime(); ?> second</p>
     <?php
-    $cycleStartTime = shy()->has('SHY_CYCLE_START_TIME') ? shy()->get('SHY_CYCLE_START_TIME') : null;
-    if (isset($cycleStartTime) && !empty($cycleStartTime)) { ?>
-        <p>Cycle Used Time: <?php echo microtime(true) - $cycleStartTime; ?> second</p>
+    if (shy()->has('SHY_CYCLE_START_TIME')) { ?>
+        <p>Recycling Time: <?php echo microtime(true) - shy()->get('SHY_CYCLE_START_TIME'); ?> second</p>
         <?php
     }
     ?>
