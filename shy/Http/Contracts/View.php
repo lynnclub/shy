@@ -5,20 +5,25 @@ namespace Shy\Http\Contracts;
 interface View
 {
     /**
+     * Initialize in cycle
+     */
+    public function initialize();
+
+    /**
      * Set view file
      *
      * @param string $view
-     * @return view
+     * @return $this
      */
     public function view(string $view);
 
     /**
      * Set layout file
      *
-     * @param $layout
+     * @param string $layout
      * @return $this
      */
-    public function layout($layout);
+    public function layout(string $layout);
 
     /**
      * Params pass by controller

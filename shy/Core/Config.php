@@ -19,7 +19,10 @@ class Config extends MemoryCache implements ConfigContract
      */
     public function __construct($dir = '')
     {
-        $env = $_SERVER['ENVIRONMENT'] ?? 'local';
+        $env = getenv('ENVIRONMENT');
+        if (empty($env)) {
+            $env = 'local';
+        }
 
         $this->dir = !empty($dir) && is_dir($dir)
             ? $dir

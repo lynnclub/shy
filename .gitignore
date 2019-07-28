@@ -5,3 +5,5 @@
 !/public/vendor
 .DS_Store
 npm-debug.log
+workerman.log
+*.pid

@@ -4,6 +4,7 @@ namespace Shy\Core\Contracts;
 
 use Throwable;
 use Shy\Http\Contracts\Response;
+use Shy\Http\Contracts\View;
 
 interface ExceptionHandler
 {
@@ -29,8 +30,10 @@ interface ExceptionHandler
     /**
      * Response.
      *
+     * @param Config $config
      * @param Response $response
+     * @param View $view
      */
-    public function response(Response $response = null);
+    public function response(Config $config = null, Response $response = null, View $view = null);
 
 }

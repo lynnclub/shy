@@ -3,9 +3,12 @@
 namespace Shy\Http\Exceptions;
 
 use Shy\Core\Contracts\ExceptionHandler;
+use Shy\Core\Exceptions\Cache\InvalidArgumentException;
 use Throwable;
 use Shy\Core\Contracts\Logger;
+use Shy\Core\Contracts\Config;
 use Shy\Http\Contracts\Response;
+use Shy\Http\Contracts\View;
 
 class Handler implements ExceptionHandler
 {
@@ -96,30 +99,35 @@ class Handler implements ExceptionHandler
     /**
      * Response.
      *
+     * @param Config $config
      * @param Response $response
+     * @param View $view
+     *
+     * @throws InvalidArgumentException
      */
-    public function response(Response $response = null)
+    public function response(Config $config = null, Response $response = null, View $view = null)
     {
-        if (is_null($response)) {
+        if (is_null($response) || is_null($view)) {
             echo implode(PHP_EOL, $this->getTraceArray());
             return;
         }
 
+        $view->initialize();
         if ($this->throwable instanceof HttpException) {
             $response->setCode($this->throwable->getStatusCode())
                 ->setHeader($this->throwable->getHeaders());
 
             if ($this->throwable->getStatusCode() === 404) {
-                $response->set(view('errors/404'));
+                $response->set($view->view('errors/404'));
             } else {
-                $response->set(view('errors/common', ['e' => $this->throwable]));
+                $response->set($view->view('errors/common')->with(['e' => $this->throwable]));
             }
 
             $response->send();
-        } elseif (config_key('debug')) {
+        } else {
             $response->setCode(500)
                 ->setHeader([])
-                ->set(view('errors/exception', ['e' => $this->throwable]))
+                ->set($config->find('debug') ? $view->view('errors/exception')->with(['e' => $this->throwable]) : '')
                 ->send();
         }
     }

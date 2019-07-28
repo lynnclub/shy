@@ -30,7 +30,8 @@ try {
         Shy\Http\Contracts\Request::class => Shy\Http\Request::class,
         Shy\Http\Contracts\Response::class => Shy\Http\Response::class,
         Shy\Http\Contracts\Session::class => Shy\Http\Session::class,
-        Shy\Http\Contracts\Router::class => Shy\Http\Router::class
+        Shy\Http\Contracts\Router::class => Shy\Http\Router::class,
+        Shy\Http\Contracts\View::class => Shy\Http\View::class
     ]);
 
     /**
@@ -43,7 +44,8 @@ try {
         'http' => Shy\Http::class,
         'session' => Shy\Http\Contracts\Session::class,
         'request' => Shy\Http\Contracts\Request::class,
-        'response' => Shy\Http\Contracts\Response::class
+        'response' => Shy\Http\Contracts\Response::class,
+        'view' => Shy\Http\Contracts\View::class
     ]);
 
     /**

@@ -6,6 +6,7 @@ use Shy\Core\Contracts\ExceptionHandler;
 use Shy\Core\Contracts\Logger;
 use Shy\Http\Contracts\Response;
 use Shy\Core\Contracts\Config;
+use Shy\Http\Contracts\View;
 use Exception;
 use Throwable;
 use ErrorException;
@@ -33,21 +34,28 @@ class HandlerRegister
     protected $config;
 
     /**
+     * @var View
+     */
+    protected $view;
+
+    /**
      * Set Exception Handler
      *
      * @param ExceptionHandler $exceptionHandler
      * @param Config $config
      * @param Logger $logger
      * @param Response $response
+     * @param View $view
      *
      * @throws Cache\InvalidArgumentException
      */
-    public function __construct(ExceptionHandler $exceptionHandler, Config $config, Logger $logger, Response $response = null)
+    public function __construct(ExceptionHandler $exceptionHandler, Config $config, Logger $logger, Response $response = null, View $view = null)
     {
         $this->exceptionHandler = $exceptionHandler;
         $this->config = $config;
         $this->logger = $logger;
         $this->response = $response;
+        $this->view = $view;
 
         error_reporting(-1);
         set_error_handler([$this, 'handleError']);
@@ -120,7 +128,7 @@ class HandlerRegister
         }
 
         try {
-            $this->exceptionHandler->response($this->response);
+            $this->exceptionHandler->response($this->config, $this->response, $this->view);
         } catch (Throwable $e) {
             //
         }

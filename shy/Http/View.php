@@ -3,65 +3,88 @@
 namespace Shy\Http;
 
 use Shy\Http\Contracts\View as ViewContract;
+use Shy\Core\Contracts\Config;
 use RuntimeException;
 
 class View implements ViewContract
 {
     /**
+     * @var string
+     */
+    protected $viewPath;
+
+    /**
      * View file
      *
      * @var string
      */
-    private $view;
-
-    /**
-     * View parse content
-     *
-     * @var string
-     */
-    private $viewContent;
+    protected $view;
 
     /**
      * Subview parse content
      *
      * @var string
      */
-    private $subViewContent;
+    protected $subViewContent;
 
     /**
      * Layout file
      *
      * @var string
      */
-    private $layout;
+    protected $layout;
 
     /**
      * Params pass by controller
      *
      * @var array
      */
-    private $params = [];
+    protected $params = [];
 
     /**
      * Error message
      *
      * @var string
      */
-    private $errorMsg = '';
+    protected $errorMsg = '';
+
+    /**
+     * View constructor.
+     *
+     * @param Config $config
+     *
+     * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
+     */
+    public function __construct(Config $config)
+    {
+        $this->viewPath = $config->find('view', 'path');
+    }
+
+    /**
+     * Initialize in cycle
+     */
+    public function initialize()
+    {
+        $this->view = null;
+        $this->subViewContent = null;
+        $this->layout = null;
+        $this->params = [];
+        $this->errorMsg = '';
+    }
 
     /**
      * Set view file
      *
      * @param string $view
-     * @return view
+     * @return $this
      */
     public function view(string $view)
     {
         if (empty($view)) {
-            throw new RuntimeException('Invalid view.');
+            throw new RuntimeException('Empty view.');
         }
 
-        $view = config_key('app', 'path') . 'Http/Views/' . $view . '.php';
+        $view = $this->viewPath . $view . '.php';
         if (file_exists($view)) {
             $this->view = $view;
         } else {
@@ -74,16 +97,13 @@ class View implements ViewContract
     /**
      * Set layout file
      *
-     * @param $layout
+     * @param string $layout
      * @return $this
      */
-    public function layout($layout)
+    public function layout(string $layout)
     {
         if (!empty($layout)) {
-            if (!is_string($layout)) {
-                throw new RuntimeException('Invalid layout.');
-            }
-            $layout = config_key('app', 'path') . 'http/views/layout/' . $layout . '.php';
+            $layout = $this->viewPath . 'layout/' . $layout . '.php';
             if (file_exists($layout)) {
                 $this->layout = $layout;
             } else {
@@ -111,19 +131,21 @@ class View implements ViewContract
      * Render view
      *
      * @return string
-     * @throws \Exception
      */
     public function render()
     {
+        if (empty($this->view)) {
+            throw new RuntimeException('View empty.');
+        }
+
         ob_start();
         extract($this->params);
 
         /**
          * View
          */
-        if (isset($this->view)) {
-            include "{$this->view}";
-        }
+        include "{$this->view}";
+
         /**
          * Layout
          */
@@ -132,14 +154,17 @@ class View implements ViewContract
             $this->params = array_merge($this->params, get_defined_vars());
             require "{$this->layout}";
         }
-        $this->viewContent = ob_get_contents();
+        $viewContent = ob_get_contents();
+
         /**
          * Can not ob_get_clean() or ob_end_clean(), WorkerMan will no output
          */
         ob_clean();
 
         if (empty($this->errorMsg)) {
-            return $this->viewContent;
+            $this->initialize();
+
+            return $viewContent;
         } else {
             throw new RuntimeException($this->errorMsg);
         }

@@ -203,7 +203,22 @@ class HttpInWorkerMan extends Worker
                     // $_SERVER.
                     $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
                     $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
-                    include "$workerman_file";
+
+                    //include "$workerman_file";
+                    /**
+                     * Cycle count
+                     */
+                    shy()->set('SHY_CYCLE_COUNT', shy()->get('SHY_CYCLE_COUNT') + 1);
+                    /**
+                     * Cycle start time
+                     */
+                    shy()->set('SHY_CYCLE_START_TIME', microtime(true));
+                    /**
+                     * Run framework
+                     */
+                    shy('request')->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+                    shy('session')->sessionStart();
+                    shy('http')->run();
                 } catch (Throwable $e) {
                     shy(HandlerRegister::class)->handleException($e);
                 }

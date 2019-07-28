@@ -13,20 +13,28 @@ if (!function_exists('view')) {
      * @param string $view
      * @param array $params
      * @param string $layout
-     * @return Shy\Http\Contracts\View
+     *
+     * @return object
      */
     function view(string $view, array $params = [], string $layout = '')
     {
-        $view = shy()->make(Shy\Http\Contracts\View::class, Shy\Http\View::class)->view($view);
-
-        if (isset($params)) {
-            $view->with($params);
-        }
-        if (isset($layout)) {
-            $view->layout($layout);
+        $object = shy('view');
+        if (!is_object($object)) {
+            throw new RuntimeException('View class is not an instance.');
         }
 
-        return $view;
+        $object->initialize();
+
+        $object->view($view);
+
+        if (!empty($params)) {
+            $object->with($params);
+        }
+        if (!empty($layout)) {
+            $object->layout($layout);
+        }
+
+        return $object;
     }
 }
 
@@ -38,9 +46,9 @@ if (!function_exists('include_view')) {
      */
     function include_view(string $filename)
     {
-        $filename = APP_PATH . 'Http/Views/' . $filename . '.php';
+        $filename = VIEW_PATH . $filename . '.php';
         if (file_exists($filename)) {
-            $params = shy(Shy\Http\Contracts\View::class)->getParams();
+            $params = shy('view')->getParams();
             if (!empty($params)) {
                 extract($params);
             }
@@ -49,7 +57,7 @@ if (!function_exists('include_view')) {
             include "{$filename}";
             ob_end_flush();
         } else {
-            shy(Shy\Http\Contracts\View::class)->error('[view] Include view ' . $filename . ' is not exist.');
+            shy('view')->error('[view] Include view ' . $filename . ' is not exist.');
         }
     }
 }
@@ -60,7 +68,7 @@ if (!function_exists('include_sub_view')) {
      */
     function include_sub_view()
     {
-        $view = shy(Shy\Http\Contracts\View::class);
+        $view = shy('view');
         $subViewContent = $view->getSubView();
         if (empty($subViewContent) || !is_string($subViewContent)) {
             $view->error('[view] Layout ' . $view->getLayout() . ' include sub view ' . $view->getView() . ' failed.');
@@ -79,7 +87,7 @@ if (!function_exists('param')) {
      */
     function param(string $key, bool $allowNotExist = false)
     {
-        $params = shy(Shy\Http\Contracts\View::class)->getParams();
+        $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
             echo $params[$key];
         } elseif (isset($GLOBALS[$key])) {
@@ -87,7 +95,7 @@ if (!function_exists('param')) {
         } elseif (defined($key)) {
             echo constant($key);
         } elseif (!$allowNotExist) {
-            shy(Shy\Http\Contracts\View::class)->error('[view] Param ' . $key . ' is not exist.');
+            shy('view')->error('[view] Param ' . $key . ' is not exist.');
         }
     }
 }
@@ -102,13 +110,13 @@ if (!function_exists('param_array')) {
      */
     function param_array(string $arrayKey, string $key, bool $allowNotExist = false)
     {
-        $params = shy(Shy\Http\Contracts\View::class)->getParams();
+        $params = shy('view')->getParams();
         if (isset($params[$arrayKey][$key]) && (is_string($params[$arrayKey][$key]) || is_numeric($params[$arrayKey][$key]))) {
             echo $params[$arrayKey][$key];
         } elseif (isset($GLOBALS[$arrayKey][$key])) {
             echo $GLOBALS[$arrayKey][$key];
         } elseif (!$allowNotExist) {
-            shy(Shy\Http\Contracts\View::class)->error('[view] Param array ' . $arrayKey . ' key ' . $key . ' is not exist.');
+            shy('view')->error('[view] Param array ' . $arrayKey . ' key ' . $key . ' is not exist.');
         }
     }
 }
@@ -123,7 +131,7 @@ if (!function_exists('get_param')) {
      */
     function get_param(string $key, bool $allowNotExist = false)
     {
-        $params = shy(Shy\Http\Contracts\View::class)->getParams();
+        $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
             return $params[$key];
         } elseif (isset($GLOBALS[$key])) {
@@ -131,7 +139,7 @@ if (!function_exists('get_param')) {
         } elseif (defined($key)) {
             return constant($key);
         } elseif (!$allowNotExist) {
-            shy(Shy\Http\Contracts\View::class)->error('[view] Param ' . $key . ' is not exist.');
+            shy('view')->error('[view] Param ' . $key . ' is not exist.');
         }
     }
 }
