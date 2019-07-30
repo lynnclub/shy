@@ -29,8 +29,8 @@
     },
     "autoload": {
         "files": [
-            "shy/Core/Functions/Core.php",
-            "shy/Core/Functions/Helpers.php"
+            "shy/Core/Functions/core.php",
+            "shy/Core/Functions/helpers.php"
         ],
         "psr-4": {
             "App\\": "app/",

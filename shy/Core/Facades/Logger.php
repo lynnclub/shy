@@ -1,10 +1,11 @@
 <?php
 
-namespace Shy\Http\Facades;
+namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
+use Shy\Core\Contracts\Logger as LoggerContract;
 
-class Smarty extends Facade
+class Logger extends Facade
 {
     /**
      * Get the instance.
@@ -13,6 +14,6 @@ class Smarty extends Facade
      */
     protected static function getInstance()
     {
-        return shy('smarty');
+        return shy(LoggerContract::class);
     }
 }

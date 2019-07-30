@@ -49,13 +49,12 @@ class Logger extends AbstractLogger implements LoggerContract
      * @param string $message
      * @param array $context
      *
-     * @throws Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      */
     public function log($level, $message, array $context = array())
     {
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] ';
-        if (isset($this->request) && $this->request->isInitialized()) {
+        if (is_object($this->request) && $this->request->isInitialized()) {
             $prefix .= '[' . implode(',', $this->request->getClientIps()) . ' ' . $this->request->getUrl() . '] ';
         }
 
@@ -75,14 +74,6 @@ class Logger extends AbstractLogger implements LoggerContract
         }
 
         @file_put_contents($filename, $prefix . ' ' . $message . ' ' . $context . PHP_EOL, FILE_APPEND);
-
-        /**
-         * Additional logger
-         */
-        $add_log_function = $this->config->find('add_log_function');
-        if (!empty($add_log_function) && function_exists($add_log_function)) {
-            $add_log_function($level, $message, $context);
-        }
     }
 
 }

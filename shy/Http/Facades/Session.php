@@ -3,7 +3,7 @@
 namespace Shy\Http\Facades;
 
 use Shy\Core\Facade;
-use Shy\Http\Session as realSession;
+use Shy\Http\Contracts\Session as SessionContracts;
 
 class Session extends Facade
 {
@@ -14,6 +14,6 @@ class Session extends Facade
      */
     protected static function getInstance()
     {
-        return shy(realSession::class);
+        return shy(SessionContracts::class);
     }
 }
