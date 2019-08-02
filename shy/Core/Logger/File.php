@@ -1,13 +1,13 @@
 <?php
 
-namespace Shy\Core;
+namespace Shy\Core\Logger;
 
 use Psr\Log\AbstractLogger;
 use Shy\Core\Contracts\Logger as LoggerContract;
 use Shy\Http\Contracts\Request;
 use Shy\Core\Contracts\Config;
 
-class Logger extends AbstractLogger implements LoggerContract
+class File extends AbstractLogger implements LoggerContract
 {
     /**
      * @var Config
@@ -58,8 +58,6 @@ class Logger extends AbstractLogger implements LoggerContract
             $prefix .= '[' . implode(',', $this->request->getClientIps()) . ' ' . $this->request->getUrl() . '] ';
         }
 
-        $context = implode(PHP_EOL, $context);
-
         /**
          * File and path
          */
@@ -73,7 +71,7 @@ class Logger extends AbstractLogger implements LoggerContract
             @mkdir(dirname($filename));
         }
 
-        @file_put_contents($filename, $prefix . ' ' . $message . ' ' . $context . PHP_EOL, FILE_APPEND);
+        @file_put_contents($filename, $prefix . ' ' . $message . ' ' . implode(PHP_EOL, $context) . PHP_EOL, FILE_APPEND);
     }
 
 }
