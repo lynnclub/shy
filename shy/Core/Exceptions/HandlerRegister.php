@@ -78,6 +78,16 @@ class HandlerRegister
     }
 
     /**
+     * Set view
+     *
+     * @param View $view
+     */
+    public function setView(View $view = null)
+    {
+        $this->view = $view;
+    }
+
+    /**
      * Convert PHP errors to ErrorException instances.
      *
      * @param $level

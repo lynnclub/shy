@@ -2,10 +2,11 @@
 
 namespace Shy\Core\Cache;
 
+use Psr\SimpleCache\CacheInterface;
 use Shy\Core\Contracts\Cache as CacheContracts;
 use Shy\Core\Exceptions\Cache\InvalidArgumentException;
 
-class MemoryCache implements CacheContracts
+class MemoryCache implements CacheInterface, CacheContracts
 {
     /**
      * @var mixed

@@ -46,7 +46,7 @@ class Aliyun extends File implements LoggerContract
         $logItem->pushBack('message', $message);
         $logItem->pushBack('Level', $level);
         $logItem->pushBack('Date', date('Y-m-d H:i:s'));
-        $logItem->pushBack('Content', json_encode($context));
+        $logItem->pushBack('Content', json_encode($context, JSON_UNESCAPED_UNICODE));
         $request = shy(Request::class);
         if (is_object($request) && $request->isInitialized()) {
             $logItem->pushBack('Url', $request->getUrl());

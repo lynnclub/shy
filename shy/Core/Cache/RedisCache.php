@@ -106,7 +106,7 @@ class RedisCache extends Redis implements CacheContracts, DataBase
     /**
      * Obtains multiple cache items by their unique keys.
      *
-     * @param iterable $keys A list of keys that can obtained in a single operation.
+     * @param array $keys A list of keys that can obtained in a single operation.
      * @param mixed $default Default value to return for keys that do not exist.
      *
      * @return iterable A list of key => value pairs. Cache keys that do not exist or are stale will have $default as value.
@@ -115,7 +115,7 @@ class RedisCache extends Redis implements CacheContracts, DataBase
      *   MUST be thrown if $keys is neither an array nor a Traversable,
      *   or if any of the $keys are not a legal value.
      */
-    public function getMultiple($keys, $default = null)
+    public function getMultiple(array $keys = null, $default = null)
     {
         if (empty($keys)) {
             throw new InvalidArgumentException('Keys is empty.');
