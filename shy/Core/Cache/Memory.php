@@ -2,69 +2,21 @@
 
 namespace Shy\Core\Cache;
 
+use Psr\SimpleCache\CacheInterface;
 use Shy\Core\Contracts\Cache as CacheContracts;
-use Shy\Core\Contracts\DataBase;
 use Shy\Core\Exceptions\Cache\InvalidArgumentException;
-use Redis;
-use Exception;
 
-class RedisCache extends Redis implements CacheContracts, DataBase
+class Memory implements CacheInterface, CacheContracts
 {
     /**
-     * @var $this []
+     * @var mixed
      */
-    protected $connections;
+    protected $cache = [];
 
     /**
-     * RedisCache constructor.
-     *
-     * @param string $config_name
-     *
-     * @throws Exception
+     * @var array
      */
-    public function __construct($config_name = 'default')
-    {
-        $this->connection($config_name);
-    }
-
-    /**
-     * @param string $config_name
-     *
-     * @throws Exception
-     *
-     * @return $this
-     */
-    public function connection($config_name = 'default')
-    {
-        if (isset($this->connections[$config_name])) {
-            return $this->connections[$config_name];
-        }
-
-        $configs = config_key('redis', 'database');
-        if (!isset($configs[$config_name])) {
-            throw new Exception('Redis Config ' . $config_name . ' not set');
-        }
-        $config = $configs[$config_name];
-        if (!isset($config['host'], $config['port'])) {
-            throw new Exception('Redis Config ' . $config_name . ' no host or port');
-        }
-
-        $this->connect($config['host'], $config['port']);
-
-        if (isset($config['password'])) {
-            $this->auth($config['password']);
-        }
-        if (isset($config['database'])) {
-            $this->select($config['database']);
-        }
-        if ($this->ping() !== '+PONG') {
-            throw new Exception('Redis Config ' . $config_name . ' connect failed');
-        }
-
-        $this->connections[$config_name] = $this;
-
-        return $this;
-    }
+    protected $ttl;
 
     /**
      * Fetches a value from the cache.
@@ -86,11 +38,89 @@ class RedisCache extends Redis implements CacheContracts, DataBase
             throw new InvalidArgumentException('key is not a string.');
         }
 
-        if ($value = parent::get($key)) {
-            return $value;
+        if (array_key_exists($key, $this->cache)) {
+            return $this->cache[$key];
         }
 
         return $default;
+    }
+
+    /**
+     * Garbage Collection
+     *
+     * @throws InvalidArgumentException
+     */
+    public function gc()
+    {
+        if (is_array($this->ttl)) {
+            foreach (array_reverse($this->ttl) as $key => $item) {
+                if (isset($item['ttl'], $item['time']) && time() > ($item['ttl'] + $item['time'])) {
+                    $this->delete($key);
+                }
+            }
+        }
+    }
+
+    /**
+     * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
+     *
+     * @param string $key The key of the item to store.
+     * @param mixed $value The value of the item to store, must be serializable.
+     * @param null|int|\DateInterval $ttl Optional. The TTL value of this item. If no value is sent and
+     *                                      the driver supports TTL then the library may set a default value
+     *                                      for it or let the driver take care of that.
+     *
+     * @return bool True on success and false on failure.
+     *
+     * @throws InvalidArgumentException
+     *   MUST be thrown if the $key string is not a legal value.
+     */
+    public function set($key, $value, $ttl = null)
+    {
+        if (empty($key)) {
+            throw new InvalidArgumentException('Key is empty.');
+        }
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Key is not a string.');
+        }
+
+        if (isset($ttl)) {
+            if (!is_numeric($ttl)) {
+                throw new InvalidArgumentException('ttl is not a numeric.');
+            }
+
+            $this->ttl[$key] = ['ttl' => $ttl, 'time' => time()];
+        }
+
+        $this->cache[$key] = $value;
+
+        $this->gc();
+
+        return true;
+    }
+
+    /**
+     * Delete an item from the cache by its unique key.
+     *
+     * @param string $key The unique cache key of the item to delete.
+     *
+     * @return bool True if the item was successfully removed. False if there was an error.
+     *
+     * @throws InvalidArgumentException
+     *   MUST be thrown if the $key string is not a legal value.
+     */
+    public function delete($key)
+    {
+        if (empty($key)) {
+            throw new InvalidArgumentException('Key is empty.');
+        }
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('key is not a string.');
+        }
+
+        unset($this->cache[$key], $this->ttl[$key]);
+
+        return true;
     }
 
     /**
@@ -100,13 +130,15 @@ class RedisCache extends Redis implements CacheContracts, DataBase
      */
     public function clear()
     {
-        return parent::flushDB();
+        unset($this->cache, $this->ttl);
+
+        return true;
     }
 
     /**
      * Obtains multiple cache items by their unique keys.
      *
-     * @param array $keys A list of keys that can obtained in a single operation.
+     * @param iterable $keys A list of keys that can obtained in a single operation.
      * @param mixed $default Default value to return for keys that do not exist.
      *
      * @return iterable A list of key => value pairs. Cache keys that do not exist or are stale will have $default as value.
@@ -115,7 +147,7 @@ class RedisCache extends Redis implements CacheContracts, DataBase
      *   MUST be thrown if $keys is neither an array nor a Traversable,
      *   or if any of the $keys are not a legal value.
      */
-    public function getMultiple(array $keys = null, $default = null)
+    public function getMultiple($keys, $default = null)
     {
         if (empty($keys)) {
             throw new InvalidArgumentException('Keys is empty.');
@@ -124,11 +156,13 @@ class RedisCache extends Redis implements CacheContracts, DataBase
             throw new InvalidArgumentException('keys is not a array.');
         }
 
-        if ($values = parent::getMultiple($keys)) {
-            return $values;
+        $result = [];
+
+        foreach ($keys as $key) {
+            $result[] = $this->get($key);
         }
 
-        return $default;
+        return $result;
     }
 
     /**
@@ -181,7 +215,9 @@ class RedisCache extends Redis implements CacheContracts, DataBase
             throw new InvalidArgumentException('keys is not a array.');
         }
 
-        $this->delete($keys);
+        foreach ($keys as $key) {
+            $this->delete($key);
+        }
 
         return true;
     }
@@ -199,7 +235,7 @@ class RedisCache extends Redis implements CacheContracts, DataBase
      */
     public function has($key)
     {
-        if (parent::exists($key)) {
+        if (array_key_exists($key, $this->cache)) {
             return true;
         }
 
@@ -251,6 +287,8 @@ class RedisCache extends Redis implements CacheContracts, DataBase
      * The value to set.
      * </p>
      *
+     * @throws InvalidArgumentException
+     *
      * @return void
      *
      * @since 5.0.0
@@ -266,6 +304,8 @@ class RedisCache extends Redis implements CacheContracts, DataBase
      * @param mixed $offset <p>
      * The offset to unset.
      * </p>
+     *
+     * @throws InvalidArgumentException
      *
      * @return void
      *
