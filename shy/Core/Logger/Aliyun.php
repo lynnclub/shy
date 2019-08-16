@@ -43,15 +43,15 @@ class Aliyun extends File implements LoggerContract
          * Log Item
          */
         $logItem = shy(Aliyun_Log_Models_LogItem::class);
-        $logItem->pushBack('message', $message);
-        $logItem->pushBack('Level', $level);
+        $logItem->pushBack('Message', $message);
+        $logItem->pushBack('Level', strtoupper($level));
         $logItem->pushBack('Date', date('Y-m-d H:i:s'));
         $logItem->pushBack('Content', json_encode($context, JSON_UNESCAPED_UNICODE));
         $request = shy(Request::class);
         if (is_object($request) && $request->isInitialized()) {
-            $logItem->pushBack('Url', $request->getUrl());
+            $logItem->pushBack('URL', $request->getUrl());
             $logItem->pushBack('UA', $_SERVER['HTTP_USER_AGENT']);
-            $logItem->pushBack('ClientIp', implode(',', $request->getClientIps()));
+            $logItem->pushBack('ClientIps', implode(',', $request->getClientIps()));
         }
         /**
          * Push
