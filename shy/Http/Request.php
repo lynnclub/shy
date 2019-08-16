@@ -622,15 +622,32 @@ class Request implements RequestContract
     public function getClientIps()
     {
         $clientIps = array();
+
+        $clientIps[] = $this->server->get('HTTP_X_FORWARDED_FOR');
+
+        $clientIps[] = $this->server->get('HTTP_CLIENT_IP');
+
         $clientIps[] = $this->server->get('REMOTE_ADDR');
-        foreach ($clientIps as $key => $clientIp) {
-            // Remove port (unfortunately, it does happen)
-            if (preg_match('{((?:\d+\.){3}\d+)\:\d+}', $clientIp, $match)) {
-                $clientIps[$key] = $clientIp = $match[1];
+
+        return array_reverse($this->getValidIps($clientIps));
+    }
+
+    public function getValidIps(array $ips)
+    {
+        $validIps = [];
+        foreach ($ips as $ip) {
+            if (is_array($ip)) {
+                $validIps = array_merge($validIps, $this->getValidIps($ip));
+            } elseif (is_string($ip)) {
+                if (stripos($ip, ',') !== false) {
+                    $validIps = array_merge($validIps, $this->getValidIps(explode(',', $ip)));
+                } else if (is_valid_ip($ip)) {
+                    $validIps[] = trim($ip);
+                }
             }
         }
 
-        return array_reverse($clientIps);
+        return array_filter(array_unique($validIps));
     }
 
     /**
