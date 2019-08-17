@@ -1,45 +1,49 @@
-# 害羞框架 Shy Framework
+# Shy Framework
 
-她是一个娇小，却能顶半边天的框架；她灵动的眼眸中，透露出包罗万象的智慧；她向你敞开了怀抱，希望彼此在快乐的氛围中共育一片天地。她会是你梦寐以求的框架吗？快来了解一下她吧！
+**简洁却强大的高性能框架**
 
-**本框架目前是初始版本，在不断的优化、完善之中，而且后续更新可能涉及大范围改动，目前仅供学习参考。**
+**框架还需要不断的优化、完善，欢迎提交问题、建议。**
 
-[View English Documents](https://github.com/lynncho/shy/blob/master/README-EN.md)
+[English Document](https://github.com/lynncho/shy/blob/master/README-EN.md)
 
-Shy框架交流一群：963908345
+Shy框架交流一群：963908345 加群暗号：lynncho
 
-加群暗号：lynncho
-
-## 1. 概要
+## 一、 纲要
 
 ### 1.1 简介
 
-本框架以容器为核心，就连框架本身都在容器里面，由此为开发者提供了一个自由度极高的实例复用池。在容器的基础上，框架提供了全局异常处理、门面、流水线等实用工具。并且，基于这些工具，提供了web服务、终端服务、socket服务等。
+框架遵守PHP-FIG组织制定的PSR（PHP Standards Recommendations）规范。
 
-本框架除了支持传统的php web服务运行方式，还支持**命令行运行（CLI）模式**。
+框架以容器（Container）为核心，提供了便捷的实例（Instance）复用池。框架的所有服务组件都在容器里面，通过容器可以非常自由地定制框架。
 
-**在CLI模式下，由于避免了重复编译导致的消耗，本web框架的性能相对于传统方式大幅度提升。**
+框架以非常简洁的实现，提供了众多服务。核心服务包括：异常处理、配置文件、日志、缓存、门面、流水线等。基于核心服务，提供了面向使用场景的Web框架、命令框架、Socket框架，并且彼此可独立运行、互不干扰。
+
+此外，框架还提供一种颠覆PHP语言传统Web框架运行方式的模式：常驻内存模式（PHP-CLI）。**在常驻内存模式下，由于避免了重复加载、重复编译的开销，本框架的Web服务性能相对于传统方式大幅度提升！！！**
+
+整个框架实现简洁，但是十分强大。正如她的名字：纤细身形、不漏内秀。
 
 ### 1.2 特性列表
 
-* 容器与配置
-* 异常、错误处理
-* 组件式设计、适配器模式（暂未实现）
-* 流水线（pipeline）
-* 中间件
-* 请求
-* 响应
-* 路由
-* 控制器
-* 门面
-* 数据库
-* 模版
-* 单元测试
-* 命令模式
-* 常驻内存模式
-* socket
-* api（暂未实现）
-* 常量
+* 契约（Contracts）
+* 容器（Container）
+* 门面（Facade）
+* 缓存（Cache）
+* 配置（Config）
+* 异常及错误的捕获处理（Exceptions Handler）
+* 流水线（Pipeline）
+* 常量（Constants）
+* 请求（Request）
+* 中间件（Middleware）
+* 响应（Response）
+* 路由（Router）
+* 控制器（Controllers）
+* 数据库（DataBase）
+* 模版（View）
+* 命令模式（Command Mode）
+* 常驻内存模式（PHP-CLI Mode）
+* Socket模式（Socket Mode）
+* Api（未完成）
+* 单元测试（Unit Test）
 
 ### 1.3 用法
 
@@ -52,12 +56,18 @@ git clone https://github.com/lynncho/shy.git
 ##### 第二步：安装依赖包
 
 ```bash
+#进入项目目录
+cd shy
+
+#执行composer
 composer install
 ```
 
-恭喜，接下来只需要配置web站点、或者执行CLI模式就可以运行框架了。
+恭喜！！！
 
-##### 第三步：CLI执行(可选)
+接下来，只需要配置Web站点、或者执行常驻内存模式，就可以运行框架了。
+
+##### 第三步（可选）：常驻内存模式执行
 
 ```bash
 php console http start
@@ -70,13 +80,20 @@ shy 框架根目录
 |
 |   phpunit.php 单元测试入口
 |   console 命令模式入口
-|   server.php http服务调试入口
+|   server.php Http服务调试入口（整个项目暴露在web服务下，建议调试使用）
+|   gulpfile.js Gulp前端构建服务
 |
 |___app 开发目录
 |    |
-|    |___console 终端服务开发目录
-|    |___http http服务开发目录
-|    |___socket socket服务开发目录
+|    |___Console 命令服务开发目录
+|    |___Http Http服务开发目录
+|    |___Socket Socket服务开发目录
+|
+|___bootstrap 服务启动目录
+|    |
+|    |___console.php 命令服务启动程序
+|    |___http.php Http服务启动程序
+|    |___http-workerman.php 基于workerman的常驻内存服务启动程序
 |
 |___cache 缓存目录
 |    |
@@ -84,356 +101,222 @@ shy 框架根目录
 |    |
 |    |___log 日志目录
 |    |
-|    |___smarty smarty模版缓存目录
+|    |___instances_record 实例运行数据目录（常驻内存模式、容器实例智能调度）
 |
 |___config 配置目录
+|    |
+|    |___ develop 开发环境配置目录
+|    |___ testing 测试环境配置目录
+|    |___ production 生产环境配置目录
 |
-|___public http服务开放目录
+|___public Http服务开放目录
 |   |
-|   |   index.php http服务入口
+|   |   index.php Http服务入口
 |   |
 |   |___vendor 前端第三方资源包目录
 |
 |___shy 框架目录
 |   |
-|   |   api.php api服务
-|   |   console.php 终端服务
-|   |   http.php http服务
-|   |   webInWorkerMan.php 常驻内存http服务
+|   |   Console.php 命令服务
+|   |   Http.php Http服务
+|   |   HttpInWorkerMan.php 基于workerman的常驻内存Http服务
+|   |   SocketInWorkerMan.php 基于workerman的Socket服务
 |   |
-|   |___console 终端服务目录
-|   |___core 核心服务目录
-|   |___http http服务目录
-|   |___socket socket服务目录
+|   |___Console 命令模式目录
+|   |___Core 核心服务目录
+|   |___Http Http服务目录
+|   |___Socket Socket服务目录
 |
 |
 |___tests 单元测试目录
-|
 |
 |___vendor composer依赖包安装目录
 ```
 
 ### 1.5 术语
 
-* 实例："类"或"对象"在实例化之后叫做一个"实例"。 "类"是静态的，不占进程内存，而"实例"拥有动态进程内存。
-* 抽象名称：容器内实例的唯一标识字符。
+* 实例："类"或者说"对象"，在实例化之后叫做一个"实例"。类只是代码，而实例占有内存、是运行中的状态。
 * 链式调用：对象的方法返回对象，以便继续调用返回对象的方法。
-* 回调：被传入其它函数或方法中执行的函数或方法。
+* 回调：一种函数或类方法，被传入其它函数或类方法中执行。
+* 闭包：即匿名函数。
 
-## 2. 容器与配置
+## 二、 契约（Contracts）
 
-容器本身是一个实例概念，该实例可以集中生成、储存、管理其它实例，故名容器。本框架拓展了容器的概念，在容器中额外提供了配置或者数据管理的功能。
+契约是接口（interface）的广义概念，意义相同，但是不局限于接口的形式。契约可以是接口、抽象类、甚至非硬性约束的惯例。
 
-所有贯穿整个生命周期，或者需要复用的实例、配置，都应该加入到容器里面。**在本框架中，包括容器、核心实例、核心配置，都是开放给开发者访问的。如果需要操作核心，需要开发者对框架有足够的了解，否则不建议操作**。
+框架的各种组件都按照契约的规范实现，比如容器、缓存、配置、日志、门面等。部分组件，契约中包含了PSR规范。
 
-容器类提供了绑定、加入、取用、替换或清除实例的方法，并且提供了如下便捷的封装函数。
+**契约在容器中的使用方式：容器中的类名为契约类名，容器中对应的实例是实现了契约的实体类。遵守相同契约的实体类可以在容器中随意替换。**
 
-##### 2.1 绑定实例
+## 三、 容器（Container）
 
-###### 2.1.1 用法模式
+本框架的容器类，遵守PSR（PHP Standards Recommendations）中的《PSR-11: Container interface》接口规范；并且，实现了PHP的ArrayAccess、Countable接口，可以当作数组使用。
 
-1. bind(类名)
-2. bind(抽象名称, 实例或回调)
+容器是对实例集中管理的实例池，可以创建、绑定、使用、替换或者移除实例。此外，框架拓展了容器的概念，支持把字符、数组等任意内容当作实例管理。即容器是实例与数据的集中管理池。
 
-###### 2.1.2 代码示例
+使用容器需要注意：
+
+1. 需要复用的、贯穿框架生命周期的实例或者数据，应该加入到容器；
+2. **框架的核心服务及配置，可以被自由访问，但是需要对框架设计有足够的了解，才能操作。**
+
+### 3.1 绑定实例
+
+#### 3.1.1 用法模式
+
+支持绑定实例或者数据，绑定结果为闭包、供加入容器时（调用shy函数）执行。
+
+1. bind(类名)：类名是需要绑定的类
+2. bind(数据名)：数据名是需要绑定的数据
+3. bind(类名, 实例或回调)：类名对应传入的实例或回调执行的实例
+4. bind(数据名, 数据)：数据名对应传入的数据
+
+#### 3.1.2 代码示例
 
 ```php
 /**
  * 绑定类名
  */
-bind(shy\web::class);
+bind(Shy\Http::class);
 
 /**
  * 直接绑定实例
  */
-bind('web', new shy\web());
+bind(Shy\Http::class, new Shy\Http());
+bind('Shy\Http', new Shy\Http());
 
 /**
  * 绑定回调（可用于延迟传参、即加入容器时传参，支持任意个参数、即0到N个参数）
  */
-bind('web', function ($param1, $param2) {
-    return new shy\web($param1, $param2);
+bind(Shy\Http::class, function ($param1, $param2) {
+    return new Shy\Http($param1, $param2);
 });
 
 /**
  * 链式调用：绑定实例、加入到容器并取用实例、执行实例的run方法
  */
-bind('web', new shy\web())->shy('web')->run();
+bind(Shy\Http::class, new Shy\Http())->shy(Shy\Http::class)->run();
 
 /**
  * 链式调用：绑定回调、带参执行回调并加入容器然后返回实例、执行实例的run方法
  */
-bind('web', function ($param1, $param2) {
-    return new shy\web($param1, $param2);
-})->shy('web', $param1, $param2)->run();
-
+bind(Shy\Http::class, function ($param1, $param2) {
+    return new Shy\Http($param1, $param2);
+})->shy(Shy\Http::class, $param1, $param2)->run();
 ```
 
-如上所述，bind函数是对容器的封装，会返回容器实例以便链式调用。它的功能只是绑定抽象名称对应的实例或回调，并没有将实例加入到真正意义上的容器，所以也无法从容器中获取绑定的实例。将实例加入容器、从容器中取用实例，是shy函数的功能。
+如上所述，bind函数是对容器类的封装，会返回容器实例以便链式调用。**它的功能只是绑定实例，并没有将实例加入到容器**。将实例加入容器、使用容器中实例，是shy函数的功能。
 
-##### 2.2 加入、取用实例
+### 3.2 加入与使用实例
 
-###### 2.2.1 用法模式
+#### 3.2.1 用法模式
 
-1. shy(类名, 任意个其它参数)
-2. shy(抽象名称, 实例或回调, 任意个其它参数)
-3. shy(抽象名称, 任意个其它参数、即0到N个)
-4. shy(抽象名称, 命名空间类名, 任意个其它参数)
+1. shy(类名, null, 任意个实例化参数)：类名作为实体类
+2. shy(类名, 实体类名, 任意个实例化参数)：类名绑定实体类
+2. shy(类名, 实例或回调, 任意个实例化参数)：类名绑定实例或者回调
 
-###### 2.2.2 代码示例
+#### 3.2.2 代码示例
 
 ```php
+/**
+ * 实例化Http类
+ */
+shy(Shy\Http::class);
 
 /**
- * 命名空间作为抽象名称，无参实例化命名空间类
+ * 带参数实例化
  */
-shy('shy\web');
+shy(Shy\Http::class, null, $param1, $param2);
 
 /**
- * 命名空间作为抽象名称，无参实例化命名空间类
+ * 带参数实例化File类，契约为Logger
  */
-shy(shy\web::class);
+shy(Shy\Core\Contracts\Logger::class, Shy\Core\Logger\File::class, $param1, $param2);
 
 /**
- * 命名空间作为抽象名称，带参实例化命名空间类
+ * 使用契约为Logger的File实例
  */
-shy(shy\web::class, $param1, $param2);
-
-/**
- * 运行绑定的回调
- */
-shy('web');
-
-/**
- * 带参运行绑定的回调
- */
-shy('web', $parma1, $param2);
+shy(Shy\Core\Contracts\Logger::class);
 
 /**
  * 直接将实例加入容器
  */
-shy('web', new shy\web());
+shy(Shy\Http::class, new Shy\Http());
 
 /**
- * 直接带参运行回调
+ * 可以在bootstrap目录的服务对应启动文件中，设置类名的别名
  */
-shy('web', function ($param1, $param2) {
-    return new shy\web($param1, $param2);
-}, $param1, $param2);
+$container->alias('pipeline', Shy\Core\Contracts\Pipeline::class);
 
 /**
- * 设置抽象名称并实例化带命名空间的类
+ * 使用别名
  */
-shy('web','shy\web');
+shy('pipeline');
+```
+
+**shy函数是框架的核心函数，代表对容器的操作**。
+
+使用shy函数时，如果容器内已经存在指定的类，则直接返回对应实例。如果不存在，会将实例加入到容器中，并返回被加入的实例。该函数会尝试上述用法模式来获取实例。比如，从绑定的实例中获取、执行绑定的回调获取实例、通过反射实例化类。
+
+实例加入容器之后，会清除绑定以免占用内存。
+
+### 3.3 更多操作
+
+更多操作请直接使用容器类。通过shy函数不传参数，可以获取容器实例。
+
+```bash
+/**
+ * 无参数、返回容器本身
+ */
+shy();
 
 /**
- * 设置抽象名称为pdo，并实例化带命名空间的类
+ * 是否存在实例
+ */
+shy()->has(Shy\Http::class);
+
+/**
+ * 移除实例
+ */
+shy()->remove(Shy\Http::class);
+```
+
+### 3.4 依赖注入
+
+容器通过反射实例化类的时候，可以自动注入构造方法的依赖，无需手动实例化。
+
+```php
+use Shy\Http\Contracts\Request;
+use Shy\Core\Contracts\Config;
+
+/**
+ * Logger constructor.
  *
- * 这种做法是错误的。因为pdo本身是实际存在的php拓展类，不可以作为其它实例的抽象名称。
+ * @param Request $request
+ * @param Config $config
  */
-shy('pdo', 'shy\core\library\pdo');
+ public function __construct(Config $config, Request $request = null)
+ {
+     $this->config = $config;
 
+     $this->request = $request;
+ }
 ```
 
-**shy函数是本框架的核心函数之一，代表对容器的操作**。
+如图，Logger类的构造方法依赖Config和Request类，通过契约类变量注入契约绑定的实体类。
 
-该函数运行时，如果容器内已经存在待加入的抽象名称，则不会做加入操作，而是直接返回该抽象名称对应的旧实例、即只有取用功能。如果不存在该抽象名称，才会将抽象名称及其对应的实例加入到容器中，并返回被加入的实例。
+## 四、 门面（Facade）
 
-该函数会尝试上述2.2.1的用法模式来获取实例。比如，从绑定的实例中获取、执行绑定的回调获取实例、通过反射实例化类。实例加入容器之后，会清除绑定以免占用内存。
+门面提供了便捷的静态调用方式。**门面类**的父类——**门面抽象类**，通过魔术方法`__callStatic()`调用**实体类**中的方法。
 
-如何知道抽象名称是否已存在？你可以通过`shy_list()`函数获取容器内的所有抽象名称，或者使用`in_shy_list()`函数判断是不是已存在。
-
-##### 2.3 替换实例
-
-###### 2.3.1 用法模式
-
-1. make_new(抽象名称, 任意个其它参数、即0到N个)
-2. make_new(抽象名称, 实例或回调, 任意个其它参数)
-3. make_new(命名空间类名, 任意个其它参数)
-4. make_new(抽象名称, 命名空间类名, 任意个其它参数)
+实现**门面类**需要继承框架的**门面抽象类**，并且重写父类的方法，以便向父类传递**实体类**。实现代码示例如下：
 
 ```php
+namespace Shy\Core\Facades;
 
-make_new('web', new shy\web());
+use Shy\Core\Facade;
+use Shy\Core\Contracts\Cache as CacheContract;
 
-make_new('web', function ($param1, $param2) {
-    return new shy\web($param1, $param2);
-});
-
-```
-
-如果抽象名称对应的实例已经存在，需要替换容器中的实例，不应该使用shy函数，应该用make_new函数。这两个函数的用法是一样的，所以这里没有给出完整的代码示例。
-
-##### 2.4 清除实例
-
-```php
-/**
- * 清除抽象名称为web的绑定和实例
- */
-shy_clear('web');
-
-/**
- * 批量清除抽象名称的绑定和实例
- */
-shy_clear(['web','test']);
-
-```
-
-##### 2.5 配置操作
-
-容器的配置，包含配置文件中的配置、框架运行时配置。在CLI模式下，开发者也可以将其当成缓存服务用。
-
-```php
-//设置配置
-config_set(string $abstract, $config);
-
-//配置是否存在
-config_exist(string $abstract);
-
-//删除配置
-config_del(string $abstract);
-
-//获取配置
-config(string $abstract = 'app', $default = '');
-
-//根据key获取数组配置
-config_key(string $key, string $abstract = 'app');
-
-//获取全部配置
-config_all();
-
-//数值加减
-config_int_calc(string $abstract, int $int = 1);
-
-//数组配置push
-config_array_push(string $abstract, $config);
-```
-
-**综上所述，本框架为开发者提供了非常自由的开放容器，包括框架核心都在容器里面，可以很方便地操作。这提升了开发自由度，但是，开发者在操作框架核心的时候，一定要仔细梳理逻辑，以免产生问题。**
-
-## 3. 异常、错误处理
-
-**本框架在终端服务、http服务等入口处注册了异常或错误处理，能够捕获到全局的异常或错误。Exception、Error、ErrorException、甚至是shutdown，都会被捕捉到。捕获到的所有错误，都会被转成预设的异常。**
-
-根据服务的不同，需要不同的处理方法，框架为每个服务提供了handler。你也可以实现handler接口来自定义错误处理，再通过修改服务入口的handler使其生效。
-
-## 4. 组件化设计、适配器模式（暂未实现）
-
-本框架计划将容器之外的、所有能以最小粒度独立出来的部分，分离成可被替代的组件，并且作为composer包发布。为了能够将组件组合成一个整体，需要制定一套标准，开发者可按照该标准随意替换框架本身的组件、或者通过编写适配器将遵循其它标准的组件放在本框架使用。
-
-## 5. 流水线（pipeline）
-
-流水线是本框架重要的调度工具，连通了包括路由、中间件、控制器在内的整个框架的运行流程。
-
-pipeline方法讲解：
-
-1. send：设置传入参数，参数数量没有限制；
-2. through：设置流水线的处理对象；
-3. via：设置传入对象执行的方法，默认执行handle方法；
-4. then：流水线的执行方法，同时会设置传入回调，传入的第一个参数为回调；
-5. run：流水线的不需要回调时的执行方法，不可与then方法链式调用。
-
-开发者可使用流水线来构建自己的调度，使用代码实例如下：
-
-```php
-/**
- * 框架web模块的运行，带回调执行
- */
-shy(pipeline::class)
-    ->send(shy(request::class))
-    ->through(router::class)
-    ->then(function ($response) {
-        if (!empty($response)) {
-            shy(response::class)->send($response);
-        }
-
-        $this->end();
-    });
-
-```
-
-**开发者使用流水线自定义调度流程时，应当仔细梳理运行流程。**
-
-## 6. 中间件
-
-中间件是流水线then方法传入"运行控制器的回调"时的特例，传入的第一个参数`$next`即是用于运行控制器方法的回调函数。
-
-```php
-
-namespace app\http\middleware;
-
-use shy\core\middleware;
-use Closure;
-use shy\http\facade\request;
-
-class example implements middleware
-{
-    public function handle(Closure $next, ...$passable)
-    {
-        // request handle
-        $request = request::all();
-
-        // run controller
-        $response = $next();
-
-        // response handle
-        $response = 'request: ' . json_encode($request) . ', example middleware, response: ' . json_encode($response);
-        return $response;
-    }
-}
-
-```
-
-## 7. 路由
-
-路由通过请求类获取请求路径、并解析出对应控制器和方法，然后通过流水线调度控制器。
-
-路由支持"配置模式"和"路径模式"，可以在配置文件`app.php`中关闭、启用。配置模式根据请求路径查找配置文件，得到控制器及其方法，支持中间件、路径前缀。路径模式是直接把请求路径当成控制器及其方法，属于传统方法。两种模式同时启用时，配置模式优先。
-
-配置模式的文件`router.php`示例：
-
-```php
-return [
-    'group' => [
-        ['middleware' => ['example'], 'path' => [
-            '/test2' => 'test2@test2',//echo string with middleware
-            '/test3' => 'test2@test3'//return string with middleware
-        ]],
-        ['prefix' => 'route', 'path' => [
-            '/home' => 'home@index',//view home
-            '/test' => 'home@test'//return string
-        ]]
-    ],
-    'path' => [
-        '/home2' => 'home@test2',//return string
-        '/home3' => 'home@home3'//404
-    ]
-];
-
-```
-
-1. path配置了路径对应的控制器及其方法；
-2. middleware是路径使用的中间件，可以配置多个中间件；
-3. prefix是路径的前缀，可以将相同前缀的路径配置在一起；
-4. middleware和prefix必须配置在group中。
-
-## 8. 控制器
-
-控制器中的方法应该返回数据、以便交由框架输出，开发者不应该直接在控制器内输出。在控制器内使用实例，需要注意该用单例还是新建实例，取容器内的实例、包括门面都是单例。
-
-## 9. 门面
-
-门面提供了便捷的静态调用方法，通过魔术方法`__callStatic()`调用**被代理类**中的方法。
-
-实现**门面代理类**需要继承框架的**门面类**，代码示例如下：
-
-```php
-namespace app\http\facade;
-
-use shy\core\facade;
-use app\http\business\testBusiness as realTestBusiness;
-
-class testBusiness extends facade
+class Cache extends Facade
 {
     /**
      * Get the instance.
@@ -442,84 +325,354 @@ class testBusiness extends facade
      */
     protected static function getInstance()
     {
-        return shy(realTestBusiness::class);
+        return shy(CacheContract::class);
     }
 }
-
 ```
 
-**门面类**的`getInstance()`方法，可见它没有被子类重写时会导致抛出异常：
+可参考容器章节，以便理解如何获取**实体类**的实例。
+
+## 五、 缓存（Cache）
+
+本框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范；并且，实现了PHP的ArrayAccess接口，可以当作数组使用。（由于PHP的Redis拓展不兼容PSR-16，所以框架的PSR规范非硬性要求）
+
+框架实现了无依赖的内存缓存`Shy\Core\Cache\Memory::class`，生命周期与框架相同。常驻内存模式下可以替代Redis使用。
+
+此外，还提供了基于PHP的redis拓展实现的缓存`Shy\Core\Cache\Redis::class`，推荐优先使用。
+
+可以在bootstrap目录的服务对应启动文件中，替换缓存契约的实体类：
+
+```php
+$container->bind(Shy\Core\Contracts\Cache::class, Shy\Core\Cache\Redis::class);
+```
+
+调用缓存门面的方法：
+
+```php
+use Shy\Core\Facades\Cache;
+
+Cache::set('test', 123);
+
+Cache::get('test');
+```
+
+## 六、 配置（Config）
+
+配置继承了内存缓存类`Shy\Core\Cache\Memory::class`。因为该缓存无依赖，并且生命周期与框架相同、符合配置文件的逻辑。
+
+使用方式：
 
 ```php
 /**
- * Get Instance.
- *
- * @return mixed
- * @throws RuntimeException
+ * 读取配置文件path.php的配置
  */
-protected static function getInstance()
-{
-    throw new RuntimeException('Facade does not implement getInstance method.');
-}
+$configFile = config('path');
 
+/**
+ * 读取配置文件path.php中的，view配置
+ */
+$viewPath = config_key('view', 'path');
+
+/**
+ * 读取配置文件app.php中的，debug配置
+ *
+ * app.php是默认读取的
+ */
+$viewPath = config_key('debug');
 ```
 
-由此可见，**门面代理类**的`getInstance()`方法重写了**门面类**中的该方法，将**被代理类**的实例传给了**门面类**，由此实现了门面代理功能。参考**2.2加入、取用实例**章节，以便创建、获取正确的实例。
+## 七、 异常及错误的捕获处理（Exceptions Handler）
 
-## 10. 数据库
+**框架在各个服务的入口处，注册了异常（Exception）及错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误、甚至是Shut Down。错误及Shut Down会被转化成异常，统一按异常处理。**
 
-##### 10.1 SQL数据库
+框架为每个服务提供了异常处理类（Handler）。你也可以实现Handler接口来自定义异常处理，再通过替换服务入口的Handler使用。
 
-本框架兼容laravel的db包，你可以通过下面的命令安装并使用：
+可以在bootstrap目录的服务对应启动文件中，替换异常处理契约的实体类：
+
+```php
+$container->bind(Shy\Core\Contracts\ExceptionHandler::class, Shy\Http\Exceptions\Handler::class);
+```
+
+对于需要返回Http Code的错误，可以抛出HttpException:
+
+```php
+use Shy\Http\Exceptions\HttpException;
+
+throw new HttpException(403, lang(5000));
+```
+
+## 八、 流水线（Pipeline）
+
+流水线是框架的调度工具，连通了包括路由、中间件、控制器在内的Web框架的运行流程。
+
+**通过流水线调度，也可以享受容器的依赖注入服务**。
+
+Pipeline类的方法讲解：
+
+1. send：设置传入参数，参数数量没有限制；
+2. through：设置流水线的处理对象；
+3. via：设置传入对象执行的方法，默认执行handle方法；
+4. then：流水线的执行方法，同时会设置传入回调，传入的第一个参数为回调；
+5. run：流水线的不需要回调时的执行方法，不可与then方法链式调用。
+
+开发者可使用流水线来执行自己的调度，使用代码实例如下：
+
+```php
+/**
+ * 路由，带回调执行
+ */
+$response = shy('pipeline')
+    ->send($request)
+    ->through(RouterContract::class)
+    ->then(function ($response) {
+        if (!empty($response)) {
+            shy('response')->send($response);
+        }
+
+        return $response;
+    });
+
+/**
+ * 控制器，不带回调执行
+ */
+$response = shy(Pipeline::class)
+    ->through($this->controller)
+    ->via($this->method)
+    ->run();
+```
+
+## 九、 请求（Request）
+
+调用请求门面的方法：
+
+```php
+use Shy\Http\Facades\Request;
+
+/**
+ * 是否初始化
+ */
+Request::isInitialized();
+
+/**
+ * 全部请求
+ */
+Request::all();
+
+/**
+ * 数据流 php://input
+ */
+Request::content();
+
+/**
+ * 获取请求
+ */
+Request::get('key');
+```
+
+## 十、 中间件（Middleware）
+
+中间件是请求与响应的中间步骤。如果，中间价在执行控制器之前执行，则称为“前置中间件”；否则，称“后置中间件”。
+
+中间件是流水线（Pipeline）的一种特例，传入的第一个参数`$next`，是用于运行控制器方法的闭包。
+
+如下，为IP挡板功能的前置中间件：
+
+```php
+namespace Shy\Http\Middleware;
+
+use Shy\Core\Contracts\Middleware;
+use Closure;
+use Shy\Http\Exceptions\HttpException;
+use Shy\Http\Facades\Request;
+use Shy\Core\Facades\Logger;
+
+class IpBaffle implements Middleware
+{
+    /**
+     * Handle
+     *
+     * @param Closure $next
+     * @param array ...$passable
+     * @return mixed|string
+     */
+    public function handle(Closure $next, ...$passable)
+    {
+        Logger::info('Baffle block request', Request::all());
+
+        $hit = false;
+
+        $userIps = Request::getClientIps();
+
+        foreach ($userIps as $userIp) {
+            if (in_array($userIp, config('ip_baffle'))) {
+                $hit = true;
+            }
+        }
+
+        if (!$hit) {
+            if (Request::ajax()) {
+                return get_response_json(5000);
+            } else {
+                throw new HttpException(403, lang(5000));
+            }
+        }
+
+        // run controller
+        return $next();
+    }
+
+}
+```
+
+后置中间件的实例：
+
+```php
+use Shy\Core\Contracts\Middleware;
+use Closure;
+
+class Test implements Middleware
+{
+    /**
+     * Handle
+     *
+     * @param Closure $next
+     * @param array ...$passable
+     * @return mixed|string
+     */
+    public function handle(Closure $next, ...$passable)
+    {
+        // run controller
+        $response = $next();
+        
+        // do something
+        $response .= 'Test';
+        
+        return $response;
+    }
+
+}
+```
+
+中间件需要在配置文件`middleware.php`中定义别名或者别名组，然后在路由中填写别名使用。
+
+## 十一、 响应（Response）
+
+对于控制器，只需要return数据或者模版，Response组件就会输出响应。建议交给框架处理响应，不要手动输出。
+
+```php
+/**
+ * 返回字符串
+ */
+return 'controller echo';
+
+/**
+ * 返回模版
+ */
+return view('home', compact('title', 'info'))->layout('main');
+
+/**
+ * 返回Smarty模版
+ */
+return smarty('smarty.tpl', $params);
+```
+
+## 十二、 路由（Router）
+
+路由通过请求（Request）获取请求路径，然后解析出对应控制器和方法，最终通过流水线调度控制器。
+
+路由支持"配置模式"和"路径模式"，可以在配置文件`app.php`中关闭或启用。配置模式根据请求路径查找配置，得到控制器及其方法，支持中间件、路径前缀。路径模式是直接把请求路径当成控制器及其方法。**两种模式同时启用时，配置模式优先。推荐使用配置模式，以便使用中间件等功能**。
+
+配置模式的路由配置文件`router.php`示例：
+
+```php
+<?php
+
+return [
+    'group' => [
+        ['middleware' => ['example', 'group_example'], 'path' => [
+            '/test2' => 'test2@test2',//echo string with middleware
+            '/test3' => 'test2@test3'//return string with middleware
+        ]],
+        ['prefix' => 'route', 'path' => [
+            '/home' => 'home@index',//view home
+            '/test' => 'home@test'//return string
+        ]],
+        ['prefix' => 'controller_2', 'namespace' => 'App\\Http\\Controllers_2', 'path' => [
+            '/home' => 'home@index',//view home
+            '/test' => 'home@test',//return string
+            '/smarty' => 'home@smarty'
+        ]]
+    ],
+    'path' => [
+        '/' => 'home@index',//view home
+        '/home2' => 'home@test2',//return string
+        '/smarty' => 'home@smarty',
+        '/home3' => 'home@home3',//404
+        '/home/path/test' => 'home@index',//view home
+        '/testLang' => 'test2@testLang',//zh-CN
+        '/testLang2' => 'test2@testLang2'//en-US
+    ]
+];
+```
+
+1. path配置了路径对应的控制器及其方法；
+2. middleware是路径使用的中间件，可以配置多个中间件；
+3. prefix是路径的前缀，可以将相同前缀的路径配置在一起；
+4. middleware和prefix必须配置在group中。
+
+路由配置文件在debug关闭的时候（一般是生产环境），会自动缓存路由的索引数据，导致对路由的修改不生效。可以手动删除`cache/app/router.cache`清除缓存。
+
+## 十三、 控制器（Controllers）
+
+1. 控制器中的方法应该返回（return）数据、以便交由框架响应组件输出，不应该直接在控制器内手动输出。
+2. 在控制器内使用实例，建议优先使用门面或者依赖注入。
+
+## 十四、 数据库（DataBase）
+
+可以在bootstrap目录的服务对应启动文件中，替换数据库契约的实体类：
+
+```php
+/**
+ * 默认使用Pdo
+ */
+$container->bind(Shy\Core\Contracts\DataBase::class, Shy\Core\DataBase\Pdo::class);
+```
+
+### 14.1 laravel的DB包
+
+框架兼容laravel的DB包，你可以通过下面的命令安装此包：
 
 ```bash
-composer require illuminate/database
+composer require illuminate/database 5.5.44
 ```
 
-然后在配置文件`database.php`中配置数据库。最后在配置文件`app.php`中，配置illuminate_database启动即可使用。
+在配置文件`database.php`中配置数据库，然后在启动文件中替换DataBase实体类，便可使用了。
 
 使用方式如下：
 
 ```php
-use shy\http\facade\capsule;
+use Shy/Core/Facades/DB;
 
-capsule::table('users')->where('id', 2)->get();
+DB::table('users')->where('id', 2)->get();
 ```
 
 Illuminate Database的更多用法，可以查看[该项目的文档](https://github.com/illuminate/database)
 
-##### 10.2 Redis数据库
+## 十五、 模版（View）
 
-对于redis数据库，本框架暂时只提供了PhpRedis的封装类，需要安装PhpRedis拓展，并通过下面的方式使用：
+框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。
 
-```php
-/**
- * 使用redis的门面类
- */
-use shy\core\facade\redis;
+本框架的模版需要使用原生PHP语法开发，并且只提供了必须少量函数，学习成本较低。
 
-$redis = redis::instance('redis1');
-
-```
-
-## 11. 模版
-
-框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。本框架的模版需要使用原生PHP语法开发，并且只提供了必须的一小部分函数给开发者使用，学习、调试成本较低。但是，要求开发者做好`isset()`、`empty()`、`is_array()`等预防报错处理。
+但是，要求开发者做好`isset()`、`empty()`、`is_array()`等预防报错处理。
 
 此外，为了满足开发者的需求，框架支持了Smarty模版系统。
 
-##### 11.1 自带模版类方法
-
-1. view：设置模版文件
-2. layout：设置布局页文件
-3. with：向模版传入参数
-4. render：渲染模版，框架会自动执行渲染
-
-##### 11.2 自带模版函数
+### 15.1 自带模版的辅助函数
 
 1. view：模版类的封装。用于便捷地在控制器中使用模版，可传参、也可链式调用。每次使用本函数都会在容器中新建或替换模版实例。
-2. include_sub_view：在布局页中输出模版。
-3. include_view：在布局页、模版中引入组件模版。
+2. include\_sub\_view：在布局页中输出模版。
+3. include\_view：在布局页、模版中引入组件模版。
 4. param：在模版中输出变量或常量，不使用该函数输出报错无法被框架正常处理。
 
 在控制器方法中使用view函数：
@@ -531,70 +684,97 @@ public function index()
     $title = 'Shy Framework';
 
     return view('home', compact('title', 'info'))->layout('main');
-    //return view('home', compact('title', 'info'), 'main');等价方法
+    return view('home', compact('title', 'info'), 'main');//等价方法
 }
-
 ```
 
-include_sub_view函数在布局页中设置模版输出位置、include_view函数引入模版组件、param函数输出变量和常量：
+include\_sub\_view函数，用于在布局页中输出子模版；include\_view函数引入模版组件；param函数输出变量和常量：
 
 ```php
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <meta name="renderer" content="webkit">
     <title><?php param('title') ?></title>
     <link type="text/css" rel="stylesheet" href="<?php param('BASE_URL') ?>css/app.css">
+    <?php push_resource('header-css') ?>
 </head>
 <body>
 <?php include_sub_view() ?>
 <?php include_view('component/footer') ?>
+<?php push_resource('footer-js') ?>
 </body>
 </html>
-
 ```
 
 布局页的子页：
 
 ```php
+<?php
+
+push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.js', ''], 'js');
+
+?>
+
 <div id="hello-world">
     <?php param('info') ?>
+    <?php param('not_exist_param', true) ?>
 </div>
 <div id="system">
+    <p>Container Start Id: <?php echo shy()->startId(); ?></p>
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
-    <p>Used Time: <?php echo microtime(true) - (IS_CLI ? $GLOBALS['_SHY_START'] : SHY_START); ?> second</p>
+    <p>Running Time: <?php echo microtime(true) - shy()->startTime(); ?> second</p>
+    <?php
+    if (shy()->has('SHY_CYCLE_START_TIME')) { ?>
+        <p>Recycling Time: <?php echo microtime(true) - shy()->get('SHY_CYCLE_START_TIME'); ?> second</p>
+        <?php
+    }
+    ?>
     <br>
-    <p>Loaded instance's abstract: </p>
-    <ol>
-        <?php foreach (shy_list_memory_used() as $abstract => $memoryUsed) { ?>
-            <li><?php echo $abstract . '  ' . $memoryUsed . ' kb'; ?></li>
-        <?php } ?>
-    </ol>
+    <p>Loaded instances memory used: </p>
+    <ul>
+        <?php
+        $instanceCount = 0;
+        foreach (shy()->memoryUsed() as $abstract => $instances) {
+            foreach ($instances as $key => $memoryUsed) {
+                $instanceCount++;
+                ?>
+                <li><?php echo '[' . $instanceCount . '] ' . $abstract . '(' . ($key + 1) . ') ' . $memoryUsed / 1024 . ' kb'; ?></li>
+            <?php }
+        } ?>
+    </ul>
 </div>
-
 ```
 
-##### 11.3 Smarty模版
+### 15.2 Smarty模版
 
-本框架提供了对smarty模版的支持，需要通过composer安装smarty。
+框架提供了对Smarty模版的支持，需要先安装Smarty包。
 
 ```bash
 composer require smarty/smarty
 ```
 
-###### 11.3.1 在控制器中调用smarty模版代码示例
+#### 15.2.1 在控制器中调用Smarty模版实例
 
 ```php
 return smarty('smarty.tpl', $params);
 ```
 
-###### 11.3.2 smarty模版代码示例
+#### 15.2.2 Smarty模版实例
 
 ```php
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <meta name="renderer" content="webkit">
     <title>{$title}</title>
     <link type="text/css" rel="stylesheet" href="{BASE_URL}css/app.css">
 </head>
@@ -603,57 +783,43 @@ return smarty('smarty.tpl', $params);
     {$info}
 </div>
 <div id="system">
+    <p>Container Start Id: {$shy->startId()}</p>
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
-    {if IS_CLI}
-        <p>Used Time: {microtime(true) - $GLOBALS['_SHY_START']} second</p>
-    {else}
-        <p>Used Time: {microtime(true) - SHY_START} second</p>
+    <p>Running Time: {microtime(true) - $shy->startTime()} second</p>
+    {if $shy->has('SHY_CYCLE_START_TIME')}
+        <p>Recycling Time: {microtime(true) - $shy->get('SHY_CYCLE_START_TIME')} second</p>
     {/if}
     <br>
     <p>Loaded instance's abstract: </p>
     <ol>
-        {foreach shy_list_memory_used() as $abstract => $memoryUsed}
-            <li>{$abstract}  {$memoryUsed} kb</li>
+        {foreach $shy->memoryUsed() as $abstract => $instances}
+            {foreach $instances as $key => $memoryUsed}
+                <li>{$abstract}({$key + 1}) {$memoryUsed/1024} kb</li>
+            {/foreach}
         {/foreach}
     </ol>
 </div>
 {include file='component/footer.php'}
 </body>
 </html>
-
 ```
 
-## 12. 单元测试
+## 十六、 命令模式（Command Mode）
 
-本框架可使用phpunit做单元测试。在tests文件夹中编写测试代码，在框架根目录执行下面的命令即可执行测试。
-
-```bash
-phpunit tests/containerTest
-```
-
-## 13. 命令模式
-
-本框架支持命令模式。在项目根目录执行下述命令可以查看所有命令：
+框架支持命令模式。在项目根目录执行下述命令可以查看所有命令：
 
 ```php
 php console list
 ```
 
-如果你需要拓展命令，可以在app\console目录下编写命令代码，并在配置文件`console.php`中配置命令名称、对象和方法。
+如果你需要拓展命令，可以在app\Console目录下编写命令，并在配置文件`console.php`中配置命令名称、对象和方法。
 
 拓展命令的代码示例：
 
 ```php
-/**
- * Example command
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
+namespace App\Console\Command;
 
-namespace app\console;
-
-class example
+class Example
 {
     public function test()
     {
@@ -661,18 +827,19 @@ class example
     }
 
 }
-
 ```
 
-## 14. 常驻内存模式
+## 十七、 常驻内存模式（PHP-CLI Mode）
 
-##### 14.1 简介
+### 17.1 简介
 
-常驻内存模式是以CLI方式执行web框架。该模式相对与PHP传统的web服务执行方式，做到了进程复用不销毁，避免了代码重复编译导致的消耗，所以框架性能得到大幅度提升。
+常驻内存模式是以PHP-CLI方式执行Web框架。
 
-本框架基于WorkerMan提供的socket服务，实现了兼容命令模式运行的、常驻内存的web服务框架。即传统web模式与常驻内存模式可以同时运行。
+该模式相对与PHP传统的Web服务运行方式，做到了进程复用不销毁，避免了代码重复加载、重复编译导致的消耗，所以框架性能得到大幅度提升。
 
-##### 14.2 使用
+框架基于WorkerMan提供的socket服务，实现了通过命令模式运行的、常驻内存的Web服务框架。传统Web方式与常驻内存模式可以同时运行。
+
+### 17.2 使用
 
 安装WorkerMan包：
 
@@ -680,26 +847,40 @@ class example
 composer require workerman/workerman
 ```
 
-你可以在配置文件`app.php`中，配置服务端口、工作进程数：
+你可以在配置文件`workerman.php`中，配置服务端口、工作进程数：
 
 ```php
 /*
-| WorkerMan Http
-*/
+ | http in socket
+ */
 
-'worker_man_http' => [
-    'port' => 2348,
-    'worker' => 4//填写服务器CPU核心数1-2倍的值最佳
-],
+ 'http' => [
+     'port' => 2348,
+     'worker' => 2
+ ],
 ```
 
-由于常驻内存模式不依赖nginx、apache等服务器程序，框架本身可作为服务器，port端口可以占用80端口。如果你希望本框架配合nginx、apache等使用，也可以使用其它端口运行本框架、然后配置服务器程序的端口代理。
+由于常驻内存模式不依赖nginx、apache等服务器程序，框架本身可作为服务器，port端口可以直接占用80端口。
 
-在项目根目录执行下面的命令即可启动服务：
+如果你希望本框架配合nginx、apache等使用，也可以使用其它端口运行本框架、然后配置服务器程序的端口代理。
+
+nginx转发配置：
+
+```nginx
+location / {
+    root /usr/share/nginx/shy/pulic;
+
+    if (!-e $request_filename) {
+        proxy_pass http://127.0.0.1:2348;
+    }
+}
+```
+
+在项目根目录执行下面的命令即可管理服务：
 
 ```bash
 /**
- * 调试模式启动
+ * 启动
  */
 php console http start
 
@@ -715,54 +896,69 @@ php console http stop|restart|reload|status|connections
 
 ```
 
-##### 14.3 开发者注意事项
+### 17.3 开发者注意事项
 
-cli + socket运行环境，相对于传统web运行环境有根本差异，所以有很多需要注意的地方。**其中，最需要注意的就是实例循环复用累积出的运行状态，比如：实例带着 上一个请求的状态 执行新的请求。在实例复用之前必须恢复初始状态，否则难以保证不会出现这种混乱的情况**。框架本身已经做好了初始化处理，但是框架无法顾及到开发者实现的、业务逻辑的部分。
+PHP-CLI + Socket运行环境，相对于传统Web运行环境有根本差异，所以有很多需要注意的地方。
+
+**最需要注意的是，实例循环复用积累的运行状态。比如：某实例带着 上一个请求的状态 执行新的请求。在实例复用之前必须将实例恢复初始状态，否则难以保证不会出现复用混乱的情况**。
+
+**框架各部分已经做好了初始化处理，但是框架无法顾及到开发者实现的业务逻辑部分**。
 
 开发者注意事项：
 
 1. 业务逻辑实例如果想要复用，必须做好初始化，否则会出现混乱。如果不需要复用，在常驻内存模式下运行请销毁实例。
 2. 需要改变的值不能用常量，否则复用的时候无法重新赋值。
-3. header函数在socket环境下不能正常使用，可以使用WorkerMan的http对象的方法。echo、var_dump或者页面等可以正常输出，因为框架做了ob缓冲区、会自动把缓冲区内容放在WorkerMan的通道里面输出。
+3. header函数在Socket环境下不能正常使用，可以使用WorkerMan的http对象的方法。echo、var_dump或者页面等可以正常输出，因为框架做了ob缓冲区、会自动把缓冲区内容放进WorkerMan的通道里面输出。
 
-##### 14.4 智能调度实例（暂未实现）
+### 17.4 容器实例智能调度（未完成）
 
-目前只是简单的复用框架实例，计划实现"基于使用时间频率统计的实例智能调度系统"，自动判断实例是否可复用、并且动态处理是否自动销毁实例以及预先载入实例。本功能可以简化开发者的操作，同时可以节省内存、提升运行效率。
+目前只是简单的复用框架实例，计划实现"基于使用历史统计的容器实例智能调度系统"。
 
-## 15. socket
+系统会自动判断实例是否可复用、并且基于统计数据动态判断是否自动销毁实例或者预先载入实例。本功能可以简化开发者的操作，同时可以平衡内存与时间占用、提升运行效率。
 
-本框架还封装了基于workerman的socket服务，你可以在配置文件`app.php`配置`worker_man_socket`，支持配置多组服务。
+## 十八、 Socket模式（Socket Mode）
+
+框架封装了基于WorkerMan的Socket服务。你可以在配置文件`workerman.php`中配置服务端口、工作进程数。支持配置多组服务，并且支持同时运行多组服务。
 
 启动对应服务：
 
-```base
+```bash
 /**
- * 调试模式启动
+ * 启动
  */
 php console workerman chat start
 ```
 
-上述命令中，chat是服务组名。更多内容请参照常驻内存模式的14.2章节。
+上述命令中，chat是服务名。更多操作请查看常驻内存模式章节。
 
-## 16. 常量
+## 十九、 单元测试（Unit Test）
+
+框架可使用phpunit做单元测试。在tests文件夹中编写测试代码，在框架根目录执行下面的命令即可执行测试。
+
+```bash
+phpunit tests/containerTest
+```
+
+## 二十、 常量
 
 框架提供了一些常量可供使用：
 
 1. BASE_PATH：项目根目录
 2. APP_PATH：app开发目录
-3. CACHE_PATH：缓存目录
-4. PUBLIC_PATH：web开放目录
+3. VIEW_PATH：模版目录
+4. CACHE_PATH：缓存文件目录
 5. BASE_URL：项目URL
 
-## 17. 杂项函数
+## 二十一、 杂项函数
 
-1. logger：记录日志
+1. is_cli：是否处于CLI模式下
 2. dd：调试输出
+3. is\_valid\_ip：IP是否合法
 
-## 18. 特别鸣谢（排名不分先后）
+## 二十二、 特别鸣谢（排名不分先后）
 
 1. @JamFun
 2. @WeakChickenPeng
 3. @CrazyNing98
 
-感谢以上GitHub用户为本框架提供的支持、帮助，意见、建议。有你们的陪伴，Shy框架能走的更远！
+感谢以上GitHub用户为框架提供的支持、帮助，意见、建议。有你们的陪伴，Shy框架能走的更远！

@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Shy\Core\Container;
 
-class ContainerTest extends TestCase
+class containerTest extends TestCase
 {
     protected $container;
 

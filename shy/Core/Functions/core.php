@@ -88,7 +88,6 @@ if (!function_exists('require_file')) {
     }
 }
 
-
 if (!function_exists('is_cli')) {
     /**
      * Determine if running in console.
@@ -100,4 +99,3 @@ if (!function_exists('is_cli')) {
         return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
     }
 }
-

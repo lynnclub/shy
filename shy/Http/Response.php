@@ -102,6 +102,8 @@ class Response implements ResponseContract
             echo $this->response->render();
         } elseif (is_string($this->response)) {
             echo $this->response;
+        } elseif (is_array($this->response)) {
+            echo json_encode($this->response);
         } else {
             throw new RuntimeException('Invalid response');
         }

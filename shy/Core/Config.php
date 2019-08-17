@@ -21,7 +21,7 @@ class Config extends Memory implements ConfigContract
     {
         $env = getenv('ENVIRONMENT');
         if (empty($env)) {
-            $env = 'local';
+            $env = 'develop';
         }
 
         $this->dir = !empty($dir) && is_dir($dir)

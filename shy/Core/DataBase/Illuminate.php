@@ -10,11 +10,9 @@ class Illuminate extends Manager
     /**
      * Pdo constructor.
      *
-     * @param string $config_name
-     *
      * @throws Exception
      */
-    public function __construct($config_name = 'default')
+    public function __construct()
     {
         parent::__construct();
         parent::setAsGlobal();
