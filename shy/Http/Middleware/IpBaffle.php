@@ -25,8 +25,6 @@ class IpBaffle implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        Logger::info('Baffle block request', Request::all());
-
         $hit = false;
 
         $userIps = Request::getClientIps();
@@ -38,6 +36,8 @@ class IpBaffle implements Middleware
         }
 
         if (!$hit) {
+            Logger::info('Baffle block request', Request::all());
+
             if (Request::ajax()) {
                 return get_response_json(5000);
             } else {
