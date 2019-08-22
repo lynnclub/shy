@@ -48,6 +48,8 @@
         "ext-event": "Required in high concurrence.",
         "ext-redis": "Required to use the redis.",
         "smarty/smarty": "Required to use smarty.",
+        "phpmailer/phpmailer": "Required to use email.",
+        "swiftmailer/swiftmailer": "Required to use email.",
         "workerman/workerman": "Required to use the socket.",
         "illuminate/database": "Required to use the database. Support version <= 5.5.44",
         "aliyunlog/aliyun-log-php-sdk": "Required to use the Aliyun log. Support version <= 0.6.1"

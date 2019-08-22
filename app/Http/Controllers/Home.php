@@ -6,7 +6,7 @@ use App\Http\Business\TestBusiness;
 use App\Http\Facades\TestBusiness as StaticTestBusiness;
 use Shy\Http\Session;
 use Shy\Http\Contracts\Request;
-use Shy\Core\Container;
+use Shy\Core\Facades\Cache;
 
 class Home
 {
@@ -25,6 +25,9 @@ class Home
         }
 
         $title = 'Shy Framework';
+
+        Cache::set('info', $info);
+        $info = Cache::get('info');
 
         return view('home', compact('title', 'info'))->layout('main');
     }
@@ -45,7 +48,7 @@ class Home
 
         $params['title'] = 'Shy Framework';
 
-        $params['shy'] = Container::getContainer();
+        $params['shy'] = shy();
 
         return smarty('smarty.tpl', $params);
     }

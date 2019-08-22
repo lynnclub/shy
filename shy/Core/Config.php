@@ -16,6 +16,9 @@ class Config extends Memory implements ConfigContract
      * Config constructor.
      *
      * @param string $dir
+     *
+     * @throws Exceptions\Cache\InvalidArgumentException
+     * @throws \Exception
      */
     public function __construct($dir = '')
     {
@@ -27,6 +30,15 @@ class Config extends Memory implements ConfigContract
         $this->dir = !empty($dir) && is_dir($dir)
             ? $dir
             : dirname(dirname(__DIR__)) . '/config/' . $env . DIRECTORY_SEPARATOR;
+
+        $cacheFile = $this->find('cache', 'path') . 'app/config.cache';
+        $persistent = true;
+        if ($this->find('debug')) {
+            $persistent = false;
+            @unlink($cacheFile);
+        }
+
+        parent::__construct($cacheFile, $persistent);
     }
 
     /**

@@ -19,6 +19,42 @@ class Memory implements CacheInterface, CacheContracts
     protected $ttl;
 
     /**
+     * @var string
+     */
+    protected $cacheFile;
+
+    /**
+     * @var bool
+     */
+    protected $persistent;
+
+    /**
+     * Memory constructor.
+     *
+     * @param string $cacheFile
+     * @param bool $persistent
+     */
+    public function __construct(string $cacheFile = '', $persistent = true)
+    {
+        if (empty($cacheFile)) {
+            $cacheFile = CACHE_PATH . 'app/memory.cache';
+        }
+        $this->cacheFile = $cacheFile;
+        $this->persistent = $persistent;
+
+        if ($persistent) {
+            $cache = @file_get_contents($cacheFile);
+            if ($cache) {
+                $cache = json_decode($cache, true);
+                if (isset($cache['cache'], $cache['ttl'])) {
+                    $this->cache = $cache['cache'];
+                    $this->ttl = $cache['ttl'];
+                }
+            }
+        }
+    }
+
+    /**
      * Fetches a value from the cache.
      *
      * @param string $key The unique key of this item in the cache.
@@ -44,6 +80,8 @@ class Memory implements CacheInterface, CacheContracts
             }
         }
 
+        $this->gc();
+
         return $default;
     }
 
@@ -63,7 +101,7 @@ class Memory implements CacheInterface, CacheContracts
                     $deleteCount++;
                 }
 
-                if ($deleteCount > 49) {
+                if ($deleteCount > 9) {
                     break;
                 }
             }
@@ -323,6 +361,16 @@ class Memory implements CacheInterface, CacheContracts
     public function offsetUnset($offset)
     {
         $this->delete($offset);
+    }
+
+    /**
+     * Destruct
+     */
+    public function __destruct()
+    {
+        if ($this->persistent) {
+            @file_put_contents($this->cacheFile, json_encode(['cache' => $this->cache, 'ttl' => $this->ttl]));
+        }
     }
 
 }

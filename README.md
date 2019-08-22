@@ -140,6 +140,16 @@ shy 框架根目录
 * 回调：一种函数或类方法，被传入其它函数或类方法中执行。
 * 闭包：即匿名函数。
 
+### 1.6 代办事项
+
+1. 容器实例调度
+2. 文件上传
+3. 访问频率限制、CSRF防御等中间件，XSS攻击防御
+4. Api便捷开发框架
+5. Swoole socket
+6. URL生成
+7. 调试页面加环境变量
+
 ## 二、 契约（Contracts）
 
 契约是接口（interface）的广义概念，意义相同，但是不局限于接口的形式。契约可以是接口、抽象类、甚至非硬性约束的惯例。
@@ -343,9 +353,9 @@ class Cache extends Facade
 
 本框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范；并且，实现了PHP的ArrayAccess接口，可以当作数组使用。（由于PHP的Redis拓展不兼容PSR-16，所以框架的PSR规范非硬性要求）
 
-框架提供了基于PHP的redis拓展实现的缓存`Shy\Core\Cache\Redis::class`，推荐优先使用。
+框架提供了基于PHP的redis拓展实现的缓存`Shy\Core\Cache\Redis::class`，推荐有条件时优先使用。
 
-此外，还实现了无依赖的内存缓存`Shy\Core\Cache\Memory::class`，其生命周期与框架相同。常驻内存模式下可以替代Redis使用。
+此外，还实现了无依赖的内存缓存`Shy\Core\Cache\Memory::class`，基于文件持久化储存，默认使用。在常驻内存模式下，由于该缓存只在关闭、启动服务的时候执行文件持久化，所以性能开销较小。
 
 可以在bootstrap目录下的服务启动文件中，替换缓存契约绑定的实体类：
 
@@ -365,7 +375,7 @@ Cache::get('test');
 
 ## 六、 配置（Config）
 
-配置继承了内存缓存类`Shy\Core\Cache\Memory::class`。因为该缓存无依赖，并且生命周期与框架相同，非常符合配置文件的需要。
+配置类继承了内存缓存类`Shy\Core\Cache\Memory::class`，因为该缓存无依赖。在`debug`关闭的时候，配置会被持久化缓存。
 
 使用方式：
 

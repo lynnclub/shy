@@ -25,7 +25,7 @@ try {
         Shy\Core\Contracts\Logger::class => Shy\Core\Logger\File::class,
         Shy\Core\Contracts\ExceptionHandler::class => Shy\Http\Exceptions\Handler::class,
         Shy\Core\Contracts\Pipeline::class => Shy\Core\Pipeline::class,
-        Shy\Core\Contracts\Cache::class => Shy\Core\Cache\Redis::class,
+        Shy\Core\Contracts\Cache::class => Shy\Core\Cache\Memory::class,
         Shy\Core\Contracts\DataBase::class => Shy\Core\DataBase\Pdo::class
     ]);
 
