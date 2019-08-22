@@ -34,6 +34,21 @@ class Shy
     }
 
     /**
+     * Clear router cache
+     *
+     * @return string
+     */
+    public function clearRouterCache()
+    {
+        $routerCache = CACHE_PATH . 'app/router.cache';
+        if (!file_exists($routerCache) || unlink($routerCache)) {
+            return 'Success';
+        } else {
+            return 'Failed';
+        }
+    }
+
+    /**
      * WorkerMan http service
      *
      * @throws \Exception
