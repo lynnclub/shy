@@ -154,11 +154,17 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
             throw new InvalidArgumentException('Values is not a array.');
         }
 
+        if (!$this->multi()) {
+            return false;
+        }
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+        if ($this->exec()) {
+            return true;
+        }
 
-        return true;
+        return false;
     }
 
     /**
@@ -181,7 +187,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
             throw new InvalidArgumentException('keys is not a array.');
         }
 
-        $this->delete($keys);
+        $this->delete(...$keys);
 
         return true;
     }

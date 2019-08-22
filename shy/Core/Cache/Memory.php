@@ -39,7 +39,9 @@ class Memory implements CacheInterface, CacheContracts
         }
 
         if (array_key_exists($key, $this->cache)) {
-            return $this->cache[$key];
+            if (!isset($this->ttl[$key]) || time() <= ($this->ttl[$key]['ttl'] + $this->ttl[$key]['time'])) {
+                return $this->cache[$key];
+            }
         }
 
         return $default;
@@ -53,9 +55,16 @@ class Memory implements CacheInterface, CacheContracts
     public function gc()
     {
         if (is_array($this->ttl)) {
+            $time = time();
+            $deleteCount = 0;
             foreach (array_reverse($this->ttl) as $key => $item) {
-                if (isset($item['ttl'], $item['time']) && time() > ($item['ttl'] + $item['time'])) {
+                if (isset($item['ttl'], $item['time']) && $time > ($item['ttl'] + $item['time'])) {
                     $this->delete($key);
+                    $deleteCount++;
+                }
+
+                if ($deleteCount > 49) {
+                    break;
                 }
             }
         }
@@ -159,7 +168,7 @@ class Memory implements CacheInterface, CacheContracts
         $result = [];
 
         foreach ($keys as $key) {
-            $result[] = $this->get($key);
+            $result[] = $this->get($key, $default);
         }
 
         return $result;
