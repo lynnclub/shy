@@ -2,11 +2,11 @@
 
 return [
     'group' => [
-        ['middleware' => ['example', 'group_example'], 'path' => [
+        ['middleware' => ['Example', 'GroupExample', 'Throttle:10,5'], 'path' => [
             '/test2' => 'test2@test2',//echo string with middleware
             '/test3' => 'test2@test3'//return string with middleware
         ]],
-        ['prefix' => 'route', 'path' => [
+        ['prefix' => 'route', 'middleware' => ['Throttle:10'], 'path' => [
             '/home' => 'home@index',//view home
             '/test' => 'home@test'//return string
         ]],

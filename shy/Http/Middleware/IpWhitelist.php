@@ -1,6 +1,6 @@
 <?php
 /**
- * IP Baffle
+ * IP Whitelist
  *
  * @author    lynn<admin@lynncho.cn>
  * @link      http://lynncho.cn/
@@ -10,11 +10,11 @@ namespace Shy\Http\Middleware;
 
 use Shy\Core\Contracts\Middleware;
 use Closure;
-use Shy\Http\Exceptions\HttpException;
 use Shy\Http\Facades\Request;
 use Shy\Core\Facades\Logger;
+use Shy\Http\Exceptions\HttpException;
 
-class IpBaffle implements Middleware
+class IpWhitelist implements Middleware
 {
     /**
      * Handle
@@ -30,13 +30,13 @@ class IpBaffle implements Middleware
         $userIps = Request::getClientIps();
 
         foreach ($userIps as $userIp) {
-            if (in_array($userIp, config('ip_baffle'))) {
+            if (in_array($userIp, config('ip_whitelist'))) {
                 $hit = true;
             }
         }
 
         if (!$hit) {
-            Logger::info('Baffle block request', Request::all());
+            Logger::info('Ip whitelist block request', Request::all());
 
             if (Request::ajax()) {
                 return get_response_json(5000);

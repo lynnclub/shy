@@ -233,9 +233,9 @@
     <div class="part">
         <div class="title">Env:</div>
         <?php
-        $env = getenv('ENVIRONMENT');
+        $env = getenv('SHY_ENV');
         echo '<table class="params"><tbody>'
-            . '<tr><td>ENVIRONMENT</td><td>' . (empty($env) ? 'develop' : $env) . '</td></tr>';
+            . '<tr><td>SHY_ENV</td><td>' . (empty($env) ? 'develop' : $env) . '</td></tr>';
 
         foreach ($_ENV as $key => $value) {
             echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';

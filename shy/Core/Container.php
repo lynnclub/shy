@@ -337,22 +337,26 @@ class Container implements ContainerContract
         $results = [];
 
         foreach ($dependencies as $key => $dependency) {
-            $results[$key] = null;
+            if ($dependency->isVariadic() && $key < count($parameters) - 1) {
+                $results = array_merge($results, array_slice($parameters, $key));
+            } else {
+                $results[$key] = null;
 
-            if (isset($parameters[$key])) {
-                $results[$key] = $parameters[$key];
-            } elseif (!is_null($class = $dependency->getClass())) {
-                $className = $class->name;
+                if (isset($parameters[$key])) {
+                    $results[$key] = $parameters[$key];
+                } elseif (!is_null($class = $dependency->getClass())) {
+                    $className = $class->name;
 
-                if ($this->bound($className)) {
-                    $results[$key] = $this->make($className);
-                } elseif ($this->has($className)) {
-                    $results[$key] = $this->get($className);
-                } elseif (class_exists($className)) {
-                    $results[$key] = $this->make($className);
+                    if ($this->bound($className)) {
+                        $results[$key] = $this->make($className);
+                    } elseif ($this->has($className)) {
+                        $results[$key] = $this->get($className);
+                    } elseif (class_exists($className)) {
+                        $results[$key] = $this->make($className);
+                    }
+                } elseif ($dependency->isDefaultValueAvailable()) {
+                    $results[$key] = $dependency->getDefaultValue();
                 }
-            } elseif ($dependency->isDefaultValueAvailable()) {
-                $results[$key] = $dependency->getDefaultValue();
             }
         }
 

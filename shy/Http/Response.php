@@ -93,8 +93,8 @@ class Response implements ResponseContract
             header($this->httpCodeMessage($this->code));
         }
         if (is_array($this->header)) {
-            foreach ($this->header as $key => $value) {
-                header($key, $value);
+            foreach ($this->header as $value) {
+                header($value);
             }
         }
 

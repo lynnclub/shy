@@ -222,17 +222,25 @@ class Router implements RouterContract
         if (!empty($middlewareNames)) {
             $middlewareConfig = config('middleware');
             foreach ($middlewareNames as $middlewareName) {
-                if (isset($middlewareConfig[$middlewareName])) {
-                    $middlewareClass = $middlewareConfig[$middlewareName];
+                $middlewareAndParam = explode(':', $middlewareName, 2);
+
+                if (isset($middlewareConfig[$middlewareAndParam[0]])) {
+                    if (isset($middlewareAndParam[1])) {
+                        $paramString = ':' . $middlewareAndParam[1];
+                    } else {
+                        $paramString = '';
+                    }
+
+                    $middlewareClass = $middlewareConfig[$middlewareAndParam[0]];
                     if (is_string($middlewareClass)) {
-                        $middleware[] = $middlewareClass;
+                        $middleware[] = $middlewareClass . $paramString;
                     } elseif (is_array($middlewareClass)) {
                         $middleware = array_merge($middleware, $middlewareClass);
                     } else {
-                        throw new RuntimeException('Middleware name ' . $middlewareName . ' config error.');
+                        throw new RuntimeException('Middleware name ' . $middlewareAndParam[0] . ' config error.');
                     }
                 } else {
-                    throw new RuntimeException('Middleware name ' . $middlewareName . ' config not found.');
+                    throw new RuntimeException('Middleware name ' . $middlewareAndParam[0] . ' config not found.');
                 }
             }
         }

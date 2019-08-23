@@ -632,6 +632,12 @@ class Request implements RequestContract
         return array_reverse($this->getValidIps($clientIps));
     }
 
+    /**
+     * Get valid ips
+     *
+     * @param array $ips
+     * @return array
+     */
     public function getValidIps(array $ips)
     {
         $validIps = [];

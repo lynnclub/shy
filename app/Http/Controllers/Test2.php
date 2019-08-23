@@ -19,12 +19,12 @@ class Test2
     public function testLang()
     {
         set_lang('zh-CN');
-        return lang(110);
+        return lang(4110);
     }
 
     public function testLang2()
     {
         set_lang('en-US');
-        return lang(110);
+        return lang(4110);
     }
 }

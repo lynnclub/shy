@@ -22,7 +22,7 @@ class Config extends Memory implements ConfigContract
      */
     public function __construct($dir = '')
     {
-        $env = getenv('ENVIRONMENT');
+        $env = getenv('SHY_ENV');
         if (empty($env)) {
             $env = 'develop';
         }

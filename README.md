@@ -144,9 +144,10 @@ shy 框架根目录
 
 1. 容器实例调度
 2. 文件上传
-3. 访问频率限制、CSRF防御等中间件，XSS攻击防御
+3. CSRF防御等中间件并写文档，XSS攻击防御
 4. Api便捷开发框架
 5. Swoole socket
+6. Response的header函数支持workerman
 
 ## 二、 契约（Contracts）
 
@@ -501,7 +502,7 @@ use Shy\Http\Exceptions\HttpException;
 use Shy\Http\Facades\Request;
 use Shy\Core\Facades\Logger;
 
-class IpBaffle implements Middleware
+class IpWhitelist implements Middleware
 {
     /**
      * Handle
@@ -512,19 +513,19 @@ class IpBaffle implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        Logger::info('Baffle block request', Request::all());
-
         $hit = false;
 
         $userIps = Request::getClientIps();
 
         foreach ($userIps as $userIp) {
-            if (in_array($userIp, config('ip_baffle'))) {
+            if (in_array($userIp, config('ip_whitelist'))) {
                 $hit = true;
             }
         }
 
         if (!$hit) {
+            Logger::info('Ip whitelist block request', Request::all());
+
             if (Request::ajax()) {
                 return get_response_json(5000);
             } else {

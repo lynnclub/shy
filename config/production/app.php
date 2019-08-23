@@ -31,7 +31,7 @@ return [
     | Default language
     */
 
-    'default_lang' => 'zh-CN',
+    'default_lang' => 'en-US',
 
     /*
     | Slow Log
