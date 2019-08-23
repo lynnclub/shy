@@ -56,6 +56,7 @@ $container[Shy\Core\Exceptions\HandlerRegister::class]->setResponse($container->
 /**
  * Load helper functions
  */
+require __DIR__ . '/../shy/Http/Functions/helper.php';
 require __DIR__ . '/../shy/Http/Functions/view.php';
 
 $container->make(Shy\Http::class);

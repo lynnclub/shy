@@ -140,6 +140,7 @@ class Router implements RouterContract
         if (config_key('debug') || empty($routerIndex) || !is_array($routerIndex)) {
             $routerIndex = $this->buildRouterIndex();
         }
+        config()->set('routerIndex', $routerIndex);
         /**
          * parse router
          */

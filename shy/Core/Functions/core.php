@@ -62,8 +62,12 @@ if (!function_exists('config')) {
      * @param string $filename
      * @return mixed
      */
-    function config(string $filename)
+    function config(string $filename = null)
     {
+        if (is_null($filename)) {
+            return shy(Shy\Core\Contracts\Config::class);
+        }
+
         return shy(Shy\Core\Contracts\Config::class)->load($filename);
     }
 }

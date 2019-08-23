@@ -60,6 +60,6 @@ class Home
 
     public function test2()
     {
-        return 'controller echo';
+        return 'controller echo ' . url('controller_2/home');
     }
 }

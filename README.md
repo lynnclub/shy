@@ -147,8 +147,6 @@ shy 框架根目录
 3. 访问频率限制、CSRF防御等中间件，XSS攻击防御
 4. Api便捷开发框架
 5. Swoole socket
-6. URL生成
-7. 调试页面加环境变量
 
 ## 二、 契约（Contracts）
 
