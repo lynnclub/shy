@@ -117,12 +117,13 @@
 
                 if (isset($trace['args'])) {
                     foreach ($trace['args'] as $argKey => $arg) {
+                        $trace['args'][$argKey] = '(' . gettype($arg) . ')';
                         if (is_string($arg)) {
-                            $trace['args'][$argKey] = "'{$arg}'";
+                            $trace['args'][$argKey] .= "'{$arg}'";
                         } elseif (is_object($arg)) {
-                            $trace['args'][$argKey] = 'object(' . get_class($arg) . ')';
+                            $trace['args'][$argKey] .= get_class($arg);
                         } elseif (is_array($arg)) {
-                            $trace['args'][$argKey] = json_encode($arg, JSON_UNESCAPED_UNICODE);
+                            $trace['args'][$argKey] .= json_encode($arg, JSON_UNESCAPED_UNICODE);
                         }
                     }
                 } else {

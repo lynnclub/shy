@@ -12,7 +12,7 @@ Shy框架交流一群：963908345 加群暗号：lynncho
 
 ### 1.1 简介
 
-框架遵守PHP-FIG组织制定的PSR（PHP Standards Recommendations）规范。
+框架全力遵守PHP-FIG组织制定的各种PSR（PHP Standards Recommendations）规范。其中，全局的编码风格遵守《PSR-1: Basic Coding Standard》规范。
 
 框架以容器（Container）为核心，提供了便捷的实例（Instance）复用池。框架的所有服务组件都在容器里面，通过操作容器可以非常自由地定制框架。
 
@@ -29,6 +29,7 @@ Shy框架交流一群：963908345 加群暗号：lynncho
 * 门面（Facade）
 * 缓存（Cache）
 * 配置（Config）
+* 日志（Logger）
 * 异常及错误的捕获处理（Exceptions Handler）
 * 流水线（Pipeline）
 * 请求（Request）
@@ -140,7 +141,7 @@ shy 框架根目录
 * 回调：一种函数或类方法，被传入其它函数或类方法中执行。
 * 闭包：即匿名函数。
 
-### 1.6 代办事项
+### 1.6 待办事项
 
 1. 容器实例调度
 2. 文件上传
@@ -148,6 +149,7 @@ shy 框架根目录
 4. Api便捷开发框架
 5. Swoole socket
 6. Response的header函数支持workerman
+7. 单元测试覆盖率100%
 
 ## 二、 契约（Contracts）
 
@@ -397,7 +399,38 @@ $viewPath = config_key('view', 'path');
 $viewPath = config_key('debug');
 ```
 
-## 七、 异常及错误的捕获处理（Exceptions Handler）
+## 七、 日志（Logger）
+
+本框架的日志类，遵守PSR（PHP Standards Recommendations）中的《PSR-3: Logger Interface》接口规范。
+
+### 7.1 简介
+
+框架实现了本地文件日志`Shy\Core\Logger\File`，以及阿里云日志`Shy\Core\Logger\Aliyun`（阿里云日志类继承了本地文件日志类，使用的时候也会保存本地文件日志）。
+
+如果不需要记录日志，可以使用`Psr\Log\NullLogger`。
+
+可以在bootstrap目录下的服务启动文件中，替换日志契约绑定的实体类：
+
+```php
+$container->bind(Shy\Core\Contracts\Logger::class, Shy\Core\Logger\Aliyun::class);
+```
+
+### 7.2 错误级别
+
+1. emergency 紧急
+2. alert 警报
+3. critical 严重
+4. error 错误
+5. warning 警告
+6. notice 注意
+7. info 信息
+8. debug 调试
+
+### 7.3 自定义日志
+
+自定义日志需要实现`Shy\Core\Contracts\Logger`接口，并且继承PSR的`Psr\Log\AbstractLogger`。
+
+## 八、 异常及错误的捕获处理（Exceptions Handler）
 
 **框架在各个服务的入口处，注册了异常（Exception）及错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误、甚至是Shut Down。错误及Shut Down会被转化成异常，统一按异常处理。**
 
@@ -417,7 +450,7 @@ use Shy\Http\Exceptions\HttpException;
 throw new HttpException(403, lang(5000));
 ```
 
-## 八、 流水线（Pipeline）
+## 九、 流水线（Pipeline）
 
 流水线是框架的调度工具，连通了包括路由、中间件、控制器在内的Web框架的运行流程。
 
@@ -457,7 +490,7 @@ $response = shy(Pipeline::class)
     ->run();
 ```
 
-## 九、 请求（Request）
+## 十、 请求（Request）
 
 调用请求门面的方法：
 
@@ -465,7 +498,7 @@ $response = shy(Pipeline::class)
 use Shy\Http\Facades\Request;
 
 /**
- * 是否初始化
+ * 是否初始化（常驻内存模式使用）
  */
 Request::isInitialized();
 
@@ -485,13 +518,13 @@ Request::content();
 Request::get('key');
 ```
 
-## 十、 中间件（Middleware）
+## 十一、 中间件（Middleware）
 
-中间件是请求与响应的中间步骤。如果，中间件在执行控制器之前执行，则称为“前置中间件”；否则，称“后置中间件”。
+中间件是请求与响应的中间步骤，是流水线（Pipeline）的一种特例。即流水线传入的第一个参数`$next`，是用于运行控制器的闭包。
 
-中间件是流水线（Pipeline）的一种特例，传入的第一个参数`$next`，是用于运行控制器方法的闭包。
+### 11.1 前置中间件
 
-如下，是有IP挡板功能的前置中间件：
+中间件在控制器之前执行，称为“前置中间件”。如下，是有IP白名单功能的前置中间件：
 
 ```php
 namespace Shy\Http\Middleware;
@@ -540,7 +573,7 @@ class IpWhitelist implements Middleware
 }
 ```
 
-后置中间件的实例：
+### 11.2 后置中间件
 
 ```php
 use Shy\Core\Contracts\Middleware;
@@ -561,7 +594,7 @@ class Test implements Middleware
         $response = $next();
         
         // do something
-        $response .= 'Test';
+        $response = json_encode($response);
         
         return $response;
     }
@@ -569,9 +602,27 @@ class Test implements Middleware
 }
 ```
 
+### 11.3 使用中间件
+
 中间件需要在配置文件`middleware.php`中定义别名或者别名组，然后在路由中填写别名使用。
 
-## 十一、 响应（Response）
+```php
+return [
+    'IpWhitelist' => Shy\Http\Middleware\IpWhitelist::class,
+    'Throttle' => Shy\Http\Middleware\Throttle::class,
+    'Example' => App\Http\Middleware\Example::class,
+    'GroupExample' => [
+        Shy\Http\Middleware\Csrf::class,
+    ]
+];
+```
+
+内置中间件：
+
+1. IpWhitelist：IP白名单，通过配置文件`ip_whitelist.php`管理白名单；
+2. Throttle：限流阀，默认1分钟内限制单IP访问60次，可在路由中自定义设置。例如1分钟内限制10次、5分钟解禁：`Throttle:10,5`。
+
+## 十二、 响应（Response）
 
 对于控制器，只需要return数据或者模版，Response组件就会输出响应。建议交给框架处理响应，不要手动输出。
 
@@ -592,7 +643,7 @@ return view('home', compact('title', 'info'))->layout('main');
 return smarty('smarty.tpl', $params);
 ```
 
-## 十二、 路由（Router）
+## 十三、 路由（Router）
 
 路由通过请求（Request）获取请求路径，然后解析出对应控制器和方法，最终通过流水线调度控制器。
 
@@ -638,12 +689,13 @@ return [
 
 路由配置文件在debug关闭的时候（一般是生产环境），会自动缓存路由的索引数据，导致对路由的修改不生效。可以手动删除`cache/app/router.cache`清除缓存。
 
-## 十三、 控制器（Controllers）
+## 十四、 控制器（Controllers）
 
-1. 控制器中的方法应该返回（return）数据、以便交由框架响应组件输出，不应该直接在控制器内手动输出。
-2. 在控制器内使用实例，建议优先使用门面或者依赖注入。
+控制器方法中应该返回（return）数据、以便交由框架响应组件输出，不应该直接在控制器内手动输出
 
-## 十四、 数据库（DataBase）
+在控制器内使用实例，建议优先使用门面或者依赖注入。
+
+## 十五、 数据库（DataBase）
 
 可以在bootstrap目录下的服务启动文件中，替换数据库契约绑定的实体类：
 
@@ -654,7 +706,7 @@ return [
 $container->bind(Shy\Core\Contracts\DataBase::class, Shy\Core\DataBase\Pdo::class);
 ```
 
-### 14.1 laravel的DB包
+### 15.1 laravel的DB包
 
 框架兼容laravel的DB包，你可以通过下面的命令安装此包：
 
@@ -674,7 +726,7 @@ DB::table('users')->where('id', 2)->get();
 
 Illuminate Database的更多用法，可以查看[该项目的文档](https://github.com/illuminate/database)
 
-## 十五、 模版（View）
+## 十六、 模版（View）
 
 框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。
 
@@ -684,7 +736,7 @@ Illuminate Database的更多用法，可以查看[该项目的文档](https://gi
 
 此外，为了满足开发者的需求，框架支持了Smarty模版系统。
 
-### 15.1 自带模版的辅助函数
+### 16.1 自带模版的辅助函数
 
 1. view：模版类的封装。用于便捷地在控制器中使用模版，可传参、也可链式调用。每次使用本函数都会在容器中新建或替换模版实例。
 2. include\_sub\_view：在布局页中输出模版。
@@ -766,7 +818,7 @@ push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.j
 </div>
 ```
 
-### 15.2 Smarty模版
+### 16.2 Smarty模版
 
 框架提供了对Smarty模版的支持，需要先安装Smarty包。
 
@@ -774,13 +826,13 @@ push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.j
 composer require smarty/smarty
 ```
 
-#### 15.2.1 在控制器中调用Smarty模版实例
+#### 16.2.1 在控制器中调用Smarty模版实例
 
 ```php
 return smarty('smarty.tpl', $params);
 ```
 
-#### 15.2.2 Smarty模版实例
+#### 16.2.2 Smarty模版实例
 
 ```php
 <!DOCTYPE html>
@@ -820,7 +872,7 @@ return smarty('smarty.tpl', $params);
 </html>
 ```
 
-## 十六、 命令模式（Command Mode）
+## 十七、 命令模式（Command Mode）
 
 框架支持命令模式。在项目根目录执行下述命令可以查看所有命令：
 
@@ -845,9 +897,9 @@ class Example
 }
 ```
 
-## 十七、 常驻内存模式（PHP-CLI Mode）
+## 十八、 常驻内存模式（PHP-CLI Mode）
 
-### 17.1 简介
+### 18.1 简介
 
 常驻内存模式是以PHP-CLI方式执行Web框架。
 
@@ -855,7 +907,7 @@ class Example
 
 框架基于WorkerMan提供的socket服务，实现了通过命令模式运行的、常驻内存的Web服务框架。传统Web方式与常驻内存模式可以同时运行。
 
-### 17.2 使用
+### 18.2 使用
 
 安装WorkerMan包：
 
@@ -912,7 +964,7 @@ php console http stop|restart|reload|status|connections
 
 ```
 
-### 17.3 开发者注意事项
+### 18.3 开发者注意事项
 
 PHP-CLI + Socket运行环境，相对于传统Web运行环境有根本差异，所以有很多需要注意的地方。
 
@@ -926,13 +978,13 @@ PHP-CLI + Socket运行环境，相对于传统Web运行环境有根本差异，�
 2. 需要改变的值不能用常量，否则复用的时候无法重新赋值。
 3. header函数在Socket环境下不能正常使用，可以使用WorkerMan的http对象的方法。echo、var_dump或者页面等可以正常输出，因为框架做了ob缓冲区、会自动把缓冲区内容放进WorkerMan的通道里面输出。
 
-### 17.4 容器实例智能调度（未完成）
+### 18.4 容器实例智能调度（未完成）
 
 目前只是简单的复用框架实例，计划实现"基于使用历史统计的容器实例智能调度系统"。
 
 系统会自动判断实例是否可复用、并且基于统计数据动态判断是否自动销毁实例或者预先载入实例。本功能可以简化开发者的操作，同时可以平衡内存与时间占用、提升运行效率。
 
-## 十八、 Socket模式（Socket Mode）
+## 十九、 Socket模式（Socket Mode）
 
 框架封装了基于WorkerMan的Socket服务。你可以在配置文件`workerman.php`中配置服务端口、工作进程数。支持配置多组服务，并且支持同时运行多组服务。
 
@@ -947,7 +999,7 @@ php console workerman chat start
 
 上述命令中，chat是服务名。更多操作请查看常驻内存模式章节。
 
-## 十九、 单元测试（Unit Test）
+## 二十、 单元测试（Unit Test）
 
 框架可使用phpunit做单元测试。在tests文件夹中编写测试代码，在框架根目录执行下面的命令即可执行测试。
 
@@ -955,7 +1007,7 @@ php console workerman chat start
 phpunit tests/containerTest
 ```
 
-## 二十、 常量（Constants）
+## 二十一、 常量（Constants）
 
 框架提供了一些常量可供使用：
 
@@ -965,13 +1017,13 @@ phpunit tests/containerTest
 4. CACHE_PATH：缓存文件目录
 5. BASE_URL：项目URL
 
-## 二十一、 杂项函数
+## 二十二、 杂项函数
 
 1. is_cli：是否处于CLI模式下
 2. dd：调试输出
 3. is\_valid\_ip：IP是否合法
 
-## 二十二、 特别鸣谢（排名不分先后）
+## 二十三、 特别鸣谢（排名不分先后）
 
 1. @JamFun
 2. @WeakChickenPeng

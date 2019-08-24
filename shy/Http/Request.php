@@ -173,6 +173,22 @@ class Request implements RequestContract
     }
 
     /**
+     * @return ServerBag
+     */
+    public function server()
+    {
+        return $this->server;
+    }
+
+    /**
+     * @return HeaderBag
+     */
+    public function headers()
+    {
+        return $this->headers;
+    }
+
+    /**
      * Get php://input
      */
     public function content()

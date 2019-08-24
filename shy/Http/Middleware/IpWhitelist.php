@@ -1,10 +1,4 @@
 <?php
-/**
- * IP Whitelist
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 namespace Shy\Http\Middleware;
 

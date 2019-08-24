@@ -45,6 +45,16 @@ interface Request
     public function all();
 
     /**
+     * @return \Shy\Http\Bags\ServerBag
+     */
+    public function server();
+
+    /**
+     * @return \Shy\Http\Bags\HeaderBag
+     */
+    public function headers();
+
+    /**
      * Get php://input
      */
     public function content();

@@ -3,6 +3,8 @@
 namespace Shy\Core\Logger;
 
 use Psr\Log\AbstractLogger;
+use Psr\Log\InvalidArgumentException;
+use Psr\Log\LogLevel;
 use Shy\Core\Contracts\Logger as LoggerContract;
 use Shy\Http\Contracts\Request;
 use Shy\Core\Contracts\Config;
@@ -20,6 +22,11 @@ class File extends AbstractLogger implements LoggerContract
     protected $request;
 
     /**
+     * @var array
+     */
+    protected $levels;
+
+    /**
      * Logger constructor.
      *
      * @param Request $request
@@ -28,8 +35,9 @@ class File extends AbstractLogger implements LoggerContract
     public function __construct(Config $config, Request $request = null)
     {
         $this->config = $config;
-
         $this->request = $request;
+
+        $this->levels = [LogLevel::EMERGENCY, LogLevel::ALERT, LogLevel::CRITICAL, LogLevel::ERROR, LogLevel::WARNING, LogLevel::NOTICE, LogLevel::INFO, LogLevel::DEBUG];
     }
 
     /**
@@ -53,25 +61,52 @@ class File extends AbstractLogger implements LoggerContract
      */
     public function log($level, $message, array $context = array())
     {
-        $prefix = '[' . date('Y-m-d H:i:s') . '] [' . $level . '] ';
+        if (!is_string($level)) {
+            throw new InvalidArgumentException('Log level \'' . $level . '\' is not string.');
+        }
+        if (!in_array($level, $this->levels)) {
+            throw new InvalidArgumentException('Log level \'' . $level . '\' not defined.');
+        }
+        if (!is_string($message)) {
+            throw new InvalidArgumentException('Log message is not string.');
+        }
+
+        $path = is_cli() ? 'console/' : 'web/';
+        $dir = CACHE_PATH . 'log/' . $path;
+        if (!is_dir($dir)) {
+            @mkdir(dirname($dir));
+        }
+
+        $prefix = '[' . date('Y-m-d H:i:s') . '] [' . strtoupper($level) . ']';
         if (is_object($this->request) && $this->request->isInitialized()) {
-            $prefix .= '[' . implode(',', $this->request->getClientIps()) . ' ' . $this->request->getUrl() . '] ';
+            $prefix .= ' [' . $this->request->getUrl() . ']';
+
+            $userIps = $this->request->getClientIps();
+            if (!empty($userIps)) {
+                $prefix .= ' [' . implode(',', $this->request->getClientIps()) . ']';
+            }
+
+            $prefix .= ' [' . $this->request->userAgent() . ']';
         }
 
-        /**
-         * File and path
-         */
-        if (is_cli()) {
-            $path = 'console/';
-        } else {
-            $path = 'web/';
-        }
-        $filename = CACHE_PATH . 'log/' . $path . date('Y-m-d') . '.log';
-        if (!is_dir(dirname($filename))) {
-            @mkdir(dirname($filename));
+        $contextString = '';
+        foreach ($context as $key => $val) {
+            if (!is_numeric($key)) {
+                $contextString .= '[' . $key . '] ';
+            }
+
+            if (is_string($val)) {
+                $contextString .= $val . PHP_EOL;
+            } else {
+                if (is_object($val) && method_exists($val, '__toString')) {
+                    $contextString .= $val->__toString() . PHP_EOL;
+                } else {
+                    $contextString .= json_encode($val, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+                }
+            }
         }
 
-        @file_put_contents($filename, $prefix . ' ' . $message . ' ' . implode(PHP_EOL, $context) . PHP_EOL, FILE_APPEND);
+        @file_put_contents($dir . date('Y-m-d') . '.log', $prefix . PHP_EOL . $message . PHP_EOL . $contextString, FILE_APPEND);
     }
 
 }
