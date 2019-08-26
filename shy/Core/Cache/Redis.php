@@ -100,7 +100,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
      */
     public function clear()
     {
-        return parent::flushDB();
+        return $this->flushDB();
     }
 
     /**
@@ -205,11 +205,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
      */
     public function has($key)
     {
-        if (parent::exists($key)) {
-            return true;
-        }
-
-        return false;
+        return $this->exists($key);
     }
 
     /**

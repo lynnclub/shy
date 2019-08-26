@@ -88,6 +88,9 @@ class Router implements RouterContract
         if (!is_string($this->pathInfo)) {
             throw new httpException(404, 'Route not found 404');
         }
+        if (strlen($this->pathInfo) > 1) {
+            $this->pathInfo = rtrim($this->pathInfo, " \/\t\n\r\0\x0B");
+        }
 
         /**
          * Parse Router
@@ -169,6 +172,9 @@ class Router implements RouterContract
          */
         if (isset($router['path'])) {
             foreach ($router['path'] as $path => $handle) {
+                if (strlen($handle) > 1) {
+                    $handle = rtrim($handle, " \/\t\n\r\0\x0B");
+                }
                 $routerIndex[$path] = ['handle' => $controllerNamespace . ucfirst($handle)];
             }
         }
@@ -199,6 +205,9 @@ class Router implements RouterContract
                         $middleware = $this->getMiddlewareClassByConfig($oneGroup['middleware']);
                     }
                     foreach ($oneGroup['path'] as $path => $handle) {
+                        if (strlen($handle) > 1) {
+                            $handle = rtrim($handle, " \/\t\n\r\0\x0B");
+                        }
                         $routerIndex[$prefix . $path] = ['handle' => $controllerNamespace . ucfirst($handle), 'middleware' => $middleware];
                     }
                 }
@@ -262,9 +271,9 @@ class Router implements RouterContract
         $path = explode('/', $this->pathInfo);
         if (isset($path[1])) {
             if (!empty($path[1])) {
-                $this->controller = lcfirst($path[1]);
+                $this->controller = ucfirst($path[1]);
                 if (isset($path[2]) && !empty($path[2])) {
-                    $this->method = lcfirst($path[2]);
+                    $this->method = ucfirst($path[2]);
                 }
             }
 

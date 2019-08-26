@@ -12,10 +12,10 @@ class Http
     public function requestDefine()
     {
         if (!defined('BASE_URL')) {
-            if (empty(shy('config')->find('base_url'))) {
+            if (empty(config_key('base_url'))) {
                 define('BASE_URL', shy('request')->getBaseUrl());
             } else {
-                define('BASE_URL', shy('config')->find('base_url'));
+                define('BASE_URL', config_key('base_url'));
             }
         }
     }
@@ -64,7 +64,7 @@ class Http
 
                 $router = shy(RouterContract::class);
 
-                shy('logger')->notice('slow', [
+                shy('logger')->notice('Slow', [
                     'controller' => $router->getController(),
                     'method' => $router->getMethod(),
                     'middleware' => $router->getMiddleware(),
