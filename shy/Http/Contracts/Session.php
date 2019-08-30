@@ -9,18 +9,14 @@ interface Session
      */
     public function sessionStart();
 
-    /**
-     * Session exist
-     *
-     * @param $key
-     * @return mixed
-     */
+    public function sessionId();
+
     public function exist($key);
 
     public function get($key);
 
     public function set($key, $val);
 
-    public function sessionId();
+    public function token();
 
 }

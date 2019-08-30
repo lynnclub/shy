@@ -86,7 +86,7 @@ class Router implements RouterContract
 
         $this->pathInfo = $request->getPathInfo();
         if (!is_string($this->pathInfo)) {
-            throw new httpException(404, 'Route not found 404');
+            throw new httpException(500, 'Route invalid.');
         }
         if (strlen($this->pathInfo) > 1) {
             $this->pathInfo = rtrim($this->pathInfo, " \/\t\n\r\0\x0B");
@@ -109,7 +109,7 @@ class Router implements RouterContract
             throw new httpException(404, 'Route not found 404');
         }
         if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-            throw new httpException(404, 'Route not found 404');
+            throw new httpException(404, 'Route controller not found 404');
         }
 
         /**

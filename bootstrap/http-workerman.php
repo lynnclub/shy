@@ -45,6 +45,7 @@ $container->aliases([
  * Update Dependencies
  */
 $container['logger']->setRequest($container->make(Shy\Http\Contracts\Request::class));
+$container[Shy\Core\Exceptions\HandlerRegister::class]->setView($container->make(Shy\Http\Contracts\View::class));
 $container[Shy\Core\Exceptions\HandlerRegister::class]->setResponse($container->make(Shy\Http\Contracts\Response::class));
 
 /*
