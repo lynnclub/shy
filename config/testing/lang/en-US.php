@@ -13,4 +13,5 @@ return [
     5000 => 'System upgrade, please visit later.',
     5001 => 'Too Many Attempts.',
     5002 => 'Csrf Verify Failed.',
+    5003 => 'Oops~!',
 ];

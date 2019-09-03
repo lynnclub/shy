@@ -6,43 +6,85 @@
     <meta name="viewport"
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
-    <title>Http error</title>
+    <title>Http Error</title>
+    <link rel="stylesheet" href="<?php param('BASE_URL') ?>vendor/font-awesome-4.7.0/css/font-awesome.min.css">
     <style>
-
-        * {
+        html, body, h1, div, li, p, input {
             margin: 0;
             padding: 0;
-            word-break: break-all;
-            word-wrap: break-word;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+            line-height: 1.5;
         }
 
-        body {
-            font-family: "Microsoft YaHei", Helvetica, Arial, "Hiragino Sans GB", "WenQuanYi Micro Hei", sans-serif;
-            font-size: 15px;
+        .error {
+            width: 100%;
+            height: 100%;
+            max-width: 400px;
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            display: flex;
+            -webkit-box-pack: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            flex-direction: column;
+            align-items: center;
+            transform: translate(-50%, -50%);
         }
 
-        .container {
-            margin: auto;
+        .content {
+            padding: 25px;
         }
 
-        .container .message, .container .return {
-            padding: 50px;
-            font-size: 20px;
-            text-align: center;
+        .content i {
+            font-size: 50px;
         }
 
-        .container .return a {
+        .content span {
+            font-size: 30px;
+        }
+
+        .error-message {
+            color: #ff9000;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .error-right h1 {
+            color: #ff9000;
+            font-size: 30px;
+        }
+
+        a.return, a.return:hover {
+            border: 1px solid #ff9000;
+            color: #ff9000;
+            display: flex;
+            -webkit-box-pack: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            align-items: center;
+            padding: 5px 10px;
+            margin-top: 8%;
+            width: auto;
+            border-radius: 4px;
             text-decoration: none;
         }
 
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="message"><?php echo $e->getMessage(); ?></div>
-    <div class="return">
-        <a href="<?php param('BASE_URL') ?>">Back Home</a>
+<div class="error">
+    <div class="content">
+        <i class="fa fa-anchor" aria-hidden="true"></i>
+        <span><?php echo lang(5003); ?></span>
     </div>
+    <p class="error-message"><?php echo $e->getMessage() ?></p>
+    <a class="return" href="<?php param('BASE_URL') ?>">
+        <i class="fa fa-reply" aria-hidden="true"></i>
+        &nbsp;Back Home
+    </a>
 </div>
 </body>
 </html>
