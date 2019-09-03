@@ -66,8 +66,8 @@ if (!function_exists('xss_clean')) {
     {
         if (is_array($data)) {
             $clean = [];
-            foreach ($data as $value) {
-                $clean[] = xss_clean($value);
+            foreach ($data as $key => $value) {
+                $clean[xss_clean($key)] = xss_clean($value);
             }
 
             return $clean;
