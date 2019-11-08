@@ -57,7 +57,7 @@ class View implements ViewContract
      */
     public function __construct(Config $config)
     {
-        $this->viewPath = $config->find('view', 'path');
+        $this->viewPath = $config->find('path.view');
     }
 
     /**

@@ -6,7 +6,8 @@ return [
      */
     'list' => [Shy\Console\Command\Shy::class => 'list'],
     'version' => [Shy\Console\Command\Shy::class => 'version'],
-    'clearRouterCache' => [Shy\Console\Command\Shy::class => 'clearRouterCache'],
+    'env' => [Shy\Console\Command\Shy::class => 'env'],
+    'clearConfigCache' => [Shy\Console\Command\Shy::class => 'clearConfigCache'],
     'http' => [Shy\Console\Command\Shy::class => 'http'],
     'workerMan' => [Shy\Console\Command\Shy::class => 'workerMan'],
 

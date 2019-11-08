@@ -17,10 +17,10 @@ if (!function_exists('lang')) {
     {
         $language = Shy\Http\Facades\Session::get('language');
         if (empty($language)) {
-            $language = config_key('default_lang');
+            $language = config('app.default_lang');
         }
 
-        return config_key($code, 'lang/' . $language);
+        return config('lang/' . $language . '.' . $code);
     }
 }
 
@@ -46,7 +46,7 @@ if (!function_exists('url')) {
     function url(string $path = '')
     {
         $path = trim($path, ' /');
-        $router = config_key('/' . $path, 'routerIndex');
+        $router = config('__ROUTE_INDEX./' . $path);
         if (empty($router)) {
             throw new RuntimeException('Path "' . $path . '" not found in router config.');
         }
@@ -125,7 +125,7 @@ if (!function_exists('smarty')) {
         $smarty->cache_lifetime = $config['cache_lifetime'];
         $params['GLOBALS'] = $GLOBALS;
 
-        if (config_key('debug')) {
+        if (config('app.debug')) {
             $smarty->debugging = true;
         }
 

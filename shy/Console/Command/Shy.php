@@ -34,17 +34,31 @@ class Shy
     }
 
     /**
-     * Clear router cache
+     * Shy env
+     *
+     * @return mixed
+     */
+    public function env()
+    {
+        return config('SHY_ENV');
+    }
+
+    /**
+     * Clear config cache
      *
      * @return string
      */
-    public function clearRouterCache()
+    public function clearConfigCache()
     {
-        $routerCache = CACHE_PATH . 'app/router.cache';
-        if (!file_exists($routerCache) || unlink($routerCache)) {
-            return 'Success';
+        $cache = CACHE_PATH . 'app/config.cache';
+        if (file_exists($cache)) {
+            if (unlink($cache)) {
+                return 'Success';
+            } else {
+                return 'Failed';
+            }
         } else {
-            return 'Failed';
+            return 'No cache';
         }
     }
 
@@ -55,7 +69,7 @@ class Shy
      */
     public function http()
     {
-        $config = config_key('http', 'workerman');
+        $config = config('workerman.http');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
             throw new RuntimeException('WorkerMan setting error.');
         }
@@ -73,9 +87,9 @@ class Shy
         }
 
         $web->count = $config['worker'];
-        $web->addRoot('localhost', config_key('public', 'path'));
+        $web->addRoot('localhost', config('path.public'));
 
-        Worker::$stdoutFile = config_key('cache', 'path') . 'log' . DIRECTORY_SEPARATOR . 'console' . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log';
+        Worker::$stdoutFile = config('path.cache') . 'log' . DIRECTORY_SEPARATOR . 'console' . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log';
         Worker::runAll();
     }
 
@@ -88,7 +102,7 @@ class Shy
         if (!isset($argv[0])) {
             throw new RuntimeException('WorkerMan socket config not specified.');
         }
-        $config = config_key('socket', 'workerman');
+        $config = config('workerman.socket');
         if (isset($config[$argv[0]])) {
             $config = $config[$argv[0]];
         } else {

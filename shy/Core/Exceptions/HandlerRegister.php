@@ -62,7 +62,7 @@ class HandlerRegister
         set_exception_handler([$this, 'handleException']);
         register_shutdown_function([$this, 'handleShutdown']);
 
-        if (!$config->find('debug')) {
+        if (!$config->find('app.debug')) {
             ini_set('display_errors', 'Off');
         }
     }

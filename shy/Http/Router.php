@@ -43,7 +43,7 @@ class Router implements RouterContract
     protected function initialize()
     {
         $this->parseRouteSuccess = false;
-        $this->controller = config_key('default_controller');
+        $this->controller = config('app.default_controller');
         $this->method = 'index';
         $this->pathInfo = '/';
         $this->middleware = [];
@@ -95,10 +95,10 @@ class Router implements RouterContract
         /**
          * Parse Router
          */
-        if (config_key('route_by_config')) {
+        if (config('app.route_by_config')) {
             $this->parseRouteByConfig();
         }
-        if (config_key('route_by_path')) {
+        if (config('app.route_by_path')) {
             $this->parseRouteByPath();
         }
 
@@ -106,10 +106,10 @@ class Router implements RouterContract
          * Check controller
          */
         if (!$this->parseRouteSuccess) {
-            throw new httpException(404, 'Route not found 404');
+            throw new httpException(404, 'Route not found 404.');
         }
         if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-            throw new httpException(404, 'Route controller not found 404');
+            throw new httpException(404, 'Route controller not found 404.');
         }
 
         /**
@@ -135,15 +135,22 @@ class Router implements RouterContract
      */
     protected function parseRouteByConfig()
     {
-        $routerIndexCache = @file_get_contents(CACHE_PATH . 'app/router.cache');
-        $routerIndex = json_decode($routerIndexCache, true);
         /**
-         * Read or build router index
+         * Read cache or build router index
          */
-        if (config_key('debug') || empty($routerIndex) || !is_array($routerIndex)) {
-            $routerIndex = $this->buildRouterIndex();
+        $routerIndex = [];
+        $isCache = config('app.cache');
+        if ($isCache && config()->has('__ROUTE_INDEX')) {
+            $routerIndex = config('__ROUTE_INDEX');
         }
-        config()->set('routerIndex', $routerIndex);
+
+        if (!is_array($routerIndex) || empty($routerIndex)) {
+            $routerIndex = $this->buildRouterIndex();
+
+            if ($isCache) {
+                config()->set('__ROUTE_INDEX', $routerIndex);
+            }
+        }
         /**
          * parse router
          */
@@ -213,8 +220,6 @@ class Router implements RouterContract
                 }
             }
         }
-
-        file_put_contents(CACHE_PATH . 'app/router.cache', json_encode($routerIndex));
 
         return $routerIndex;
     }

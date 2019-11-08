@@ -57,3 +57,27 @@ if (!function_exists('get_response_json')) {
         return json_encode(array('code' => $code, 'msg' => $msg, 'data' => $data), JSON_UNESCAPED_UNICODE);
     }
 }
+
+if (!function_exists('get_array_key')) {
+    /**
+     * Get key in array
+     *
+     * @param array $keyLevels
+     * @param array $array
+     * @return array
+     */
+    function get_array_key(array $keyLevels, array $array)
+    {
+        $currentLevel = array_shift($keyLevels);
+
+        if (isset($array[$currentLevel])) {
+            if (empty($keyLevels)) {
+                return $array[$currentLevel];
+            } else {
+                return get_array_key($keyLevels, $array[$currentLevel]);
+            }
+        } elseif (empty($keyLevels)) {
+            return $array;
+        }
+    }
+}

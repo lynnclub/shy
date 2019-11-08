@@ -40,7 +40,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
             return $this->connections[$config_name];
         }
 
-        $configs = config_key('redis', 'database');
+        $configs = config('database.redis');
         if (!isset($configs[$config_name])) {
             throw new Exception('Redis Config ' . $config_name . ' not set');
         }

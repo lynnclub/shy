@@ -127,7 +127,7 @@ class Handler implements ExceptionHandler
         } else {
             $response->setCode(500)
                 ->setHeader([])
-                ->set($config->find('debug') ? $view->view('errors/exception')->with(['e' => $this->throwable]) : '')
+                ->set($config->find('app.debug') ? $view->view('errors/exception')->with(['e' => $this->throwable]) : '')
                 ->send();
         }
     }

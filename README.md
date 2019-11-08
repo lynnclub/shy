@@ -376,7 +376,7 @@ Cache::get('test');
 
 ## 六、 配置（Config）
 
-配置类继承了内存缓存类`Shy\Core\Cache\Memory::class`，因为该缓存无依赖。在`debug`关闭的时候，配置会被持久化缓存。
+配置类继承了内存缓存类`Shy\Core\Cache\Memory::class`，因为该缓存无依赖。在`cache`开启的时候，配置会被持久化缓存。
 
 使用方式：
 
@@ -389,14 +389,12 @@ $configFile = config('path');
 /**
  * 读取配置文件path.php中的，view配置
  */
-$viewPath = config_key('view', 'path');
+$viewPath = config('path.view');
 
 /**
  * 读取配置文件app.php中的，debug配置
- *
- * app.php是默认读取的
  */
-$viewPath = config_key('debug');
+$viewPath = config('app.debug');
 ```
 
 ## 七、 日志（Logger）

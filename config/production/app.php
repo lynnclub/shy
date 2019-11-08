@@ -19,6 +19,12 @@ return [
     'debug' => false,
 
     /*
+    | Cache config.
+    */
+
+    'cache' => true,
+
+    /*
     | Time Zone
     |
     | for time() date()...
@@ -34,13 +40,9 @@ return [
     'default_lang' => 'en-US',
 
     /*
-    | Slow Log
-    */
-
-    'slow_log' => true,
-
-    /*
     | Slow Log Limit (second)
+    |
+    | setting 0 means to turn off logging
     */
 
     'slow_log_limit' => 1,

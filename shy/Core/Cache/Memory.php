@@ -36,21 +36,24 @@ class Memory implements CacheInterface, CacheContracts
      */
     public function __construct(string $cacheFile = '', $persistent = true)
     {
+        $this->persistent = $persistent;
         if (empty($cacheFile)) {
             $cacheFile = CACHE_PATH . 'app/memory.cache';
         }
-        $this->cacheFile = $cacheFile;
-        $this->persistent = $persistent;
+        if (is_cli()) {
+            $cacheFile .= '.' . shy()->startId();
+        }
 
         if ($persistent) {
-            $cache = @file_get_contents($cacheFile);
-            if ($cache) {
-                $cache = json_decode($cache, true);
-                if (isset($cache['cache'], $cache['ttl'])) {
-                    $this->cache = $cache['cache'];
-                    $this->ttl = $cache['ttl'];
-                }
+            $cache = @json_decode(file_get_contents($cacheFile), true);
+            if (isset($cache['cache'], $cache['ttl'])) {
+                $this->cache = $cache['cache'];
+                $this->ttl = $cache['ttl'];
             }
+
+            $this->cacheFile = $cacheFile;
+        } elseif (file_exists($cacheFile)) {
+            unlink($cacheFile);
         }
     }
 
@@ -369,7 +372,7 @@ class Memory implements CacheInterface, CacheContracts
     public function __destruct()
     {
         if ($this->persistent) {
-            @file_put_contents($this->cacheFile, json_encode(['cache' => $this->cache, 'ttl' => $this->ttl]));
+            file_put_contents($this->cacheFile, json_encode(['cache' => $this->cache, 'ttl' => $this->ttl]));
         }
     }
 

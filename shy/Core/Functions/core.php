@@ -41,34 +41,20 @@ if (!function_exists('bind')) {
     }
 }
 
-if (!function_exists('config_key')) {
-    /**
-     * Config key
-     *
-     * @param string $key
-     * @param string $filename
-     * @return mixed
-     */
-    function config_key(string $key, string $filename = 'app')
-    {
-        return shy(Shy\Core\Contracts\Config::class)->find($key, $filename);
-    }
-}
-
 if (!function_exists('config')) {
     /**
-     * Config
+     * Get config
      *
-     * @param string $filename
+     * @param string $key
      * @return mixed
      */
-    function config(string $filename = null)
+    function config(string $key = null)
     {
-        if (is_null($filename)) {
+        if (is_null($key)) {
             return shy(Shy\Core\Contracts\Config::class);
         }
 
-        return shy(Shy\Core\Contracts\Config::class)->load($filename);
+        return shy(Shy\Core\Contracts\Config::class)->find($key);
     }
 }
 

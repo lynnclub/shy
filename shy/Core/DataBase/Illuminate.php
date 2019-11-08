@@ -17,7 +17,7 @@ class Illuminate extends Manager
         parent::__construct();
         parent::setAsGlobal();
 
-        $configs = config_key('db', 'database');
+        $configs = config('database.db');
         foreach ($configs as $name => $item) {
             if (!isset($item['driver'], $item['host'], $item['database'], $item['username'], $item['password'])) {
                 throw new Exception('Database config error.');

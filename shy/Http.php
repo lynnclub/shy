@@ -12,10 +12,10 @@ class Http
     public function requestDefine()
     {
         if (!defined('BASE_URL')) {
-            if (empty(config_key('base_url'))) {
+            if (empty(config('app.base_url'))) {
                 define('BASE_URL', shy('request')->getBaseUrl());
             } else {
-                define('BASE_URL', config_key('base_url'));
+                define('BASE_URL', config('app.base_url'));
             }
         }
     }
@@ -57,11 +57,11 @@ class Http
         /**
          * Slow log
          */
-        if (config_key('slow_log')) {
+        $limit = config('app.slow_log_limit');
+        if ($limit > 0) {
             $startTime = shy()->has('SHY_CYCLE_START_TIME') ? shy()->get('SHY_CYCLE_START_TIME') : shy()->startTime();
             $usedTime = microtime(true) - $startTime;
-            if ($usedTime > config_key('slow_log_limit')) {
-
+            if ($usedTime > $limit) {
                 $router = shy(RouterContract::class);
 
                 shy('logger')->notice('Slow', [

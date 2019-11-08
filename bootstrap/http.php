@@ -67,15 +67,15 @@ try {
 /**
  * Define Constants
  */
-defined('BASE_PATH') or define('BASE_PATH', $container['config']->find('base', 'path'));
-defined('APP_PATH') or define('APP_PATH', $container['config']->find('app', 'path'));
-defined('VIEW_PATH') or define('VIEW_PATH', $container['config']->find('view', 'path'));
-defined('CACHE_PATH') or define('CACHE_PATH', $container['config']->find('cache', 'path'));
+defined('BASE_PATH') or define('BASE_PATH', $container['config']->find('path.base'));
+defined('APP_PATH') or define('APP_PATH', $container['config']->find('path.app'));
+defined('VIEW_PATH') or define('VIEW_PATH', $container['config']->find('path.view'));
+defined('CACHE_PATH') or define('CACHE_PATH', $container['config']->find('path.cache'));
 
 /**
  * Setting
  */
-date_default_timezone_set($container['config']->find('timezone'));
+date_default_timezone_set($container['config']->find('app.timezone'));
 
 /**
  * Load helper functions

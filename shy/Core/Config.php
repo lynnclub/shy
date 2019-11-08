@@ -4,6 +4,7 @@ namespace Shy\Core;
 
 use Shy\Core\Cache\Memory;
 use Shy\Core\Contracts\Config as ConfigContract;
+use Shy\Core\Exceptions\Cache\InvalidArgumentException;
 
 class Config extends Memory implements ConfigContract
 {
@@ -26,19 +27,21 @@ class Config extends Memory implements ConfigContract
         if (empty($env)) {
             $env = 'develop';
         }
+        $this->set('SHY_ENV', $env);
 
         $this->dir = !empty($dir) && is_dir($dir)
             ? $dir
             : dirname(dirname(__DIR__)) . '/config/' . $env . DIRECTORY_SEPARATOR;
 
-        $cacheFile = $this->find('cache', 'path') . 'app/config.cache';
-        $persistent = true;
-        if ($this->find('debug')) {
-            $persistent = false;
-            @unlink($cacheFile);
+        $cacheFile = $this->find('path.cache') . 'app/config.cache';
+
+        if (is_cli()) {
+            $isCacheOn = false;
+        } else {
+            $isCacheOn = $this->find('app.cache');
         }
 
-        parent::__construct($cacheFile, $persistent);
+        parent::__construct($cacheFile, $isCacheOn);
     }
 
     /**
@@ -49,7 +52,7 @@ class Config extends Memory implements ConfigContract
      * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      *
-     * @return bool|array
+     * @return array|null
      */
     public function load(string $filename)
     {
@@ -69,26 +72,25 @@ class Config extends Memory implements ConfigContract
      * Find key in config file cache
      *
      * @param string $key
-     * @param string $filename
      *
      * @throws Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      *
      * @return string|array|null
      */
-    public function find(string $key, string $filename = 'app')
+    public function find(string $key)
     {
-        if ($this->has($filename)) {
-            $array = $this->get($filename);
-        } else {
-            $array = $this->load($filename);
+        $keyLevels = explode('.', $key);
+        if (empty($keyLevels[0])) {
+            throw new InvalidArgumentException('No configuration file specified.');
         }
 
-        if (isset($array[$key])) {
-            return $array[$key];
+        $config = $this->load(array_shift($keyLevels));
+        if (empty($keyLevels)) {
+            return $config;
+        } elseif (is_array($config)) {
+            return get_array_key($keyLevels, $config);
         }
-
-        return null;
     }
 
 }
