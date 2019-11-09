@@ -74,7 +74,7 @@ class File extends AbstractLogger implements LoggerContract
         $path = is_cli() ? 'console/' : 'web/';
         $dir = CACHE_PATH . 'log/' . $path;
         if (!is_dir($dir)) {
-            @mkdir(dirname($dir));
+            mkdir(dirname($dir));
         }
 
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . strtoupper($level) . ']';
@@ -106,7 +106,7 @@ class File extends AbstractLogger implements LoggerContract
             }
         }
 
-        @file_put_contents($dir . date('Y-m-d') . '.log', $prefix . PHP_EOL . $message . PHP_EOL . $contextString, FILE_APPEND);
+        file_put_contents($dir . date('Ymd') . '.log', $prefix . $message . PHP_EOL . $contextString, FILE_APPEND);
     }
 
 }

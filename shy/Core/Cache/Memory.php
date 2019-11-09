@@ -36,13 +36,14 @@ class Memory implements CacheInterface, CacheContracts
      */
     public function __construct(string $cacheFile = '', $persistent = true)
     {
-        $this->persistent = $persistent;
         if (empty($cacheFile)) {
             $cacheFile = CACHE_PATH . 'app/memory.cache';
         }
         if (is_cli()) {
             $cacheFile .= '.' . shy()->startId();
         }
+        $this->persistent = $persistent;
+        $this->cacheFile = $cacheFile;
 
         if ($persistent) {
             $cache = @json_decode(file_get_contents($cacheFile), true);
@@ -50,8 +51,6 @@ class Memory implements CacheInterface, CacheContracts
                 $this->cache = $cache['cache'];
                 $this->ttl = $cache['ttl'];
             }
-
-            $this->cacheFile = $cacheFile;
         } elseif (file_exists($cacheFile)) {
             unlink($cacheFile);
         }
