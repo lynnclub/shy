@@ -34,13 +34,8 @@ class Response implements ResponseContract
      */
     public function initialize()
     {
-        $shyVersion = 'X-Powered-By: Shy ' . shy()->version();
-        if (is_cli()) {
-            $shyVersion .= '/PHP-CLI';
-        }
-
         $this->code = null;
-        $this->header = [$shyVersion];
+        $this->header = ['X-Powered-By: Shy Framework ' . shy()->version()];
         $this->response = '';
     }
 
@@ -78,7 +73,7 @@ class Response implements ResponseContract
      */
     public function setHeader(array $header)
     {
-        $this->header = $header;
+        $this->header = array_merge($this->header, $header);
 
         return $this;
     }
@@ -94,14 +89,7 @@ class Response implements ResponseContract
             $this->response = $view;
         }
 
-        if ($this->code) {
-            header($this->httpCodeMessage($this->code));
-        }
-        if (is_array($this->header)) {
-            foreach ($this->header as $value) {
-                header($value);
-            }
-        }
+        $this->sendHeader();
 
         if ($this->response instanceof View) {
             echo $this->response->render();
@@ -114,6 +102,22 @@ class Response implements ResponseContract
         }
 
         $this->initialize();
+    }
+
+    /**
+     * Send header
+     */
+    public function sendHeader()
+    {
+        if ($this->code) {
+            header($this->httpCodeMessage($this->code));
+        }
+
+        if (is_array($this->header)) {
+            foreach ($this->header as $value) {
+                header($value);
+            }
+        }
     }
 
     /**

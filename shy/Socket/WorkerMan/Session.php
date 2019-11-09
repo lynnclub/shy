@@ -9,16 +9,20 @@ use Workerman\Protocols\Http;
 class Session extends HttpSession implements SessionContract
 {
     /**
-     * Session Start
+     * Start
      */
     public function sessionStart()
     {
         Http::sessionStart();
     }
 
+    /**
+     * Id
+     *
+     * @return string
+     */
     public function sessionId()
     {
         return Http::sessionId();
     }
-
 }

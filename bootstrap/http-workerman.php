@@ -24,7 +24,7 @@ $container->set('SHY_CYCLE_COUNT', 0);
  */
 $container->binds([
     Shy\Http\Contracts\Request::class => Shy\Http\Request::class,
-    Shy\Http\Contracts\Response::class => Shy\Http\Response::class,
+    Shy\Http\Contracts\Response::class => Shy\Socket\WorkerMan\Response::class,
     Shy\Http\Contracts\Session::class => Shy\Socket\WorkerMan\Session::class,
     Shy\Http\Contracts\Router::class => Shy\Http\Router::class,
     Shy\Http\Contracts\View::class => Shy\Http\View::class
