@@ -174,7 +174,7 @@ if (!function_exists('push_resource')) {
                 }
             }
 
-            $old = shy('config')->get('push_' . $id);
+            $old = shy('config')->get('__PUSH__RESOURCE_' . $id);
             if (empty($old)) {
                 $old = [];
             }
@@ -183,9 +183,10 @@ if (!function_exists('push_resource')) {
             }
             array_push($old, $resource);
             $old = array_unique($old);
-            shy('config')->set('push_' . $id, $old);
+            shy('config')->set('__PUSH__RESOURCE_' . $id, $old);
 
             if (empty($resource) && is_array($old) && !empty($old)) {
+                shy('config')->delete('__PUSH__RESOURCE_' . $id);
                 echo implode('', $old);
             }
         }
