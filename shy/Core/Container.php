@@ -14,6 +14,11 @@ use LogicException;
 class Container implements ContainerContract
 {
     /**
+     * @var string
+     */
+    protected $shyVersion = 'v1.1.2';
+
+    /**
      * @var Container
      */
     protected static $container;
@@ -79,6 +84,16 @@ class Container implements ContainerContract
         }
 
         return static::$container;
+    }
+
+    /**
+     * Shy version
+     *
+     * @return string
+     */
+    public function version()
+    {
+        return $this->shyVersion;
     }
 
     /**

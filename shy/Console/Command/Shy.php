@@ -28,7 +28,7 @@ class Shy
      */
     public function version()
     {
-        return 'Shy Framework v0.1' .
+        return 'Shy Framework ' . shy()->version() .
             PHP_EOL . 'The mini framework' .
             PHP_EOL . '( *^_^* )';
     }

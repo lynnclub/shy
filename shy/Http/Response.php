@@ -34,8 +34,13 @@ class Response implements ResponseContract
      */
     public function initialize()
     {
+        $shyVersion = 'X-Powered-By: Shy ' . shy()->version();
+        if (is_cli()) {
+            $shyVersion .= '/PHP-CLI';
+        }
+
         $this->code = null;
-        $this->header = [];
+        $this->header = [$shyVersion];
         $this->response = '';
     }
 
