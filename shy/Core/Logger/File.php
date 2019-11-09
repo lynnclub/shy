@@ -106,7 +106,7 @@ class File extends AbstractLogger implements LoggerContract
             }
         }
 
-        file_put_contents($dir . date('Ymd') . '.log', $prefix . $message . PHP_EOL . $contextString, FILE_APPEND);
+        file_put_contents($dir . date('Ymd') . '.log', $prefix . ' ' . $message . PHP_EOL . $contextString, FILE_APPEND);
     }
 
 }
