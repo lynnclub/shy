@@ -7,3 +7,5 @@
 npm-debug.log
 workerman.log
 *.pid
+composer.lock
+package-lock.json
