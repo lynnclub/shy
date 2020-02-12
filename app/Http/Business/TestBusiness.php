@@ -11,13 +11,8 @@ namespace App\Http\Business;
 
 class TestBusiness
 {
-    private $isMobile;
-
     public function isMobile()
     {
-        if ($this->isMobile) {
-            return true;
-        }
         if (isset ($_SERVER['HTTP_USER_AGENT'])) {
             $client_keywords = [
                 //common
@@ -64,7 +59,6 @@ class TestBusiness
                 'nexus'
             ];
             if (preg_match("/(" . implode('|', $client_keywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
-                $this->isMobile = true;
                 return true;
             }
         }
