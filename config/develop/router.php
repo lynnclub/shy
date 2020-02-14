@@ -21,7 +21,7 @@ return [
     ],
     'path' => [
         '/' => 'home@index',//view home
-        '/home2' => 'home@test2',//return string
+        '/test/url/func' => 'home@test2',//return string
         'test/path/param/?' => 'home@test3',
         '/smarty' => 'home@smarty',
         '/not/found' => 'home@home3',//404

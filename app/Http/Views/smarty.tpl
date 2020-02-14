@@ -61,6 +61,8 @@
     <br><br>
     <a href="/test/error/500">error</a>
     <br><br>
+    <a href="/test/url/func">Test url()</a>
+    <br><br>
 </div>
 {include file='component/footer.php'}
 </body>

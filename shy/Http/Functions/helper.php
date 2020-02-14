@@ -46,8 +46,8 @@ if (!function_exists('url')) {
     function url(string $path = '')
     {
         $path = trim($path, ' /');
-        $router = config('__ROUTE_INDEX.' . $path);
-        if (empty($router)) {
+        $router = shy(Shy\Http\Contracts\Router::class)->getRouteIndex();
+        if (!isset($router[$path]) || empty($router[$path])) {
             throw new RuntimeException('Path "' . $path . '" not found in router config.');
         }
 

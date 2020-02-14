@@ -63,4 +63,6 @@ push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.j
     <br><br>
     <a href="/test/error/500">error</a>
     <br><br>
+    <a href="/test/url/func">Test url()</a>
+    <br><br>
 </div>

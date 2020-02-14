@@ -85,6 +85,14 @@ class Router implements RouterContract
     /**
      * @return array
      */
+    public function getRouteIndex()
+    {
+        return $this->routeIndex;
+    }
+
+    /**
+     * @return array
+     */
     public function getMiddleware()
     {
         return $this->middleware;
