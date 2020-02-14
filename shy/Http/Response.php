@@ -30,6 +30,14 @@ class Response implements ResponseContract
     protected $response;
 
     /**
+     * Response constructor.
+     */
+    public function __construct()
+    {
+        $this->header = ['X-Powered-By: Shy Framework ' . shy()->version()];
+    }
+
+    /**
      * Initialize in cycle
      */
     public function initialize()
@@ -71,9 +79,9 @@ class Response implements ResponseContract
      * @param array $header
      * @return $this
      */
-    public function setHeader(array $header)
+    public function setHeader($header)
     {
-        $this->header = array_merge($this->header, $header);
+        $this->header = array_merge($this->header, is_array($header) ? $header : [$header]);
 
         return $this;
     }
@@ -93,7 +101,7 @@ class Response implements ResponseContract
 
         if ($this->response instanceof View) {
             echo $this->response->render();
-        } elseif (is_string($this->response)) {
+        } elseif (is_string($this->response) || is_numeric($this->response)) {
             echo $this->response;
         } elseif (is_array($this->response)) {
             echo json_encode($this->response);

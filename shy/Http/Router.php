@@ -6,7 +6,6 @@ use Shy\Http\Contracts\Router as RouterContract;
 use Shy\Http\Contracts\Request as RequestContract;
 use Shy\Core\Contracts\Pipeline;
 use Shy\Http\Exceptions\HttpException;
-use RuntimeException;
 
 class Router implements RouterContract
 {
@@ -23,7 +22,22 @@ class Router implements RouterContract
     /**
      * @var string
      */
+    protected $param;
+
+    /**
+     * @var string
+     */
+    protected $controllerNamespace;
+
+    /**
+     * @var string
+     */
     protected $pathInfo;
+
+    /**
+     * @var array
+     */
+    protected $routeIndex;
 
     /**
      * @var array
@@ -45,7 +59,10 @@ class Router implements RouterContract
         $this->parseRouteSuccess = false;
         $this->controller = config('app.default_controller');
         $this->method = 'index';
-        $this->pathInfo = '/';
+        $this->routeIndex = [];
+        $this->controllerNamespace = 'App\\Http\\Controllers\\';
+        $this->pathInfo = '';
+        $this->param = null;
         $this->middleware = [];
     }
 
@@ -88,12 +105,10 @@ class Router implements RouterContract
         if (!is_string($this->pathInfo)) {
             throw new httpException(500, 'Route invalid.');
         }
-        if (strlen($this->pathInfo) > 1) {
-            $this->pathInfo = rtrim($this->pathInfo, " \/\t\n\r\0\x0B");
-        }
+        $this->pathInfo = trim($this->pathInfo, " \/\t\n\r\0\x0B");
 
         /**
-         * Parse Router
+         * Parse Route
          */
         if (config('app.route_by_config')) {
             $this->parseRouteByConfig();
@@ -136,126 +151,146 @@ class Router implements RouterContract
     protected function parseRouteByConfig()
     {
         /**
-         * Read cache or build router index
+         * Read cache or build route index
          */
-        $routerIndex = [];
         $isCache = config('app.cache');
         if ($isCache && config()->has('__ROUTE_INDEX')) {
-            $routerIndex = config('__ROUTE_INDEX');
+            $this->routeIndex = config('__ROUTE_INDEX');
         }
-
-        if (!is_array($routerIndex) || empty($routerIndex)) {
-            $routerIndex = $this->buildRouterIndex();
+        if (empty($this->routeIndex) || !is_array($this->routeIndex)) {
+            $this->buildRouteIndexByConfig();
 
             if ($isCache) {
-                config()->set('__ROUTE_INDEX', $routerIndex);
+                config()->set('__ROUTE_INDEX', $this->routeIndex);
             }
         }
         /**
-         * parse router
+         * Parse route
          */
-        if (isset($routerIndex[$this->pathInfo])) {
-            if (isset($routerIndex[$this->pathInfo]['middleware'])) {
-                $this->middleware = $routerIndex[$this->pathInfo]['middleware'];
+        if (isset($this->routeIndex[$this->pathInfo])) {
+            $this->writeParseRouteByConfig($this->routeIndex[$this->pathInfo]);
+        } elseif ($paramStart = strrpos($this->pathInfo, '/')) {
+            $pathInfo = substr($this->pathInfo, 0, $paramStart);
+            $param = substr($this->pathInfo, $paramStart + 1);
+
+            if (isset($this->routeIndex[$pathInfo]) && isset($this->routeIndex[$pathInfo]['with_param'])) {
+                $this->writeParseRouteByConfig($this->routeIndex[$pathInfo], $param);
             }
-
-            $handle = $routerIndex[$this->pathInfo]['handle'];
-            list($this->controller, $this->method) = explode('@', $handle);
-
-            $this->parseRouteSuccess = true;
         }
     }
 
-    /**
-     * Build router index
-     */
-    protected function buildRouterIndex()
+    protected function writeParseRouteByConfig($config, $param = null)
     {
+        list($this->controller, $this->method) = array_pad(explode('@', $config['handle']), 2, 'index');
+
+        if (isset($config['middleware'])) {
+            $this->middleware = $config['middleware'];
+        }
+
+        $this->param = $param;
+
+        $this->parseRouteSuccess = true;
+    }
+
+    /**
+     * Build route index by config
+     */
+    protected function buildRouteIndexByConfig()
+    {
+        $this->routeIndex = [];
         $router = config('router');
-        $routerIndex = [];
-        $controllerNamespace = 'App\\Http\\Controllers\\';
+
         /**
-         * path
+         * Build path index
          */
         if (isset($router['path'])) {
             foreach ($router['path'] as $path => $handle) {
-                if (strlen($handle) > 1) {
-                    $handle = rtrim($handle, " \/\t\n\r\0\x0B");
-                }
-                $routerIndex[$path] = ['handle' => $controllerNamespace . ucfirst($handle)];
-            }
-        }
-        /**
-         * group
-         */
-        if (isset($router['group'])) {
-            foreach ($router['group'] as $oneGroup) {
-                if (isset($oneGroup['path']) && is_array($oneGroup['path'])) {
-                    /**
-                     * prefix
-                     */
-                    $prefix = '';
-                    if (isset($oneGroup['prefix']) && is_string($oneGroup['prefix']) && !empty($oneGroup['prefix'])) {
-                        $prefix = '/' . $oneGroup['prefix'];
-                    }
-                    /**
-                     * namespace
-                     */
-                    if (isset($oneGroup['namespace']) && is_string($oneGroup['namespace']) && !empty($oneGroup['namespace'])) {
-                        $controllerNamespace = $oneGroup['namespace'] . '\\';
-                    }
-                    /**
-                     * middleware
-                     */
-                    $middleware = [];
-                    if (isset($oneGroup['middleware']) && is_array($oneGroup['middleware'])) {
-                        $middleware = $this->getMiddlewareClassByConfig($oneGroup['middleware']);
-                    }
-                    foreach ($oneGroup['path'] as $path => $handle) {
-                        if (strlen($handle) > 1) {
-                            $handle = rtrim($handle, " \/\t\n\r\0\x0B");
-                        }
-                        $routerIndex[$prefix . $path] = ['handle' => $controllerNamespace . ucfirst($handle), 'middleware' => $middleware];
-                    }
-                }
+                $this->addRouteIndexByConfig($path, $handle, $this->controllerNamespace);
             }
         }
 
-        return $routerIndex;
+        /**
+         * Build group path index
+         */
+        if (isset($router['group'])) {
+            foreach ($router['group'] as $group) {
+                if (isset($group['path']) && is_array($group['path'])) {
+                    $prefix = '';
+                    if (isset($group['prefix']) && is_string($group['prefix']) && !empty($group['prefix'])) {
+                        $prefix = $group['prefix'];
+                    }
+
+                    $controllerNamespace = $this->controllerNamespace;
+                    if (isset($group['namespace']) && is_string($group['namespace']) && !empty($group['namespace'])) {
+                        $controllerNamespace = trim($group['namespace'], " \\\/\t\n\r\0\x0B") . '\\';
+                    }
+
+                    $middlewareClass = [];
+                    if (isset($group['middleware']) && is_array($group['middleware'])) {
+                        $middlewareClass = $this->getMiddlewareClassInConfig($group['middleware']);
+                    }
+
+                    foreach ($group['path'] as $path => $handle) {
+                        $this->addRouteIndexByConfig($prefix . $path, $handle, $controllerNamespace, $middlewareClass);
+                    }
+                }
+            }
+        }
     }
 
     /**
-     * Get middleware class by config
+     * Add route index by config
+     *
+     * @param $path
+     * @param $handle
+     * @param $controllerNamespace
+     * @param array $middlewareClass
+     */
+    protected function addRouteIndexByConfig($path, $handle, $controllerNamespace, $middlewareClass = [])
+    {
+        if (is_string($handle)) {
+            $path = trim($path, " \/\t\n\r\0\x0B");
+
+            if (substr($path, -2) === '/?') {
+                $path = substr($path, 0, -2);
+                $this->routeIndex[$path]['with_param'] = true;
+            }
+
+            $this->routeIndex[$path]['handle'] = $controllerNamespace . ucfirst(trim($handle, " \\\/\t\n\r\0\x0B"));
+
+            if (!empty($middlewareClass)) {
+                $this->routeIndex[$path]['middleware'] = $middlewareClass;
+            }
+        }
+    }
+
+    /**
+     * Get middleware class in config
      *
      * @param $middlewareNames
      * @return array
      */
-    protected function getMiddlewareClassByConfig(array $middlewareNames)
+    protected function getMiddlewareClassInConfig(array $middlewareNames)
     {
         $middleware = [];
-        if (!empty($middlewareNames)) {
-            $middlewareConfig = config('middleware');
-            foreach ($middlewareNames as $middlewareName) {
-                $middlewareAndParam = explode(':', $middlewareName, 2);
+        if (empty($middlewareNames)) {
+            return $middleware;
+        }
 
-                if (isset($middlewareConfig[$middlewareAndParam[0]])) {
-                    if (isset($middlewareAndParam[1])) {
-                        $paramString = ':' . $middlewareAndParam[1];
-                    } else {
-                        $paramString = '';
-                    }
+        $config = config('middleware');
+        foreach ($middlewareNames as $middlewareName) {
+            list($name, $param) = array_pad(explode(':', $middlewareName, 2), 2, null);
 
-                    $middlewareClass = $middlewareConfig[$middlewareAndParam[0]];
-                    if (is_string($middlewareClass)) {
-                        $middleware[] = $middlewareClass . $paramString;
-                    } elseif (is_array($middlewareClass)) {
-                        $middleware = array_merge($middleware, $middlewareClass);
-                    } else {
-                        throw new RuntimeException('Middleware name ' . $middlewareAndParam[0] . ' config error.');
-                    }
+            if (isset($config[$name])) {
+                $className = $config[$name];
+                if (is_array($className)) {
+                    $middleware = array_merge($middleware, $className);
                 } else {
-                    throw new RuntimeException('Middleware name ' . $middlewareAndParam[0] . ' config not found.');
+                    $middleware[] = $className . (isset($param) ? ':' . $param : '');
                 }
+            } else {
+                //This step does not report an error
+                $middleware[] = $name;
             }
         }
 
@@ -274,11 +309,14 @@ class Router implements RouterContract
         }
 
         $path = explode('/', $this->pathInfo);
-        if (isset($path[1])) {
-            if (!empty($path[1])) {
-                $this->controller = ucfirst($path[1]);
-                if (isset($path[2]) && !empty($path[2])) {
-                    $this->method = ucfirst($path[2]);
+        if (isset($path[0])) {
+            if (!empty($path[0])) {
+                $this->controller = ucfirst($path[0]);
+                if (isset($path[1]) && !empty($path[1])) {
+                    $this->method = ucfirst($path[1]);
+                    if (isset($path[2])) {
+                        $this->param = $path[2];
+                    }
                 }
             }
 
@@ -293,10 +331,15 @@ class Router implements RouterContract
      */
     protected function runController()
     {
-        return shy(Pipeline::class)
+        $pipeline = shy(Pipeline::class)
             ->through($this->controller)
-            ->via($this->method)
-            ->run();
+            ->via($this->method);
+
+        if (isset($this->param)) {
+            $pipeline->send($this->param);
+        }
+
+        return $pipeline->run();
     }
 
 }

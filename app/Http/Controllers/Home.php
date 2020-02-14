@@ -62,4 +62,14 @@ class Home
     {
         return 'controller echo ' . url('controller_2/home');
     }
+
+    public function test3($pathParam)
+    {
+        return 'controller echo path param ' . $pathParam;
+    }
+
+    public function test4()
+    {
+        return test_error();
+    }
 }

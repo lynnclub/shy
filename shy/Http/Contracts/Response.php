@@ -28,10 +28,10 @@ interface Response
     /**
      * Set Http Header
      *
-     * @param array $header
+     * @param array|string $header
      * @return $this
      */
-    public function setHeader(array $header);
+    public function setHeader($header);
 
     /**
      * Send Response

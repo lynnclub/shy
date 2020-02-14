@@ -106,10 +106,10 @@ class Pipeline implements PipelineContract
     public function run()
     {
         $pipeline = array_reduce(
-            array_reverse($this->pipes), $this->carry()
+            array_reverse($this->pipes), $this->carry(), $this->passable
         );
 
-        return $pipeline(...$this->passable);
+        return $pipeline();
     }
 
     /**
@@ -143,7 +143,7 @@ class Pipeline implements PipelineContract
                     } else {
                         list($name, $parameters) = $this->parsePipeString($pipe);
                         $pipe = shy($name);
-                        $parameters = array_merge([$next], $passable, $parameters);
+                        $parameters = array_merge(is_array($next) ? $next : [$next], $passable, $parameters);
                     }
 
                     if (method_exists($pipe, $this->method)) {

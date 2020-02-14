@@ -15,7 +15,7 @@ body {
     margin: 100px auto;
     font-size: 50px;
     text-align: center;
-    background: linear-gradient(to right, red, blue);
+    background: linear-gradient(to right, green, yellow);
     -webkit-background-clip: text;
     color: transparent;
 }

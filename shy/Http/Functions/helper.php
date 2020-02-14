@@ -46,7 +46,7 @@ if (!function_exists('url')) {
     function url(string $path = '')
     {
         $path = trim($path, ' /');
-        $router = config('__ROUTE_INDEX./' . $path);
+        $router = config('__ROUTE_INDEX.' . $path);
         if (empty($router)) {
             throw new RuntimeException('Path "' . $path . '" not found in router config.');
         }
