@@ -160,8 +160,8 @@ class HttpInWorkerMan extends Worker
         $workerman_path_info = pathinfo($workerman_path);
         $workerman_file_extension = isset($workerman_path_info['extension']) ? $workerman_path_info['extension'] : '';
         if ($workerman_file_extension === '') {
-            $workerman_path = 'index.php';
             //$workerman_path = ($len = strlen($workerman_path)) && $workerman_path[$len - 1] === '/' ? $workerman_path . 'index.php' : $workerman_path . '/index.php';
+            $workerman_path = 'index.php';
             $workerman_file_extension = 'php';
         }
 
@@ -180,7 +180,7 @@ class HttpInWorkerMan extends Worker
         }
 
         // File exsits.
-        if (is_file($workerman_file)) {
+        if ($workerman_file_extension !== 'php' && is_file($workerman_file)) {
             // Security check.
             if ((!($workerman_request_realpath = realpath($workerman_file)) || !($workerman_root_dir_realpath = realpath($workerman_root_dir))) || 0 !== strpos($workerman_request_realpath,
                     $workerman_root_dir_realpath)
@@ -192,58 +192,50 @@ class HttpInWorkerMan extends Worker
 
             $workerman_file = realpath($workerman_file);
 
-            // Request php file.
-            if ($workerman_file_extension === 'php') {
-                $workerman_cwd = getcwd();
-                chdir($workerman_root_dir);
-                ini_set('display_errors', 'off');
-                ob_start();
-                // Try to include php file.
-                try {
-                    // $_SERVER.
-                    $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
-                    $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
-
-                    //include "$workerman_file";
-                    /**
-                     * Cycle count
-                     */
-                    shy()->set('SHY_CYCLE_COUNT', shy()->get('SHY_CYCLE_COUNT') + 1);
-                    /**
-                     * Cycle start time
-                     */
-                    shy()->set('SHY_CYCLE_START_TIME', microtime(true));
-                    /**
-                     * Run framework
-                     */
-                    shy('request')->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
-                    shy('session')->sessionStart();
-                    shy('http')->run();
-                } catch (Throwable $e) {
-                    shy(HandlerRegister::class)->handleException($e);
-                }
-                $content = ob_get_clean();
-                ini_set('display_errors', 'on');
-                if (strtolower($_SERVER['HTTP_CONNECTION']) === "keep-alive") {
-                    $connection->send($content);
-                } else {
-                    $connection->close($content);
-                }
-                chdir($workerman_cwd);
-                return;
-            }
-
             // Send file to client.
             return self::sendFile($connection, $workerman_file);
         } else {
-            // 404
-            Http::header("HTTP/1.1 404 Not Found");
-            if (isset($workerman_siteConfig['custom404']) && file_exists($workerman_siteConfig['custom404'])) {
-                $html404 = file_get_contents($workerman_siteConfig['custom404']);
-            } else {
-                $html404 = '<html><head><title>404 File not found</title></head><body><center><h3>404 Not Found</h3></center></body></html>';
+            $workerman_cwd = getcwd();
+            chdir($workerman_root_dir);
+            ini_set('display_errors', 'off');
+            ob_start();
+            // Try to include php file.
+            // $_SERVER.
+            $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
+            $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
+
+            //include "$workerman_file";
+
+            /**
+             * Run Shy Framework
+             */
+            try {
+                /**
+                 * Cycle count
+                 */
+                shy()->set('SHY_CYCLE_COUNT', shy()->get('SHY_CYCLE_COUNT') + 1);
+                /**
+                 * Cycle start time
+                 */
+                shy()->set('SHY_CYCLE_START_TIME', microtime(true));
+                /**
+                 * Run framework
+                 */
+                shy('request')->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+                shy('session')->sessionStart();
+                shy('http')->run();
+            } catch (Throwable $e) {
+                shy(HandlerRegister::class)->handleException($e);
             }
-            $connection->close($html404);
+
+            $content = ob_get_clean();
+            ini_set('display_errors', 'on');
+            if (strtolower($_SERVER['HTTP_CONNECTION']) === "keep-alive") {
+                $connection->send($content);
+            } else {
+                $connection->close($content);
+            }
+            chdir($workerman_cwd);
             return;
         }
     }
