@@ -7,7 +7,7 @@
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
     <title>{$title}</title>
-    <link type="text/css" rel="stylesheet" href="{BASE_URL}css/app.css">
+    <link type="text/css" rel="stylesheet" href="/css/app.css">
 </head>
 <body>
 <div id="hello-world">
