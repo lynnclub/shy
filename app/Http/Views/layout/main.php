@@ -7,7 +7,7 @@
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
     <title><?php param('title') ?></title>
-    <link type="text/css" rel="stylesheet" href="<?php echo BASE_URL ?>css/app.css">
+    <link type="text/css" rel="stylesheet" href="/css/app.css">
     <?php push_resource('header-css') ?>
 </head>
 <body>
