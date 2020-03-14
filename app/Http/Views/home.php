@@ -26,13 +26,11 @@ push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.j
     <ol>
         <?php
         $instanceCount = 0;
-        foreach (shy()->memoryUsed() as $abstract => $instances) {
-            foreach ($instances as $key => $memoryUsed) {
-                $instanceCount++;
-                ?>
-                <li><?php echo $abstract . '(' . ($key + 1) . ') ' . $memoryUsed / 1024 . ' kb'; ?></li>
-            <?php }
-        } ?>
+        foreach (shy()->memoryUsed() as $abstract => $memoryUsed) {
+            $instanceCount++;
+            ?>
+            <li><?php echo $abstract . ' ' . $memoryUsed / 1024 . ' kb'; ?></li>
+        <?php } ?>
     </ol>
     <br>
     <h3>Test Case:</h3>

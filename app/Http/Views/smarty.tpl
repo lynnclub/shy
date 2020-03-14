@@ -26,10 +26,8 @@
     <h3>Loaded Instance Uses Memory:</h3>
     <br>
     <ol>
-        {foreach $shy->memoryUsed() as $abstract => $instances}
-            {foreach $instances as $key => $memoryUsed}
-                <li>{$abstract}({$key + 1}) {$memoryUsed/1024} kb</li>
-            {/foreach}
+        {foreach $shy->memoryUsed() as $abstract => $memoryUsed}
+            <li>{$abstract} {$memoryUsed/1024} kb</li>
         {/foreach}
     </ol>
     <br>

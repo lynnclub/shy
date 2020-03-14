@@ -657,6 +657,7 @@ class Request implements RequestContract
     public function getValidIps(array $ips)
     {
         $validIps = [];
+
         foreach ($ips as $ip) {
             if (is_array($ip)) {
                 $validIps = array_merge($validIps, $this->getValidIps($ip));

@@ -6,6 +6,7 @@ return [
     'Throttle' => Shy\Http\Middleware\Throttle::class,
     'Example' => App\Http\Middleware\Example::class,
     'GroupExample' => [
-        'Csrf' => Shy\Http\Middleware\Csrf::class,
+        Shy\Http\Middleware\Csrf::class,
+        Shy\Http\Middleware\IpWhitelist::class,
     ]
 ];

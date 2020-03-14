@@ -8,7 +8,7 @@ use Shy\Core\Exceptions\Container\NotFoundException;
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;
-use InvalidArgumentException;
+use Exception;
 use LogicException;
 
 class Container implements ContainerContract
@@ -16,7 +16,7 @@ class Container implements ContainerContract
     /**
      * @var string
      */
-    protected $shyVersion = 'v1.1.2';
+    protected $shyVersion = '1.1.2';
 
     /**
      * @var Container
@@ -48,22 +48,23 @@ class Container implements ContainerContract
     protected $aliases;
 
     /**
+     * Instances
+     *
      * @var array
      */
     protected $instances;
 
     /**
-     * Memory used by instances
+     * Memory used at make
      *
      * @var array
      */
-    protected $instancesMemory;
+    protected $memoryUsed;
 
-    protected $memoryUsedBeforeMakeInstance;
-
-    protected $instancesIntelligentScheduling = false;
-
-    protected $instancesRecordDir;
+    /**
+     * @var bool
+     */
+    protected $intelligentScheduling = false;
 
     private function __construct()
     {
@@ -117,16 +118,14 @@ class Container implements ContainerContract
     }
 
     /**
-     * Add forked process id to start id
+     * Add fork pid
      *
-     * @param int $forkedPid
+     * @param int $pid
      */
-    public function addForkedPidToStartId(int $forkedPid)
+    public function addForkPid(int $pid)
     {
-        if (!strpos(static::$startId, '_fork')) {
-            static::$startId .= '_fork' . $forkedPid;
-            static::$startTime = microtime(true);
-        }
+        static::$startId .= '_' . $pid;
+        static::$startTime = microtime(true);
     }
 
     /**
@@ -134,15 +133,17 @@ class Container implements ContainerContract
      *
      * @param string $id
      * @param $instance
+     *
+     * @return Container
      */
     public function set(string $id, $instance)
     {
         $this->instances[$id] = $instance;
+
+        return $this;
     }
 
     /**
-     * Set instances
-     *
      * @param array $sets
      */
     public function sets(array $sets)
@@ -150,6 +151,118 @@ class Container implements ContainerContract
         foreach ($sets as $id => $instance) {
             $this->set($id, $instance);
         }
+    }
+
+    /**
+     * Handle dependencies injection
+     *
+     * @param \ReflectionParameter[] $dependencies
+     * @param array $parameters
+     *
+     * @return array
+     *
+     * @throws NotFoundException
+     */
+    public function handleDependencies(array $dependencies, array $parameters = [])
+    {
+        $results = [];
+
+        foreach ($dependencies as $key => $dependency) {
+            if ($dependency->isVariadic()) {
+                $results = array_merge($results, array_slice($parameters, $key));
+            } else {
+                $results[$key] = null;
+
+                if (isset($parameters[$key])) {
+                    $results[$key] = $parameters[$key];
+                } elseif (is_object($ReflectionClass = $dependency->getClass())) {
+                    $className = $ReflectionClass->name;
+
+                    if ($this->has($className)) {
+                        $results[$key] = $this->get($className);
+                    } elseif ($this->bound($className) || class_exists($className)) {
+                        $results[$key] = $this->make($className);
+                    }
+                } elseif ($dependency->isDefaultValueAvailable()) {
+                    $results[$key] = $dependency->getDefaultValue();
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Make an instance with dependency injection
+     *
+     * @param string $concrete
+     * @param array ...$parameters
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \ReflectionException
+     *
+     * @return object
+     */
+    public function makeClassWithDependencyInjection(string $concrete, ...$parameters)
+    {
+        $reflector = new ReflectionClass($concrete);
+        if (!$reflector->isInstantiable()) {
+            throw new ContainerException('Class ' . $concrete . ' is not instantiable');
+        }
+
+        $constructor = $reflector->getConstructor();
+        if (is_null($constructor)) {
+            $instance = $reflector->newInstanceWithoutConstructor();
+        } else {
+            $parameters = $this->handleDependencies($constructor->getParameters(), $parameters);
+
+            $instance = $reflector->newInstance(...$parameters);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Run function with dependency injection
+     *
+     * @param $concrete
+     * @param array ...$parameters
+     *
+     * @return mixed
+     *
+     * @throws NotFoundException
+     * @throws \ReflectionException
+     */
+    public function runFunctionWithDependencyInjection($concrete, ...$parameters)
+    {
+        $reflector = new ReflectionFunction($concrete);
+        $parameters = $this->handleDependencies($reflector->getParameters(), $parameters);
+
+        return $concrete(...$parameters);
+    }
+
+    /**
+     * Get closure for make
+     *
+     * @param $concrete
+     *
+     * @return Closure
+     */
+    protected function getClosure($concrete)
+    {
+        return function (...$parameters) use ($concrete) {
+            $instance = null;
+
+            if (is_string($concrete) && class_exists($concrete)) {
+                $instance = $this->makeClassWithDependencyInjection($concrete, ...$parameters);
+            } elseif ($concrete instanceof Closure) {
+                $instance = $this->runFunctionWithDependencyInjection($concrete, ...$parameters);
+            } else {
+                $instance = $concrete;
+            }
+
+            return $instance;
+        };
     }
 
     /**
@@ -166,34 +279,9 @@ class Container implements ContainerContract
             $concrete = $id;
         }
 
-        $this->binds[$id] = $this->getClosure($id, $concrete);
+        $this->binds[$id] = $this->getClosure($concrete);
 
         return $this;
-    }
-
-    /**
-     * Get closure for make
-     *
-     * @param string $id
-     * @param $concrete
-     *
-     * @return Closure
-     */
-    protected function getClosure(string $id, $concrete)
-    {
-        return function (...$parameters) use ($id, $concrete) {
-            if (empty($id)) {
-                throw new InvalidArgumentException('making instance id is empty');
-            }
-
-            if (is_string($concrete) && class_exists($concrete)) {
-                $this->instances[$id] = $this->makeClassWithDependencyInjection($concrete, ...$parameters);
-            } elseif ($concrete instanceof Closure) {
-                $this->instances[$id] = $this->runFunctionWithDependencyInjection($concrete, ...$parameters);
-            } else {
-                $this->instances[$id] = $concrete;
-            }
-        };
     }
 
     /**
@@ -239,143 +327,15 @@ class Container implements ContainerContract
             $this->bind($id, $concrete);
         }
 
-        $this->memoryUsedBeforeMakeInstance = memory_get_usage();
-
-        $this->binds[$id](...$parameters);
-
-        $this->countMemoryUsedToNewInstance($id);
+        $memoryUsedBeforeMake = memory_get_usage();
+        $this->instances[$id] = $this->binds[$id](...$parameters);
+        $this->memoryUsed[$id] = memory_get_usage() - $memoryUsedBeforeMake;
 
         unset($this->binds[$id]);
-        $this->instancesRecord($id, 'make', ['params' => json_encode($parameters), 'memory' => end($this->instancesMemory[$id])]);
+
+        $this->record($id, 'make', ['params' => json_encode($parameters), 'memory' => $this->memoryUsed[$id]]);
 
         return $this->instances[$id];
-    }
-
-    /**
-     * @param array $makes
-     */
-    public function makes(array $makes)
-    {
-        foreach ($makes as $id => $concrete) {
-            $this->make($id, $concrete);
-        }
-    }
-
-    /**
-     * Set alias of instance id
-     *
-     * @param string $alias
-     * @param string $id
-     */
-    public function alias(string $alias, string $id)
-    {
-        if ($alias === $id) {
-            throw new LogicException("[{$id}] is aliased to itself.");
-        }
-
-        $this->aliases[$alias] = $id;
-    }
-
-    /**
-     * @param array $aliases
-     */
-    public function aliases(array $aliases)
-    {
-        foreach ($aliases as $alias => $id) {
-            $this->alias($alias, $id);
-        }
-    }
-
-    /**
-     * Make an instance with dependency injection
-     *
-     * @param string $concrete
-     * @param array ...$parameters
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
-     *
-     * @return object
-     */
-    public function makeClassWithDependencyInjection(string $concrete, ...$parameters)
-    {
-        $reflector = new ReflectionClass($concrete);
-
-        if (!$reflector->isInstantiable()) {
-            throw new ContainerException('Class ' . $concrete . ' is not instantiable');
-        }
-
-        $constructor = $reflector->getConstructor();
-
-        if (is_null($constructor)) {
-            $instance = $reflector->newInstanceWithoutConstructor();
-        } else {
-            $parameters = $this->getOrMakeDependencies($parameters, $constructor->getParameters());
-
-            $instance = $reflector->newInstance(...$parameters);
-        }
-
-        return $instance;
-    }
-
-    /**
-     * Run function with dependency injection
-     *
-     * @param $concrete
-     * @param array ...$parameters
-     *
-     * @throws NotFoundException
-     * @throws \ReflectionException
-     *
-     * @return mixed
-     */
-    public function runFunctionWithDependencyInjection($concrete, ...$parameters)
-    {
-        $reflector = new ReflectionFunction($concrete);
-        $parameters = $this->getOrMakeDependencies($parameters, $reflector->getParameters());
-
-        return call_user_func($concrete, ...$parameters);
-    }
-
-    /**
-     * Get or make dependency object
-     *
-     * @param array $parameters
-     * @param \ReflectionParameter[] $dependencies
-     *
-     * @return array
-     *
-     * @throws NotFoundException
-     */
-    public function getOrMakeDependencies(array $parameters, array $dependencies)
-    {
-        $results = [];
-
-        foreach ($dependencies as $key => $dependency) {
-            if ($dependency->isVariadic() && $key < count($parameters) - 1) {
-                $results = array_merge($results, array_slice($parameters, $key));
-            } else {
-                $results[$key] = null;
-
-                if (isset($parameters[$key])) {
-                    $results[$key] = $parameters[$key];
-                } elseif (!is_null($class = $dependency->getClass())) {
-                    $className = $class->name;
-
-                    if ($this->bound($className)) {
-                        $results[$key] = $this->make($className);
-                    } elseif ($this->has($className)) {
-                        $results[$key] = $this->get($className);
-                    } elseif (class_exists($className)) {
-                        $results[$key] = $this->make($className);
-                    }
-                } elseif ($dependency->isDefaultValueAvailable()) {
-                    $results[$key] = $dependency->getDefaultValue();
-                }
-            }
-        }
-
-        return $results;
     }
 
     /**
@@ -389,29 +349,44 @@ class Container implements ContainerContract
      */
     public function getOrMake(string $id, $concrete = null, ...$parameters)
     {
-        if (isset($this->instances[$id])) {
-            $this->instancesRecord($id, 'use');
-
-            return $this->instances[$id];
-        } elseif (isset($this->aliases[$id])) {
-            if (isset($this->instances[$this->aliases[$id]])) {
-                return $this->instances[$this->aliases[$id]];
-            } else {
+        try {
+            return $this->get($id);
+        } catch (Exception $throwable) {
+            if (isset($this->aliases[$id])) {
                 $id = $this->aliases[$id];
             }
-        }
 
-        return $this->make($id, $concrete, ...$parameters);
+            return $this->make($id, $concrete, ...$parameters);
+        }
     }
 
     /**
-     * Count the memory used to create the instance
+     * Set alias of instance id
      *
-     * @param $id
+     * @param string $alias
+     * @param string $id
+     *
+     * @return Container
      */
-    protected function countMemoryUsedToNewInstance(string $id)
+    public function alias(string $alias, string $id)
     {
-        $this->instancesMemory[$id][] = memory_get_usage() - $this->memoryUsedBeforeMakeInstance;
+        if ($alias === $id) {
+            throw new LogicException("[{$id}] is aliased to itself.");
+        }
+
+        $this->aliases[$alias] = $id;
+
+        return $this;
+    }
+
+    /**
+     * @param array $aliases
+     */
+    public function aliases(array $aliases)
+    {
+        foreach ($aliases as $alias => $id) {
+            $this->alias($alias, $id);
+        }
     }
 
     /**
@@ -425,10 +400,10 @@ class Container implements ContainerContract
             foreach ($id as $item) {
                 $this->remove($item);
             }
-        } else {
-            $this->instancesRecord($id, 'remove');
+        } elseif (is_string($id)) {
+            $this->record($id, 'remove');
 
-            unset($this->binds[$id], $this->instancesMemory[$id], $this->instances[$id]);
+            unset($this->binds[$id], $this->memoryUsed[$id], $this->instances[$id]);
         }
     }
 
@@ -449,7 +424,7 @@ class Container implements ContainerContract
      */
     public function memoryUsed()
     {
-        return $this->instancesMemory;
+        return $this->memoryUsed;
     }
 
     /**
@@ -464,14 +439,20 @@ class Container implements ContainerContract
     public function get($id)
     {
         if (isset($this->instances[$id])) {
-            $this->instancesRecord($id, 'use');
+            $this->record($id, 'use');
 
             return $this->instances[$id];
-        } elseif (isset($this->aliases[$id]) && isset($this->instances[$this->aliases[$id]])) {
-            return $this->instances[$this->aliases[$id]];
-        } else {
-            throw new NotFoundException('instance id ' . $id . ' not found.');
+        } elseif (isset($this->aliases[$id])) {
+            $id = $this->aliases[$id];
+
+            if (isset($this->instances[$id])) {
+                $this->record($id, 'use');
+
+                return $this->instances[$id];
+            }
         }
+
+        throw new NotFoundException('Instance id ' . $id . ' not found.');
     }
 
     /**
@@ -530,7 +511,7 @@ class Container implements ContainerContract
      */
     public function offsetGet($offset)
     {
-        return $this->getOrMake($offset);
+        return $this->get($offset);
     }
 
     /**
@@ -583,75 +564,69 @@ class Container implements ContainerContract
     }
 
     /**
-     * Set instances intelligent scheduling on
-     *
-     * @param string $recordDir
+     * Intelligent scheduling
      */
-    public function instancesIntelligentSchedulingOn(string $recordDir)
+    public function intelligentSchedulingOn()
     {
-        $this->instancesRecordDir = $recordDir;
-        $this->instancesIntelligentScheduling = true;
+        $this->intelligentScheduling = true;
     }
 
     /**
-     * Instances record
-     *
-     * data format: key1 ^^ value1 ... ^^ key2 ^^ value2 ...
-     *
-     * start id ^^ class id ^^ operation ^^ time ^^ isCli ^^ url ^^ ips ^^ trace ...customer params
-     *
-     * @todo Records data for instances intelligent scheduling
+     * Record
      *
      * @param string $id
      * @param string $operation
      * @param array $params
      *
-     * @return bool
+     * @return false
      */
-    protected function instancesRecord(string $id, string $operation, array $params = [])
+    protected function record(string $id, string $operation, array $params = [])
     {
-        if (!$this->instancesIntelligentScheduling) {
+        if (!isset($this->aliases['config']) || !isset($this->instances[$this->aliases['config']])) {
             return false;
         }
-
-        $structure = [
-            'startId' => self::$startId,
-            'id' => $id,
-            'operation' => $operation,
-            'time' => time(),
-            'isCli' => is_cli(),
-            'url' => '',
-            'ips' => '',
-            'trace' => ''
-        ];
-
-        if ($this->has('request')) {
-            $request = $this['request'];
-            if ($request->isInitialized()) {
-                $structure['url'] = $request->getUrl();
-                $structure['ips'] = implode(',', $request->getClientIps());
+        if (!$this->instances[$this->aliases['config']]->find('app.debug')) {
+            if (!$this->intelligentScheduling) {
+                return false;
+            } elseif (stripos($id, 'Shy\\') === 0) {
+                return false;
             }
         }
 
-        $structure['trace'] = json_encode(debug_backtrace());
+        /**
+         * Container ID
+         * Instance ID
+         * Operation
+         * Timestamp
+         */
+        $structure = self::$startId . '^' . $id . '^' . $operation . '^' . time() . PHP_EOL;
 
+        if (isset($this->aliases['request']) && isset($this->instances[$this->aliases['request']])) {
+            $request = $this->instances[$this->aliases['request']];
+            if ($request->isInitialized()) {
+                $structure .= 'req^' . $request->getUrl() . '^' . implode(',', $request->getClientIps()) . PHP_EOL;
+            }
+        }
+
+        if ($this->intelligentScheduling && stripos($id, 'Shy\\') !== 0) {
+            $structure = 'ins^' . $structure . 'trc^' . json_encode(debug_backtrace()) . PHP_EOL;
+        } else {
+            $structure = 'rec^' . $structure;
+        }
+
+        //Custom
         if (!empty($params)) {
             foreach ($params as $key => $value) {
                 if (is_array($value)) {
-                    $structure[$key] = json_encode($value);
+                    $structure .= $key . '^^' . json_encode($value);
                 } else {
-                    $structure[$key] = $value;
+                    $structure .= $key . '^^' . $value;
                 }
             }
+            $structure .= PHP_EOL;
         }
 
-        $finalStructure = [];
-        foreach ($structure as $key => $value) {
-            $finalStructure[] = $key;
-            $finalStructure[] = $value;
-        }
-
-        file_put_contents($this->instancesRecordDir . date('Ymd') . '.log', implode('^^', $finalStructure) . PHP_EOL, FILE_APPEND);
+        file_put_contents(CACHE_PATH . 'log/container/' . date('Ymd') . '.log', $structure . PHP_EOL, FILE_APPEND);
     }
 
 }

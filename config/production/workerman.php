@@ -7,7 +7,7 @@ return [
     */
 
     'http' => [
-        'port' => 2348,
+        'port' => 2350,
         'worker' => 2
     ],
 
@@ -17,7 +17,7 @@ return [
 
     'socket' => [
         'chat' => [
-            'address' => 'websocket://127.0.0.1:2349',
+            'address' => 'websocket://127.0.0.1:2352',
             'worker' => 2,
             'onConnect' => [App\Socket\Example::class => 'onConnect'],
             'onMessage' => [App\Socket\Example::class => 'onMessage'],

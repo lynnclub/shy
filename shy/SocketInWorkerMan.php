@@ -31,13 +31,12 @@ class SocketInWorkerMan extends Worker
 
         // Start file.
         global $argv;
-        $cachePath = config('path.cache');
-        static::$_startFile = $cachePath . 'log/console/workerman_' . $argv[0] . '.log';
+        static::$_startFile = CACHE_PATH . 'log/command/workerman_' . $argv[0] . '.log';
 
         $unique_prefix = str_replace('/', '_', static::$_startFile);
 
         // Pid file.
-        static::$pidFile = $cachePath . "app/$unique_prefix.pid";
+        static::$pidFile = CACHE_PATH . "app/$unique_prefix.pid";
 
         // Log file.
         static::$logFile = static::$_startFile;

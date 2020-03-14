@@ -8,6 +8,7 @@ use Shy\Http\Facades\Request;
 use Shy\Core\Facades\Cache;
 use Shy\Core\Facades\Logger;
 use Shy\Http\Facades\Response;
+use Shy\Http\Facades\Router;
 use Shy\Http\Exceptions\HttpException;
 
 class Throttle implements Middleware
@@ -21,21 +22,22 @@ class Throttle implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        $limit = 60;
+        $limitTimes = 60;
         if (isset($passable[0]) && is_numeric($passable[0])) {
-            $limit = $passable[0];
+            $limitTimes = $passable[0];
         }
 
-        $coolDownMinute = 1;
+        $limitMinute = $coolDownMinute = 1;
         if (isset($passable[1]) && is_numeric($passable[1])) {
             $coolDownMinute = $passable[1];
         }
 
         $userIps = Request::getClientIps();
+        $cacheKey = 'throttle:count:' . Router::getController() . ':' . Router::getMethod() . ':ip:';
 
         $time = time();
         foreach ($userIps as $userIp) {
-            $cache = Cache::get('throttle:count:ip:' . $userIp);
+            $cache = json_decode(Cache::get($cacheKey . $userIp), true);
 
             if (isset($cache['count'], $cache['time']) && $cache['time'] > $time) {
                 $cache['count'] += 1;
@@ -46,16 +48,18 @@ class Throttle implements Middleware
                 ];
             }
 
-            Cache::set('throttle:count:ip:' . $userIp, $cache, $coolDownMinute * 60);
+            $remaining = $limitTimes - $cache['count'];
+            $header = [
+                'X-RateLimit-Limit:' . $limitTimes,
+                'X-RateLimit-Remaining:' . ($remaining < 0 ? 0 : $remaining)
+            ];
 
-            $remaining = $limit - $cache['count'];
-            if ($remaining < 0) {
-                $remaining = 0;
+            if ($remaining <= 0) {
+                $limitMinute = $coolDownMinute;
             }
-            $header = ['X-RateLimit-Limit:' . $limit, 'X-RateLimit-Remaining:' . $remaining];
-            Response::setHeader($header);
+            Cache::set($cacheKey . $userIp, json_encode($cache), $limitMinute * 60);
 
-            if ($cache['count'] > $limit) {
+            if ($remaining <= 0) {
                 Logger::info('Throttle block request', Request::all());
 
                 $header[] = 'X-RateLimit-Retry-After:' . ($cache['time'] - $time);
@@ -66,6 +70,8 @@ class Throttle implements Middleware
                 } else {
                     throw new HttpException(403, lang(5001), null, $header);
                 }
+            } else {
+                Response::setHeader($header);
             }
         }
 

@@ -1,10 +1,4 @@
 <?php
-/**
- * Example Middleware
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 namespace App\Http\Middleware;
 

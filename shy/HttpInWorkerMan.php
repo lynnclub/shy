@@ -97,7 +97,7 @@ class HttpInWorkerMan extends Worker
         // Try to emit onWorkerStart callback.
         if ($this->_onWorkerStart) {
             try {
-                call_user_func($this->_onWorkerStart, $this);
+                ($this->_onWorkerStart)($this);
             } catch (Exception $e) {
                 self::log($e);
                 exit(250);
@@ -107,7 +107,7 @@ class HttpInWorkerMan extends Worker
             }
         }
 
-        shy()->addForkedPidToStartId($this->id);
+        shy()->addForkPid($this->id);
     }
 
     /**
@@ -223,7 +223,7 @@ class HttpInWorkerMan extends Worker
                  */
                 shy('request')->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
                 shy('session')->sessionStart();
-                shy('http')->run();
+                shy(\Shy\Http::class)->run();
             } catch (Throwable $e) {
                 shy(HandlerRegister::class)->handleException($e);
             }

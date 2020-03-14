@@ -1,9 +1,6 @@
 <?php
 /**
  * Helpers functions
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
  */
 
 if (!function_exists('dd')) {
@@ -22,62 +19,51 @@ if (!function_exists('dd')) {
     }
 }
 
-if (!function_exists('is_valid_ip')) {
-    /**
-     * Get valid ip
-     *
-     * @param string $ip
-     * @return bool
-     */
-    function is_valid_ip(string $ip)
-    {
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return true;
-        }
-
-        return false;
-    }
-}
-
-if (!function_exists('get_response_json')) {
-    /**
-     * Get response json
-     *
-     * @param int $code
-     * @param string|array $msg
-     * @param array $data
-     * @return string
-     */
-    function get_response_json(int $code, $msg = null, $data = array())
-    {
-        if ($msg === null) {
-            $msg = lang($code);
-        }
-
-        return json_encode(array('code' => $code, 'msg' => $msg, 'data' => $data), JSON_UNESCAPED_UNICODE);
-    }
-}
-
 if (!function_exists('get_array_key')) {
     /**
      * Get key in array
      *
-     * @param array $keyLevels
+     * @param array $key_levels
      * @param array $array
-     * @return array
+     * @return string|array
      */
-    function get_array_key(array $keyLevels, array $array)
+    function get_array_key(array $key_levels, array $array)
     {
-        $currentLevel = array_shift($keyLevels);
+        $currentLevel = array_shift($key_levels);
 
-        if (isset($array[$currentLevel])) {
-            if (empty($keyLevels)) {
+        if (is_null($currentLevel)) {
+            return $array;
+        } elseif (isset($array[$currentLevel])) {
+            if (empty($key_levels)) {
                 return $array[$currentLevel];
             } else {
-                return get_array_key($keyLevels, $array[$currentLevel]);
+                return get_array_key($key_levels, $array[$currentLevel]);
             }
-        } elseif (empty($keyLevels)) {
-            return $array;
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('empty_or_splice')) {
+    /**
+     * Empty or splice
+     *
+     * @param string $string
+     * @param string $splice
+     * @param bool $is_prefix
+     * @return string
+     */
+    function empty_or_splice(string $string, string $splice = '', bool $is_prefix = true)
+    {
+        if (empty($string)) {
+            return '';
+        } else {
+            if ($is_prefix) {
+                return $splice . $string;
+            } else {
+                return $string . $splice;
+            }
         }
     }
 }
@@ -87,23 +73,30 @@ if (!function_exists('mime')) {
      * Get mime
      *
      * @param string $type
+     * @param bool $flip
      * @return string
      */
-    function mime(string $type)
+    function mime(string $type, bool $flip = false)
     {
         $mime = [
             //applications
             'ai' => 'application/postscript',
             'eps' => 'application/postscript',
             'exe' => 'application/octet-stream',
+            'dll' => 'application/x-msdownload',
             'doc' => 'application/vnd.ms-word',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'ppt' => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'pps' => 'application/vnd.ms-powerpoint',
+            'ppsx' => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
             'pdf' => 'application/pdf',
             'xml' => 'application/xml',
             'odt' => 'application/vnd.oasis.opendocument.text',
             'swf' => 'application/x-shockwave-flash',
+            'js' => 'application/javascript',
             // archives
             'gz' => 'application/x-gzip',
             'tgz' => 'application/x-gzip',
@@ -119,7 +112,13 @@ if (!function_exists('mime')) {
             'php' => 'text/x-php',
             'html' => 'text/html',
             'htm' => 'text/html',
-            'js' => 'text/javascript',
+            'shtml' => 'text/html',
+            'xhtml' => 'text/html',
+            'jhtml' => 'text/html',
+            'jsp' => 'text/html',
+            'jspx' => 'text/html',
+            'asp' => 'text/html',
+            'aspx' => 'text/html',
             'css' => 'text/css',
             'rtf' => 'text/rtf',
             'rtfd' => 'text/rtfd',
@@ -130,6 +129,7 @@ if (!function_exists('mime')) {
             'pl' => 'text/x-perl',
             'sql' => 'text/x-sql',
             // images
+            'ico' => 'image/x-icon',
             'bmp' => 'image/x-ms-bmp',
             'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
@@ -157,6 +157,10 @@ if (!function_exists('mime')) {
             'flv' => 'video/x-flv',
             'mkv' => 'video/x-matroska',
         ];
+
+        if ($flip) {
+            $mime = array_flip($mime);
+        }
 
         if (isset($mime[$type])) {
             return $mime[$type];

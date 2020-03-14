@@ -71,7 +71,7 @@ class File extends AbstractLogger implements LoggerContract
             throw new InvalidArgumentException('Log message is not string.');
         }
 
-        $path = is_cli() ? 'console/' : 'web/';
+        $path = is_cli() ? 'command/' : 'web/';
         $dir = CACHE_PATH . 'log/' . $path;
         if (!is_dir($dir)) {
             mkdir(dirname($dir));
@@ -83,7 +83,7 @@ class File extends AbstractLogger implements LoggerContract
 
             $userIps = $this->request->getClientIps();
             if (!empty($userIps)) {
-                $prefix .= ' [' . implode(',', $this->request->getClientIps()) . ']';
+                $prefix .= ' [' . implode(',', $userIps) . ']';
             }
 
             $prefix .= ' [' . $this->request->userAgent() . ']';

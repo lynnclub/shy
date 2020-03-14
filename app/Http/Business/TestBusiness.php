@@ -1,12 +1,5 @@
 <?php
 
-/**
- * test
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
-
 namespace App\Http\Business;
 
 class TestBusiness

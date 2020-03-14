@@ -93,7 +93,7 @@ class Response implements ResponseContract
      */
     public function send($view = null)
     {
-        if ($view) {
+        if ($view !== null) {
             $this->response = $view;
         }
 

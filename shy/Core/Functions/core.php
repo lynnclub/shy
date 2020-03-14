@@ -1,10 +1,54 @@
 <?php
 /**
  * Core functions
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
  */
+
+if (!function_exists('get_throwable_array')) {
+    /**
+     * Get throwable array
+     *
+     * @param Throwable $throwable
+     * @return array
+     */
+    function get_throwable_array(Throwable $throwable)
+    {
+        $array[] = 'Message: ' . $throwable->getMessage();
+        $array[] = 'File: ' . $throwable->getFile();
+        $array[] = 'Line: ' . $throwable->getLine();
+        $array[] = 'Error Code: ' . $throwable->getCode();
+        $array[] = 'Trace: ';
+
+        foreach ($throwable->getTrace() as $key => $trace) {
+            $traceString = '[' . $key . '] ';
+            if (isset($trace['file'], $trace['line'])) {
+                $traceString .= $trace['file'] . ' ' . $trace['line'];
+            } else {
+                $traceString .= 'none';
+            }
+            $array[] = $traceString;
+
+            if (isset($trace['args'])) {
+                foreach ($trace['args'] as $argKey => $arg) {
+                    if (is_object($arg)) {
+                        $trace['args'][$argKey] = '(object)' . get_class($arg);
+                    } elseif (is_array($arg)) {
+                        $trace['args'][$argKey] = '(array)' . json_encode($arg);
+                    }
+                }
+            } else {
+                $trace['args'] = [];
+            }
+
+            $traceString = '';
+            if (isset($trace['class'])) {
+                $traceString .= $trace['class'] . '->';
+            }
+            $array[] = $traceString . $trace['function'] . '(' . implode(', ', $trace['args']) . ')' . PHP_EOL;
+        }
+
+        return $array;
+    }
+}
 
 if (!function_exists('shy')) {
     /**
@@ -78,9 +122,27 @@ if (!function_exists('require_file')) {
     }
 }
 
+if (!function_exists('lang')) {
+    /**
+     * lang
+     *
+     * @param int $code
+     * @param string $language
+     * @return string
+     */
+    function lang(int $code, string $language = '')
+    {
+        if (empty($language)) {
+            $language = config('app.default_lang');
+        }
+
+        return config('lang/' . $language . '.' . $code);
+    }
+}
+
 if (!function_exists('is_cli')) {
     /**
-     * Determine if running in console.
+     * Determine if running in cli.
      *
      * @return bool
      */

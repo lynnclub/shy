@@ -14,12 +14,19 @@ class Session implements SessionContract
         session_start();
     }
 
+    /**
+     * @return string
+     */
     public function sessionId()
     {
         return session_id();
     }
 
-    public function exist($key)
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function exist(string $key)
     {
         if (isset($_SESSION[$key])) {
             return true;
@@ -28,7 +35,11 @@ class Session implements SessionContract
         }
     }
 
-    public function get($key)
+    /**
+     * @param string $key
+     * @return bool|mixed
+     */
+    public function get(string $key)
     {
         if ($this->exist($key)) {
             return $_SESSION[$key];
@@ -37,14 +48,25 @@ class Session implements SessionContract
         return false;
     }
 
-    public function set($key, $val)
+    /**
+     * @param string $key
+     * @param $val
+     */
+    public function set(string $key, $val)
     {
         $_SESSION[$key] = $val;
     }
 
-    public function token()
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function token(string $name = '')
     {
-        $_SESSION['__token'] = uniqid();
-    }
+        if (empty($name)) {
+            $name = '__token';
+        }
 
+        return $_SESSION[$name] = uniqid();
+    }
 }

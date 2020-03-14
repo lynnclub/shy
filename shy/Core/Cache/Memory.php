@@ -39,9 +39,7 @@ class Memory implements CacheInterface, CacheContracts
         if (empty($cacheFile)) {
             $cacheFile = CACHE_PATH . 'app/memory.cache';
         }
-        if (is_cli()) {
-            $cacheFile .= '.' . shy()->startId();
-        }
+
         $this->persistent = $persistent;
         $this->cacheFile = $cacheFile;
 

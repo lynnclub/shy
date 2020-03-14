@@ -22,10 +22,13 @@ class Csrf implements Middleware
         if (Request::headers()->has('X-CSRF-TOKEN')) {
             $token = Request::headers()->get('X-CSRF-TOKEN');
         } else {
-            $token = Request::get('_token');
+            $token = Request::get('csrf-token');
+            if (empty($token)) {
+                $token = Request::get('_token');
+            }
         }
 
-        if (empty($token) || $token !== Session::get('__token')) {
+        if (empty($token) || $token !== Session::get('csrf-token')) {
             if (Request::ajax()) {
                 return get_response_json(5002);
             } else {

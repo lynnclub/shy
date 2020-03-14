@@ -4,19 +4,34 @@ namespace Shy\Http\Contracts;
 
 interface Session
 {
-    /**
-     * Session Start
-     */
     public function sessionStart();
 
+    /**
+     * @return string
+     */
     public function sessionId();
 
-    public function exist($key);
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function exist(string $key);
 
-    public function get($key);
+    /**
+     * @param string $key
+     * @return bool|mixed
+     */
+    public function get(string $key);
 
-    public function set($key, $val);
+    /**
+     * @param string $key
+     * @param $val
+     */
+    public function set(string $key, $val);
 
-    public function token();
-
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function token(string $name);
 }

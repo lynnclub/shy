@@ -3,9 +3,9 @@
 namespace Shy\Core\Exceptions;
 
 use Shy\Core\Contracts\ExceptionHandler;
+use Shy\Core\Contracts\Config;
 use Shy\Core\Contracts\Logger;
 use Shy\Http\Contracts\Response;
-use Shy\Core\Contracts\Config;
 use Shy\Http\Contracts\View;
 use Exception;
 use Throwable;
@@ -123,24 +123,13 @@ class HandlerRegister
             $e = new FatalThrowableError($e);
         }
 
-        $this->exceptionHandler->set($e);
-
         try {
+            $this->exceptionHandler->set($e);
             $this->exceptionHandler->logging($this->logger);
-        } catch (Throwable $e) {
-            //
-        }
-
-        try {
             $this->exceptionHandler->report();
-        } catch (Throwable $e) {
-            //
-        }
-
-        try {
             $this->exceptionHandler->response($this->config, $this->response, $this->view);
         } catch (Throwable $e) {
-            //
+            echo implode(PHP_EOL, get_throwable_array($e));
         }
     }
 

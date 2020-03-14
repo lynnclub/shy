@@ -143,12 +143,16 @@ class Pipeline implements PipelineContract
                     } else {
                         list($name, $parameters) = $this->parsePipeString($pipe);
                         $pipe = shy($name);
+                        if (!is_object($pipe)) {
+                            throw new RuntimeException('Class ' . $name . ' can not make object');
+                        }
+
                         $parameters = array_merge(is_array($next) ? $next : [$next], $passable, $parameters);
                     }
 
                     if (method_exists($pipe, $this->method)) {
                         $reflector = new ReflectionMethod($pipe, $this->method);
-                        $parameters = shy()->getOrMakeDependencies($parameters, $reflector->getParameters());
+                        $parameters = shy()->handleDependencies($reflector->getParameters(), $parameters);
                         $method = $this->method;
                     } else {
                         throw new RuntimeException('Method ' . $this->method . ' not exist');

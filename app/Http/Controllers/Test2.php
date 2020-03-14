@@ -18,13 +18,11 @@ class Test2
 
     public function testLang()
     {
-        set_lang('zh-CN');
-        return lang(4110);
+        return lang(4110, 'zh-CN');
     }
 
     public function testLang2()
     {
-        set_lang('en-US');
-        return lang(4110);
+        return lang(4110, 'en-US');
     }
 }

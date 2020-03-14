@@ -12,7 +12,6 @@ return [
             'password' => 'password',
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
-            'prefix' => ''
         ],
         'db2' => [
             'driver' => 'mysql',
@@ -23,7 +22,6 @@ return [
             'password' => 'password',
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
-            'prefix' => ''
         ],
         'db3' => [
             'driver' => 'mysql',
@@ -34,25 +32,24 @@ return [
             'password' => 'password',
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
-            'prefix' => ''
         ]
     ],
     'redis' => [
         'default' => [
             'host' => '127.0.0.1',
-            'port' => '6379',
+            'port' => 6379,
             'database' => 0,
             'password' => ''
         ],
         'db2' => [
             'host' => '127.0.0.1',
-            'port' => '6379',
+            'port' => 6379,
             'database' => 1,
             'password' => ''
         ],
         'db3' => [
             'host' => '127.0.0.1',
-            'port' => '6379',
+            'port' => 6379,
             'database' => 0,
             'password' => ''
         ]

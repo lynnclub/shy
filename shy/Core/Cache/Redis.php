@@ -57,7 +57,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
         if (isset($config['database'])) {
             $this->select($config['database']);
         }
-        if ($this->ping() !== '+PONG') {
+        if (!$this->ping()) {
             throw new Exception('Redis Config ' . $config_name . ' connect failed');
         }
 

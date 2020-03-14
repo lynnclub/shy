@@ -5,6 +5,7 @@ namespace Shy\Core;
 use Shy\Core\Cache\Memory;
 use Shy\Core\Contracts\Config as ConfigContract;
 use Shy\Core\Exceptions\Cache\InvalidArgumentException;
+use Exception;
 
 class Config extends Memory implements ConfigContract
 {
@@ -21,27 +22,15 @@ class Config extends Memory implements ConfigContract
      * @throws Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public function __construct($dir = '')
+    public function __construct(string $dir)
     {
-        $env = getenv('SHY_ENV');
-        if (empty($env)) {
-            $env = 'develop';
-        }
-        $this->set('SHY_ENV', $env);
-
-        $this->dir = !empty($dir) && is_dir($dir)
-            ? $dir
-            : dirname(dirname(__DIR__)) . '/config/' . $env . DIRECTORY_SEPARATOR;
-
-        $cacheFile = $this->find('path.cache') . 'app/config.cache';
-
-        if (is_cli()) {
-            $isCacheOn = false;
+        if (is_dir($dir)) {
+            $this->dir = $dir;
         } else {
-            $isCacheOn = $this->find('app.cache');
+            throw new Exception('Config dir is not a dir.');
         }
 
-        parent::__construct($cacheFile, $isCacheOn);
+        parent::__construct($this->find('path.cache') . 'app/config.cache', $this->find('app.cache'));
     }
 
     /**

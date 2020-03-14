@@ -1,8 +1,8 @@
 <?php
 
-namespace Shy\Console\Command;
+namespace Shy\Command;
 
-use Shy\Console;
+use Shy\Command;
 use RuntimeException;
 use Shy\SocketInWorkerMan;
 use Shy\HttpInWorkerMan;
@@ -17,7 +17,8 @@ class Shy
      */
     public function list()
     {
-        $list = shy(Console::class)->getCommandList();
+        $list = shy(Command::class)->getList();
+        asort($list);
         return implode(PHP_EOL, $list);
     }
 
@@ -28,9 +29,7 @@ class Shy
      */
     public function version()
     {
-        return 'Shy Framework ' . shy()->version() .
-            PHP_EOL . 'The mini framework' .
-            PHP_EOL . '( *^_^* )';
+        return 'Shy Framework ' . shy()->version();
     }
 
     /**
@@ -40,25 +39,25 @@ class Shy
      */
     public function env()
     {
-        return config('SHY_ENV');
+        return defined('SHY_ENV') ? SHY_ENV : 'Not defined';
     }
 
     /**
-     * Clear config cache
+     * Delete config cache file
      *
      * @return string
      */
-    public function clearConfigCache()
+    public function deleteConfigCacheFile()
     {
         $cache = CACHE_PATH . 'app/config.cache';
-        if (file_exists($cache)) {
-            if (unlink($cache)) {
-                return 'Success';
-            } else {
-                return 'Failed';
-            }
-        } else {
+        if (!file_exists($cache)) {
             return 'No cache';
+        }
+
+        if (unlink($cache)) {
+            return 'Success';
+        } else {
+            return 'Failed';
         }
     }
 
@@ -71,7 +70,7 @@ class Shy
     {
         $config = config('workerman.http');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
-            throw new RuntimeException('WorkerMan setting error.');
+            throw new RuntimeException('WorkerMan http setting error.');
         }
 
         global $argv;
@@ -81,15 +80,12 @@ class Shy
         if (isset($argv[0])) {
             $argv[1] = $argv[0];
         }
-        $web = shy(HttpInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
-        if (!$web instanceof HttpInWorkerMan) {
-            throw new \Exception('Class Worker not found.');
-        }
 
+        $web = shy(HttpInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
         $web->count = $config['worker'];
         $web->addRoot('localhost', config('path.public'));
 
-        Worker::$stdoutFile = config('path.cache') . 'log' . DIRECTORY_SEPARATOR . 'console' . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log';
+        Worker::$stdoutFile = CACHE_PATH . 'log/command/' . date('Ymd') . '.log';
         Worker::runAll();
     }
 
@@ -102,6 +98,7 @@ class Shy
         if (!isset($argv[0])) {
             throw new RuntimeException('WorkerMan socket config not specified.');
         }
+
         $config = config('workerman.socket');
         if (isset($config[$argv[0]])) {
             $config = $config[$argv[0]];
@@ -147,5 +144,4 @@ class Shy
 
         SocketInWorkerMan::runAll();
     }
-
 }

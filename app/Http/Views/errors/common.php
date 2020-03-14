@@ -77,7 +77,7 @@
 <body>
 <div class="error">
     <div class="content">
-        <i class="fa fa-anchor" aria-hidden="true"></i>
+        <i class="fa fa-anchor" style="color: #778899" aria-hidden="true"></i>
         <span><?php echo lang(5003); ?></span>
     </div>
     <p class="error-message"><?php echo $e->getMessage() ?></p>

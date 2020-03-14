@@ -2,38 +2,22 @@
 
 namespace Shy;
 
-use Shy\Http\Contracts\Router as RouterContract;
+use Shy\Core\Contracts\Logger;
+use Shy\Core\Contracts\Pipeline;
 
 class Http
 {
-    /**
-     * Define
-     */
-    public function requestDefine()
-    {
-        if (!defined('BASE_URL')) {
-            if (empty(config('app.base_url'))) {
-                define('BASE_URL', shy('request')->getBaseUrl());
-            } else {
-                define('BASE_URL', config('app.base_url'));
-            }
-        }
-    }
-
-    /**
-     * Run
-     */
     public function run()
     {
         $request = shy('request');
 
-        shy('logger')->info('Request', $request->all());
+        shy(Logger::class)->info('Request', $request->all());
 
-        $this->requestDefine();
+        $this->defineRequestConstant($request);
 
-        $response = shy('pipeline')
+        $response = shy(Pipeline::class)
             ->send($request)
-            ->through(RouterContract::class)
+            ->through('router')
             ->then(function ($response) {
                 if (!empty($response)) {
                     shy('response')->send($response);
@@ -42,36 +26,19 @@ class Http
                 return $response;
             });
 
-        $this->end();
+        $request->setInitializedFalse();
 
         return $response;
     }
 
-    /**
-     * End handle
-     */
-    protected function end()
+    protected function defineRequestConstant($request)
     {
-        shy('request')->setInitializedFalse();
-
-        /**
-         * Slow log
-         */
-        $limit = config('app.slow_log_limit');
-        if ($limit > 0) {
-            $startTime = shy()->has('SHY_CYCLE_START_TIME') ? shy()->get('SHY_CYCLE_START_TIME') : shy()->startTime();
-            $usedTime = microtime(true) - $startTime;
-            if ($usedTime > $limit) {
-                $router = shy(RouterContract::class);
-
-                shy('logger')->notice('Slow', [
-                    'controller' => $router->getController(),
-                    'method' => $router->getMethod(),
-                    'middleware' => $router->getMiddleware(),
-                    'usedTime' => $usedTime
-                ]);
+        if (!defined('BASE_URL')) {
+            if (empty(config('app.base_url'))) {
+                define('BASE_URL', $request->getBaseUrl());
+            } else {
+                define('BASE_URL', config('app.base_url'));
             }
         }
     }
-
 }

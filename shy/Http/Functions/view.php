@@ -1,9 +1,6 @@
 <?php
 /**
- * Http view functions
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
+ * View functions
  */
 
 if (!function_exists('view')) {
@@ -19,11 +16,11 @@ if (!function_exists('view')) {
     function view(string $view, array $params = [], string $layout = '')
     {
         $object = shy('view');
-        if (!is_object($object)) {
-            throw new RuntimeException('View class is not an instance.');
+        if (is_object($object)) {
+            $object->initialize();
+        } else {
+            throw new RuntimeException('view() Class View is not an instance.');
         }
-
-        $object->initialize();
 
         $object->view($view);
 
@@ -57,7 +54,7 @@ if (!function_exists('include_view')) {
             include "{$filename}";
             ob_end_flush();
         } else {
-            shy('view')->error('[view] Include view ' . $filename . ' is not exist.');
+            shy('view')->error('include_view() file ' . $filename . ' is not exist.');
         }
     }
 }
@@ -71,52 +68,9 @@ if (!function_exists('include_sub_view')) {
         $view = shy('view');
         $subViewContent = $view->getSubView();
         if (empty($subViewContent) || !is_string($subViewContent)) {
-            $view->error('[view] Layout ' . $view->getLayout() . ' include sub view ' . $view->getView() . ' failed.');
+            $view->error('include_sub_view() Layout ' . $view->getLayout() . ' include sub view ' . $view->getView() . ' failed.');
         } else {
             echo $subViewContent;
-        }
-    }
-}
-
-if (!function_exists('param')) {
-    /**
-     * output param
-     *
-     * @param string $key
-     * @param bool $allowNotExist
-     */
-    function param(string $key, bool $allowNotExist = false)
-    {
-        $params = shy('view')->getParams();
-        if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
-            echo $params[$key];
-        } elseif (isset($GLOBALS[$key])) {
-            echo $GLOBALS[$key];
-        } elseif (defined($key)) {
-            echo constant($key);
-        } elseif (!$allowNotExist) {
-            shy('view')->error('[view] Param ' . $key . ' is not exist.');
-        }
-    }
-}
-
-if (!function_exists('param_array')) {
-    /**
-     * output param in array
-     *
-     * @param string
-     * @param string
-     * @param bool $allowNotExist
-     */
-    function param_array(string $arrayKey, string $key, bool $allowNotExist = false)
-    {
-        $params = shy('view')->getParams();
-        if (isset($params[$arrayKey][$key]) && (is_string($params[$arrayKey][$key]) || is_numeric($params[$arrayKey][$key]))) {
-            echo $params[$arrayKey][$key];
-        } elseif (isset($GLOBALS[$arrayKey][$key])) {
-            echo $GLOBALS[$arrayKey][$key];
-        } elseif (!$allowNotExist) {
-            shy('view')->error('[view] Param array ' . $arrayKey . ' key ' . $key . ' is not exist.');
         }
     }
 }
@@ -126,10 +80,10 @@ if (!function_exists('get_param')) {
      * get param
      *
      * @param string $key
-     * @param bool $allowNotExist
+     * @param bool $allow_not_exist
      * @return mixed
      */
-    function get_param(string $key, bool $allowNotExist = false)
+    function get_param(string $key, bool $allow_not_exist = true)
     {
         $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
@@ -138,8 +92,42 @@ if (!function_exists('get_param')) {
             return $GLOBALS[$key];
         } elseif (defined($key)) {
             return constant($key);
-        } elseif (!$allowNotExist) {
-            shy('view')->error('[view] Param ' . $key . ' is not exist.');
+        } elseif (!$allow_not_exist) {
+            shy('view')->error('get_param() Param ' . $key . ' is not exist.');
+        }
+    }
+}
+
+if (!function_exists('param')) {
+    /**
+     * Echo param
+     *
+     * @param string $key
+     * @param bool $allow_not_exist
+     */
+    function param(string $key, bool $allow_not_exist = true)
+    {
+        echo get_param($key, $allow_not_exist);
+    }
+}
+
+if (!function_exists('param_array')) {
+    /**
+     * Echo param in array
+     *
+     * @param string
+     * @param string
+     * @param bool $allow_not_exist
+     */
+    function param_array(string $arrayKey, string $key, bool $allow_not_exist = true)
+    {
+        $params = shy('view')->getParams();
+        if (isset($params[$arrayKey][$key]) && (is_string($params[$arrayKey][$key]) || is_numeric($params[$arrayKey][$key]))) {
+            echo $params[$arrayKey][$key];
+        } elseif (isset($GLOBALS[$arrayKey][$key])) {
+            echo $GLOBALS[$arrayKey][$key];
+        } elseif (!$allow_not_exist) {
+            shy('view')->error('param_array() Param array ' . $arrayKey . ' key ' . $key . ' is not exist.');
         }
     }
 }
@@ -179,7 +167,7 @@ if (!function_exists('push_resource')) {
                 $old = [];
             }
             if (!is_array($old)) {
-                throw new InvalidArgumentException('Resource value of id ' . $id . ' type error.');
+                throw new InvalidArgumentException('push_resource() Resource value of id ' . $id . ' type error.');
             }
             array_push($old, $resource);
             $old = array_unique($old);

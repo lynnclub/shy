@@ -8,5 +8,4 @@ return [
     'view' => $base . 'app' . DIRECTORY_SEPARATOR . 'Http' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR,
     'cache' => $base . 'cache' . DIRECTORY_SEPARATOR,
     'public' => $base . 'public' . DIRECTORY_SEPARATOR,
-    'shy' => $base . 'shy' . DIRECTORY_SEPARATOR
 ];

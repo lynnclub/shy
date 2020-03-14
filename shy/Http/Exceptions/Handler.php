@@ -28,51 +28,6 @@ class Handler implements ExceptionHandler
     }
 
     /**
-     * Get trace array
-     *
-     * @return array
-     */
-    protected function getTraceArray()
-    {
-        $array[] = 'Message: ' . $this->throwable->getMessage();
-        $array[] = 'File: ' . $this->throwable->getFile();
-        $array[] = 'Line: ' . $this->throwable->getLine();
-        $array[] = 'Error Code: ' . $this->throwable->getCode();
-        $array[] = 'Trace: ';
-
-        foreach ($this->throwable->getTrace() as $key => $trace) {
-            $traceString = '[' . $key . '] ';
-            if (isset($trace['file'], $trace['line'])) {
-                $traceString .= $trace['file'] . ' ' . $trace['line'];
-            } else {
-                $traceString .= 'none';
-            }
-
-            $array[] = $traceString;
-
-            $traceString = '';
-            if (isset($trace['class'])) {
-                $traceString .= $trace['class'] . '->';
-            }
-            if (isset($trace['args'])) {
-                foreach ($trace['args'] as $argKey => $arg) {
-                    if (is_object($arg)) {
-                        $trace['args'][$argKey] = '(object)' . get_class($arg);
-                    } elseif (is_array($arg)) {
-                        $trace['args'][$argKey] = '(array)' . json_encode($arg);
-                    }
-                }
-            } else {
-                $trace['args'] = [];
-            }
-
-            $array[] = $traceString . $trace['function'] . '(' . implode(', ', $trace['args']) . ')' . PHP_EOL;
-        }
-
-        return $array;
-    }
-
-    /**
      * Logging.
      *
      * @param Logger $logger
@@ -82,7 +37,7 @@ class Handler implements ExceptionHandler
         if ($this->throwable instanceof HttpException) {
             $logger->error('Http Code ' . $this->throwable->getStatusCode() . ': ', [$this->throwable->getMessage()]);
         } else {
-            $logger->error('Exception', $this->getTraceArray());
+            $logger->error('Exception', get_throwable_array($this->throwable));
         }
     }
 
@@ -108,7 +63,7 @@ class Handler implements ExceptionHandler
     public function response(Config $config = null, Response $response = null, View $view = null)
     {
         if (is_null($response) || is_null($view)) {
-            echo implode(PHP_EOL, $this->getTraceArray());
+            echo implode(PHP_EOL, get_throwable_array($this->throwable));
             return;
         }
 

@@ -6,7 +6,7 @@
     <meta name="viewport"
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
-    <title>Error</title>
+    <title>Exception</title>
     <style>
 
         * {
@@ -17,7 +17,7 @@
         }
 
         body {
-            font-family: "Microsoft YaHei", Helvetica, Arial, "Hiragino Sans GB", "WenQuanYi Micro Hei", sans-serif;
+            font-family: Helvetica, Arial, "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft YaHei", sans-serif;
             font-size: 15px;
         }
 
@@ -119,11 +119,18 @@
                     foreach ($trace['args'] as $argKey => $arg) {
                         $trace['args'][$argKey] = '(' . gettype($arg) . ')';
                         if (is_string($arg)) {
+                            if (strlen($arg) > 100) {
+                                $arg = str_limit($arg, 100);
+                            }
                             $trace['args'][$argKey] .= "'{$arg}'";
                         } elseif (is_object($arg)) {
                             $trace['args'][$argKey] .= get_class($arg);
                         } elseif (is_array($arg)) {
-                            $trace['args'][$argKey] .= json_encode($arg, JSON_UNESCAPED_UNICODE);
+                            $json = json_encode($arg, JSON_UNESCAPED_UNICODE);
+                            if (strlen($json) > 100) {
+                                $json = str_limit($json, 100) . '}';
+                            }
+                            $trace['args'][$argKey] .= $json;
                         }
                     }
                 } else {
@@ -216,6 +223,18 @@
         ?>
     </div>
     <div class="part">
+        <div class="title">Constants:</div>
+        <?php
+        echo '<table class="params"><tbody>'
+            . '<tr><td>BASE_PATH</td><td>' . (defined('BASE_PATH') ? BASE_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>APP_PATH</td><td>' . (defined('APP_PATH') ? APP_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>VIEW_PATH</td><td>' . (defined('VIEW_PATH') ? VIEW_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>CACHE_PATH</td><td>' . (defined('CACHE_PATH') ? CACHE_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>BASE_URL</td><td>' . (defined('BASE_URL') ? BASE_URL : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '</tbody></table>';
+        ?>
+    </div>
+    <div class="part">
         <div class="title">Server:</div>
         <?php
         if (empty($_SERVER)) {
@@ -231,33 +250,9 @@
         }
         ?>
     </div>
-    <div class="part">
-        <div class="title">Env:</div>
-        <?php
-        $env = getenv('SHY_ENV');
-        echo '<table class="params"><tbody>'
-            . '<tr><td>SHY_ENV</td><td>' . (empty($env) ? 'develop' : $env) . '</td></tr>';
-
-        foreach ($_ENV as $key => $value) {
-            echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
-        }
-
-        echo '</tbody></table>';
-        ?>
-    </div>
-    <div class="part">
-        <div class="title">Shy Constants:</div>
-        <?php
-        echo '<table class="params"><tbody>'
-            . '<tr><td>BASE_PATH</td><td>' . BASE_PATH . '</td></tr>'
-            . '<tr><td>APP_PATH</td><td>' . APP_PATH . '</td></tr>'
-            . '<tr><td>VIEW_PATH</td><td>' . VIEW_PATH . '</td></tr>'
-            . '<tr><td>CACHE_PATH</td><td>' . CACHE_PATH . '</td></tr>'
-            . '<tr><td>BASE_URL</td><td>' . BASE_URL . '</td></tr>'
-            . '</tbody></table>';
-        ?>
-    </div>
 </div>
-<?php include_view('component/footer') ?>
+<footer>
+    <a target="_blank" href="https://github.com/lynncho/shy">Shy Framework at Github</a>
+</footer>
 </body>
 </html>

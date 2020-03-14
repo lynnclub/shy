@@ -34,7 +34,7 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      *
      * @param int $forkedPid
      */
-    public function addForkedPidToStartId(int $forkedPid);
+    public function addForkPid(int $forkedPid);
 
     /**
      * Set instance
@@ -50,6 +50,41 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      * @param array $sets
      */
     public function sets(array $sets);
+
+    /**
+     * Get or make dependency object
+     *
+     * @param \ReflectionParameter[] $dependencies
+     * @param array $parameters
+     *
+     * @return array
+     */
+    public function handleDependencies(array $dependencies, array $parameters);
+
+    /**
+     * Make an instance with dependency injection
+     *
+     * @param string $concrete
+     * @param array ...$parameters
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \ReflectionException
+     *
+     * @return object
+     */
+    public function makeClassWithDependencyInjection(string $concrete, ...$parameters);
+
+    /**
+     * Run function with dependency injection
+     *
+     * @param $concrete
+     * @param array ...$parameters
+     *
+     * @throws \ReflectionException
+     *
+     * @return mixed
+     */
+    public function runFunctionWithDependencyInjection($concrete, ...$parameters);
 
     /**
      * Bind ready to make
@@ -87,9 +122,15 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
     public function make(string $id, $concrete = null, ...$parameters);
 
     /**
-     * @param array $makes
+     * Get or Make instance
+     *
+     * @param string $id
+     * @param object|string|null $concrete
+     * @param array ...$parameters
+     *
+     * @return object
      */
-    public function makes(array $makes);
+    public function getOrMake(string $id, $concrete = null, ...$parameters);
 
     /**
      * Set alias of instance id
@@ -103,58 +144,6 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      * @param array $aliases
      */
     public function aliases(array $aliases);
-
-    /**
-     * Make an instance with dependency injection
-     *
-     * @param string $concrete
-     * @param array ...$parameters
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
-     *
-     * @return object
-     */
-    public function makeClassWithDependencyInjection(string $concrete, ...$parameters);
-
-    /**
-     * Run function with dependency injection
-     *
-     * @param $concrete
-     * @param array ...$parameters
-     *
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \ReflectionException
-     *
-     * @return mixed
-     */
-    public function runFunctionWithDependencyInjection($concrete, ...$parameters);
-
-    /**
-     * Get or make dependency object
-     *
-     * @param array $parameters
-     * @param \ReflectionParameter[] $dependencies
-     *
-     * @return array
-     *
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function getOrMakeDependencies(array $parameters, array $dependencies);
-
-    /**
-     * Get or Make instance
-     *
-     * @param string $id
-     * @param object|string $concrete
-     * @param array ...$parameters
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
-     *
-     * @return object
-     */
-    public function getOrMake(string $id, $concrete = null, ...$parameters);
 
     /**
      * Remove bind and instance
@@ -176,12 +165,5 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      * @return array
      */
     public function memoryUsed();
-
-    /**
-     * Set instances intelligent scheduling on
-     *
-     * @param string $recordDir
-     */
-    public function instancesIntelligentSchedulingOn(string $recordDir);
 
 }
