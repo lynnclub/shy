@@ -626,7 +626,7 @@ class Container implements ContainerContract
             $structure .= PHP_EOL;
         }
 
-        file_put_contents(CACHE_PATH . 'log/container/' . date('Ymd') . '.log', $structure . PHP_EOL, FILE_APPEND);
+        file_put_contents(CACHE_PATH . 'log/' . (is_cli() ? 'command/container/' : 'web/container/') . date('Ymd') . '.log', $structure . PHP_EOL, FILE_APPEND);
     }
 
 }
