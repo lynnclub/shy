@@ -171,6 +171,8 @@ class HttpInWorkerMan extends Worker
         if (isset($workerman_siteConfig['additionHeader'])) {
             Http::header($workerman_siteConfig['additionHeader']);
         }
+
+        // Try file.
         if ($workerman_file_extension === 'php' && !is_file($workerman_file)) {
             $workerman_file = "$workerman_root_dir/index.php";
             if (!is_file($workerman_file)) {
@@ -182,8 +184,9 @@ class HttpInWorkerMan extends Worker
         // File exsits.
         if ($workerman_file_extension !== 'php' && is_file($workerman_file)) {
             // Security check.
-            if ((!($workerman_request_realpath = realpath($workerman_file)) || !($workerman_root_dir_realpath = realpath($workerman_root_dir))) || 0 !== strpos($workerman_request_realpath,
-                    $workerman_root_dir_realpath)
+            if (
+                (!($workerman_request_realpath = realpath($workerman_file)) || !($workerman_root_dir_realpath = realpath($workerman_root_dir)))
+                || 0 !== strpos($workerman_request_realpath, $workerman_root_dir_realpath)
             ) {
                 Http::header('HTTP/1.1 400 Bad Request');
                 $connection->close('<h1>400 Bad Request</h1>');
@@ -193,53 +196,50 @@ class HttpInWorkerMan extends Worker
             $workerman_file = realpath($workerman_file);
 
             // Send file to client.
-            return self::sendFile($connection, $workerman_file);
+            self::sendFile($connection, $workerman_file);
         } else {
-            $workerman_cwd = getcwd();
-            chdir($workerman_root_dir);
-            ini_set('display_errors', 'off');
             ob_start();
-            // Try to include php file.
             // $_SERVER.
             $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
             $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
-
-            //include "$workerman_file";
 
             /**
              * Run Shy Framework
              */
             try {
                 /**
-                 * Cycle count
+                 * Cycle information
                  */
                 shy()->set('SHY_CYCLE_COUNT', shy()->get('SHY_CYCLE_COUNT') + 1);
-                /**
-                 * Cycle start time
-                 */
-                shy()->set('SHY_CYCLE_START_TIME', microtime(true));
+                shy()->set('SHY_CYCLE_START_TIME', microtime(TRUE));
+
                 /**
                  * Run framework
                  */
-                shy('request')->initialize($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+                shy('request')->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
                 shy('session')->sessionStart();
+
                 shy(\Shy\Http::class)->run();
             } catch (Throwable $e) {
                 shy(HandlerRegister::class)->handleException($e);
             }
 
             $content = ob_get_clean();
-            ini_set('display_errors', 'on');
             if (strtolower($_SERVER['HTTP_CONNECTION']) === "keep-alive") {
                 $connection->send($content);
             } else {
                 $connection->close($content);
             }
-            chdir($workerman_cwd);
-            return;
         }
     }
 
+    /**
+     * Send file
+     *
+     * @param $connection
+     * @param $file_path
+     * @return mixed
+     */
     public static function sendFile($connection, $file_path)
     {
         // Check 304.
@@ -276,9 +276,9 @@ class HttpInWorkerMan extends Worker
         $header .= "Content-Length: $file_size\r\n\r\n";
         $trunk_limit_size = 1024 * 1024;
         if ($file_size < $trunk_limit_size) {
-            return $connection->send($header . file_get_contents($file_path), true);
+            return $connection->send($header . file_get_contents($file_path), TRUE);
         }
-        $connection->send($header, true);
+        $connection->send($header, TRUE);
 
         // Read file content from disk piece by piece and send to client.
         $connection->fileHandler = fopen($file_path, 'r');
@@ -288,19 +288,19 @@ class HttpInWorkerMan extends Worker
                 // Read from disk.
                 $buffer = fread($connection->fileHandler, 8192);
                 // Read eof.
-                if ($buffer === '' || $buffer === false) {
+                if ($buffer === '' || $buffer === FALSE) {
                     return;
                 }
-                $connection->send($buffer, true);
+                $connection->send($buffer, TRUE);
             }
         };
         // Send buffer full.
         $connection->onBufferFull = function ($connection) {
-            $connection->bufferFull = true;
+            $connection->bufferFull = TRUE;
         };
         // Send buffer drain.
         $connection->onBufferDrain = function ($connection) use ($do_write) {
-            $connection->bufferFull = false;
+            $connection->bufferFull = FALSE;
             $do_write();
         };
         $do_write();

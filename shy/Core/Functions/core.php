@@ -10,13 +10,15 @@ if (!function_exists('get_throwable_array')) {
      * @param Throwable $throwable
      * @return array
      */
-    function get_throwable_array(Throwable $throwable)
+    function get_throwable_array(\Throwable $throwable)
     {
-        $array[] = 'Message: ' . $throwable->getMessage();
-        $array[] = 'File: ' . $throwable->getFile();
-        $array[] = 'Line: ' . $throwable->getLine();
-        $array[] = 'Error Code: ' . $throwable->getCode();
-        $array[] = 'Trace: ';
+        $array = [
+            'Message: ' . $throwable->getMessage(),
+            'File: ' . $throwable->getFile(),
+            'Line: ' . $throwable->getLine(),
+            'Error Code: ' . $throwable->getCode(),
+            'Trace: ',
+        ];
 
         foreach ($throwable->getTrace() as $key => $trace) {
             $traceString = '[' . $key . '] ';
@@ -63,10 +65,10 @@ if (!function_exists('shy')) {
     function shy($id = null, $concrete = null, ...$parameters)
     {
         if (is_null($id)) {
-            return Shy\Core\Container::getContainer();
+            return \Shy\Core\Container::getContainer();
         }
 
-        return Shy\Core\Container::getContainer()->getOrMake($id, $concrete, ...$parameters);
+        return \Shy\Core\Container::getContainer()->getOrMake($id, $concrete, ...$parameters);
     }
 }
 
@@ -77,11 +79,11 @@ if (!function_exists('bind')) {
      * @param string $id
      * @param string|Closure|object|null $concrete
      *
-     * @return Shy\Core\Container
+     * @return \Shy\Core\Container
      */
     function bind(string $id, $concrete = null)
     {
-        return Shy\Core\Container::getContainer()->bind($id, $concrete);
+        return \Shy\Core\Container::getContainer()->bind($id, $concrete);
     }
 }
 
@@ -95,10 +97,10 @@ if (!function_exists('config')) {
     function config(string $key = null)
     {
         if (is_null($key)) {
-            return shy(Shy\Core\Contracts\Config::class);
+            return shy(\Shy\Core\Contracts\Config::class);
         }
 
-        return shy(Shy\Core\Contracts\Config::class)->find($key);
+        return shy(\Shy\Core\Contracts\Config::class)->find($key);
     }
 }
 
@@ -108,7 +110,7 @@ if (!function_exists('require_file')) {
      *
      * @param string $filename
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return mixed
      */
@@ -117,7 +119,7 @@ if (!function_exists('require_file')) {
         if (file_exists($filename)) {
             return require "$filename";
         } else {
-            throw new Exception('require_file() file not exist ' . $filename);
+            throw new \Exception('require_file() file not exist ' . $filename);
         }
     }
 }
@@ -149,5 +151,52 @@ if (!function_exists('is_cli')) {
     function is_cli()
     {
         return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
+    }
+}
+
+if (!function_exists('stream_for')) {
+    /**
+     * Create a new stream based on the input type.
+     *
+     * Options is an associative array that can contain the following keys:
+     * - metadata: Array of custom metadata.
+     * - size: Size of the stream.
+     *
+     * @param mixed $resource
+     * @param array $options Additional options
+     *
+     * @return \Psr\Http\Message\StreamInterface
+     * @throws \InvalidArgumentException if the $resource arg is not valid.
+     */
+    function stream_for($resource = '', array $options = [])
+    {
+        if (is_scalar($resource)) {
+            $stream = fopen('php://temp', 'r+');
+            if ($resource !== '') {
+                fwrite($stream, $resource);
+                fseek($stream, 0);
+            }
+            return new \Shy\Library\Stream($stream, $options);
+        }
+
+        switch (gettype($resource)) {
+            case 'resource':
+                return new \Shy\Library\Stream($resource, $options);
+            case 'object':
+                if ($resource instanceof \Psr\Http\Message\StreamInterface) {
+                    return $resource;
+                } elseif (method_exists($resource, '__toString')) {
+                    return stream_for((string)$resource, $options);
+                } else {
+                    return stream_for(json_encode($resource), $options);
+                }
+                break;
+            case 'array':
+                return stream_for(json_encode($resource), $options);
+            case 'NULL':
+                return new \Shy\Library\Stream(fopen('php://temp', 'r+'), $options);
+        }
+
+        throw new \InvalidArgumentException('Invalid resource type: ' . gettype($resource));
     }
 }

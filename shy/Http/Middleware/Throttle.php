@@ -37,7 +37,7 @@ class Throttle implements Middleware
 
         $time = time();
         foreach ($userIps as $userIp) {
-            $cache = json_decode(Cache::get($cacheKey . $userIp), true);
+            $cache = json_decode(Cache::get($cacheKey . $userIp), TRUE);
 
             if (isset($cache['count'], $cache['time']) && $cache['time'] > $time) {
                 $cache['count'] += 1;
@@ -49,7 +49,7 @@ class Throttle implements Middleware
             }
 
             $remaining = $limitTimes - $cache['count'];
-            $header = [
+            $headers = [
                 'X-RateLimit-Limit:' . $limitTimes,
                 'X-RateLimit-Remaining:' . ($remaining < 0 ? 0 : $remaining)
             ];
@@ -62,16 +62,16 @@ class Throttle implements Middleware
             if ($remaining <= 0) {
                 Logger::info('Throttle block request', Request::all());
 
-                $header[] = 'X-RateLimit-Retry-After:' . ($cache['time'] - $time);
+                $headers[] = 'X-RateLimit-Retry-After:' . ($cache['time'] - $time);
 
-                if (Request::ajax()) {
-                    Response::setHeader($header);
+                if (Request::expectsJson()) {
+                    Response::withHeaders($headers);
                     return get_response_json(5001);
                 } else {
-                    throw new HttpException(403, lang(5001), null, $header);
+                    throw new HttpException(403, lang(5001), null, $headers);
                 }
             } else {
-                Response::setHeader($header);
+                Response::withHeaders($headers);
             }
         }
 

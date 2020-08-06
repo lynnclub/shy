@@ -21,11 +21,11 @@ class View implements ViewContract
     protected $view;
 
     /**
-     * Subview parse content
+     * Subview file
      *
      * @var string
      */
-    protected $subViewContent;
+    protected $subView;
 
     /**
      * Layout file
@@ -66,7 +66,7 @@ class View implements ViewContract
     public function initialize()
     {
         $this->view = null;
-        $this->subViewContent = null;
+        $this->subView = null;
         $this->layout = null;
         $this->params = [];
         $this->errorMsg = '';
@@ -142,17 +142,14 @@ class View implements ViewContract
         extract($this->params);
 
         /**
-         * View
-         */
-        include "{$this->view}";
-
-        /**
-         * Layout
+         * Layout or single View
          */
         if (isset($this->layout)) {
-            $this->subViewContent = ob_get_clean();
-            $this->params = array_merge($this->params, get_defined_vars());
-            require "{$this->layout}";
+            $this->subView = $this->view;
+
+            include "{$this->layout}";
+        } else {
+            include "{$this->view}";
         }
         $viewContent = ob_get_contents();
 
@@ -177,7 +174,7 @@ class View implements ViewContract
      */
     public function getSubView()
     {
-        return $this->subViewContent;
+        return $this->subView;
     }
 
     /**

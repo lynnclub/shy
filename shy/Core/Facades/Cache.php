@@ -11,6 +11,7 @@ use Shy\Core\Contracts\Cache as CacheContract;
  *
  * @method static bool set($key, $value, $ttl = null)
  * @method static mixed get($key, $default = null)
+ * @method static bool has($key)
  * @method static bool delete($key)
  */
 class Cache extends Facade

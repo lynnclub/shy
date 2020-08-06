@@ -16,7 +16,7 @@ class Container implements ContainerContract
     /**
      * @var string
      */
-    protected $shyVersion = '1.1.2';
+    protected $shyVersion = '1.1.3';
 
     /**
      * @var Container
@@ -64,7 +64,7 @@ class Container implements ContainerContract
     /**
      * @var bool
      */
-    protected $intelligentScheduling = false;
+    protected $intelligentScheduling = FALSE;
 
     private function __construct()
     {
@@ -80,7 +80,7 @@ class Container implements ContainerContract
     {
         if (is_null(static::$container)) {
             static::$startId = uniqid();
-            static::$startTime = microtime(true);
+            static::$startTime = microtime(TRUE);
             static::$container = new static;
         }
 
@@ -125,7 +125,7 @@ class Container implements ContainerContract
     public function addForkPid(int $pid)
     {
         static::$startId .= '_' . $pid;
-        static::$startTime = microtime(true);
+        static::$startTime = microtime(TRUE);
     }
 
     /**
@@ -304,10 +304,10 @@ class Container implements ContainerContract
     public function bound(string $id)
     {
         if (isset($this->binds[$id])) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -333,7 +333,7 @@ class Container implements ContainerContract
 
         unset($this->binds[$id]);
 
-        $this->record($id, 'make', ['params' => json_encode($parameters), 'memory' => $this->memoryUsed[$id]]);
+        $this->intelligentScheduling && $this->record($id, 'make', ['params' => json_encode($parameters), 'memory' => $this->memoryUsed[$id]]);
 
         return $this->instances[$id];
     }
@@ -401,7 +401,7 @@ class Container implements ContainerContract
                 $this->remove($item);
             }
         } elseif (is_string($id)) {
-            $this->record($id, 'remove');
+            $this->intelligentScheduling && $this->record($id, 'remove');
 
             unset($this->binds[$id], $this->memoryUsed[$id], $this->instances[$id]);
         }
@@ -439,14 +439,14 @@ class Container implements ContainerContract
     public function get($id)
     {
         if (isset($this->instances[$id])) {
-            $this->record($id, 'use');
+            $this->intelligentScheduling && $this->record($id, 'use');
 
             return $this->instances[$id];
         } elseif (isset($this->aliases[$id])) {
             $id = $this->aliases[$id];
 
             if (isset($this->instances[$id])) {
-                $this->record($id, 'use');
+                $this->intelligentScheduling && $this->record($id, 'use');
 
                 return $this->instances[$id];
             }
@@ -456,10 +456,10 @@ class Container implements ContainerContract
     }
 
     /**
-     * Returns true if the container can return an entry for the given identifier.
-     * Returns false otherwise.
+     * Returns TRUE if the container can return an entry for the given identifier.
+     * Returns FALSE otherwise.
      *
-     * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+     * `has($id)` returning TRUE does not mean that `get($id)` will not throw an exception.
      * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
      *
      * @param string $id Identifier of the entry to look for.
@@ -469,14 +469,14 @@ class Container implements ContainerContract
     public function has($id)
     {
         if (isset($this->instances[$id])) {
-            return true;
+            return TRUE;
         }
 
         if (isset($this->aliases[$id]) && isset($this->instances[$this->aliases[$id]])) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -485,7 +485,7 @@ class Container implements ContainerContract
      * @param mixed $offset <p>
      * An offset to check for.
      * </p>
-     * @return boolean true on success or false on failure.
+     * @return boolean TRUE on success or FALSE on failure.
      * </p>
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.
@@ -568,7 +568,7 @@ class Container implements ContainerContract
      */
     public function intelligentSchedulingOn()
     {
-        $this->intelligentScheduling = true;
+        $this->intelligentScheduling = TRUE;
     }
 
     /**
@@ -578,19 +578,15 @@ class Container implements ContainerContract
      * @param string $operation
      * @param array $params
      *
-     * @return false
+     * @return FALSE
      */
     protected function record(string $id, string $operation, array $params = [])
     {
         if (!isset($this->aliases['config']) || !isset($this->instances[$this->aliases['config']])) {
-            return false;
+            return FALSE;
         }
-        if (!$this->instances[$this->aliases['config']]->find('app.debug')) {
-            if (!$this->intelligentScheduling) {
-                return false;
-            } elseif (stripos($id, 'Shy\\') === 0) {
-                return false;
-            }
+        if (stripos($id, 'Shy\\') === 0) {
+            return FALSE;
         }
 
         /**
@@ -608,11 +604,7 @@ class Container implements ContainerContract
             }
         }
 
-        if ($this->intelligentScheduling && stripos($id, 'Shy\\') !== 0) {
-            $structure = 'ins^' . $structure . 'trc^' . json_encode(debug_backtrace()) . PHP_EOL;
-        } else {
-            $structure = 'rec^' . $structure;
-        }
+        $structure = 'ins^' . $structure . 'trc^' . json_encode(debug_backtrace()) . PHP_EOL;
 
         //Custom
         if (!empty($params)) {

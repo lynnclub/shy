@@ -48,9 +48,10 @@ class Aliyun extends File implements LoggerContract
         $logItem->pushBack('Date', date('Y-m-d H:i:s'));
         $logItem->pushBack('Content', json_encode($context, JSON_UNESCAPED_UNICODE));
 
-        if (is_object($this->request) && $this->request->isInitialized()) {
+        if (method_exists($this->request, 'isInitialized') && $this->request->isInitialized()) {
             $logItem->pushBack('URL', $this->request->getUrl());
             $logItem->pushBack('UA', $this->request->userAgent());
+            $logItem->pushBack('Method', $this->request->getMethod());
             $logItem->pushBack('ClientIps', implode(',', $this->request->getClientIps()));
         }
         /**

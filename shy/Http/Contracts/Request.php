@@ -5,28 +5,24 @@ namespace Shy\Http\Contracts;
 interface Request
 {
     /**
-     * Initialize request.
+     * Sets the parameters for this request.
      *
-     * @param array $query $_GET
-     * @param array $request $_POST
-     * @param array $cookies $_COOKIE
-     * @param array $files $_FILES
-     * @param array $server $_SERVER
-     * @param string $content php://input
+     * This method also re-initializes all properties.
+     *
+     * @param array $query The GET parameters
+     * @param array $request The POST parameters
+     * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
+     * @param array $cookies The COOKIE parameters
+     * @param array $files The FILES parameters
+     * @param array $server The SERVER parameters
+     * @param string|resource|null $content The raw body data
      */
-    public function initialize(array $query = [], array $request = [], array $cookies = [], array $files = [], array $server = [], $content = null);
+    public function initialize(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null);
 
     /**
-     * Is request initialized.
-     *
      * @return bool
      */
     public function isInitialized();
-
-    /**
-     * Set is initialized false.
-     */
-    public function setInitializedFalse();
 
     /**
      * Get a parameter.
@@ -43,16 +39,6 @@ interface Request
      * @return array
      */
     public function all();
-
-    /**
-     * @return \Shy\Http\Bags\ServerBag
-     */
-    public function server();
-
-    /**
-     * @return \Shy\Http\Bags\HeaderBag
-     */
-    public function headers();
 
     /**
      * Get php://input
@@ -93,7 +79,6 @@ interface Request
      * Returns the HTTP host being requested.
      *
      * @return string
-     * @throws \Exception
      */
     public function getHttpHost();
 
@@ -101,7 +86,6 @@ interface Request
      * Gets the scheme and HTTP host.
      *
      * @return string
-     * @throws \Exception
      */
     public function getSchemeAndHttpHost();
 
@@ -113,10 +97,9 @@ interface Request
     public function getRequestUri();
 
     /**
-     * Return the root URL
+     * Returns the root URL from which this request is executed.
      *
      * @return string
-     * @throws \Exception
      */
     public function getBaseUrl();
 
@@ -154,7 +137,6 @@ interface Request
      * Generates a normalized URI (URL) for the Request.
      *
      * @return string
-     * @throws \Exception
      */
     public function getUri();
 
@@ -162,37 +144,36 @@ interface Request
      * Get the URL (no query string) for the request.
      *
      * @return string
-     * @throws \Exception
      */
     public function getUrl();
 
     /**
-     * Get client IPs
+     * Returns the client IP addresses.
      *
      * @return array
      */
     public function getClientIps();
 
     /**
-     * Get Method
+     * Gets the request "intended" method.
      *
-     * @return null|string
+     * @return string
      */
     public function getMethod();
 
     /**
-     * Is Ajax
+     * Returns TRUE if the request is a XMLHttpRequest.
      *
      * @return bool
      */
-    public function ajax();
+    public function isXmlHttpRequest();
 
     /**
      * Is Pjax
      *
      * @return bool
      */
-    public function pjax();
+    public function isPjax();
 
     /**
      * Expects Json

@@ -17,7 +17,7 @@ class Router implements RouterContract
     /**
      * @var string
      */
-    protected $method;
+    protected $method = 'index';
 
     /**
      * @var string
@@ -56,17 +56,19 @@ class Router implements RouterContract
      */
     protected $parseRouteSuccess;
 
+    public function __construct($controllerNamespace = 'App\\Http\\Controllers\\', $defaultController = null)
+    {
+        $this->controllerNamespace = $controllerNamespace;
+        $this->controller = $defaultController ?? config('app.default_controller');
+    }
+
     /**
      * Initialize in cycle
      */
-    protected function initialize()
+    public function initialize()
     {
-        $this->parseRouteSuccess = false;
-        $this->controller = config('app.default_controller');
-        $this->method = 'index';
+        $this->parseRouteSuccess = FALSE;
         $this->routeIndex = [];
-        $this->controllerNamespace = 'App\\Http\\Controllers\\';
-        $this->pathInfo = '';
         $this->param = null;
         $this->middleware = [];
     }
@@ -176,23 +178,29 @@ class Router implements RouterContract
             }
         }
         /**
-         * Parse host
-         */
-        if (isset($this->routeIndex[$this->host])) {
-            $routeIndex = $this->routeIndex[$this->host];
-        } elseif (isset($this->routeIndex[''])) {
-            $routeIndex = $this->routeIndex[''];
-        } else {
-            return false;
-        }
-        /**
          * Parse route
          */
+        if (isset($this->routeIndex[$this->host])) {
+            $this->doParseRouteByConfig($this->routeIndex[$this->host]);
+        }
+        if (!$this->parseRouteSuccess && isset($this->routeIndex[''])) {
+            $this->doParseRouteByConfig($this->routeIndex['']);
+        }
+    }
+
+    protected function doParseRouteByConfig($routeIndex)
+    {
         if (isset($routeIndex[$this->pathInfo])) {
             $this->writeParseRouteByConfig($routeIndex[$this->pathInfo]);
-        } elseif ($paramStart = strrpos($this->pathInfo, '/')) {
-            $pathInfo = substr($this->pathInfo, 0, $paramStart);
-            $param = substr($this->pathInfo, $paramStart + 1);
+        } else {
+            $paramStart = strrpos($this->pathInfo, '/');
+
+            $pathInfo = '';
+            $param = $this->pathInfo;
+            if ($paramStart > 0) {
+                $pathInfo = substr($this->pathInfo, 0, $paramStart);
+                $param = substr($this->pathInfo, $paramStart + 1);
+            }
 
             if (isset($routeIndex[$pathInfo]) && isset($routeIndex[$pathInfo]['with_param'])) {
                 $this->writeParseRouteByConfig($routeIndex[$pathInfo], $param);
@@ -217,13 +225,13 @@ class Router implements RouterContract
 
         $this->param = $param;
 
-        $this->parseRouteSuccess = true;
+        $this->parseRouteSuccess = TRUE;
     }
 
     /**
      * Build route index by config
      */
-    protected function buildRouteIndexByConfig()
+    public function buildRouteIndexByConfig()
     {
         $this->routeIndex = [];
         $router = config('router');
@@ -287,7 +295,10 @@ class Router implements RouterContract
 
         if (is_string($path) && is_string($handle)) {
             $index = [];
-            if (substr($path, -2) === '/?') {
+            if (substr($path, 0) === '?') {
+                $path = '';
+                $index['with_param'] = 0;
+            } elseif (substr($path, -2) === '/?') {
                 $path = substr($path, 0, -2);
                 $index['with_param'] = 1;
 
@@ -314,7 +325,7 @@ class Router implements RouterContract
 
     protected function addHostRouteIndexByConfig($host, $path, $index)
     {
-        if (empty($host)) {
+        if (empty($host) && defined('BASE_URL')) {
             $host = BASE_URL;
         }
 
@@ -374,7 +385,7 @@ class Router implements RouterContract
                 }
             }
 
-            $this->parseRouteSuccess = true;
+            $this->parseRouteSuccess = TRUE;
         }
     }
 

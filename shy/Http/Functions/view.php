@@ -16,10 +16,10 @@ if (!function_exists('view')) {
     function view(string $view, array $params = [], string $layout = '')
     {
         $object = shy('view');
-        if (is_object($object)) {
+        if ($object instanceof \Shy\Http\Contracts\View) {
             $object->initialize();
         } else {
-            throw new RuntimeException('view() Class View is not an instance.');
+            throw new \RuntimeException('view() Class View is not an instance.');
         }
 
         $object->view($view);
@@ -41,36 +41,23 @@ if (!function_exists('include_view')) {
      *
      * @param string $filename
      */
-    function include_view(string $filename)
+    function include_view(string $filename = '')
     {
-        $filename = VIEW_PATH . $filename . '.php';
-        if (file_exists($filename)) {
-            $params = shy('view')->getParams();
-            if (!empty($params)) {
-                extract($params);
-            }
+        if (empty($filename)) {
+            $filename = shy('view')->getSubView();
+        } else {
+            $filename = VIEW_PATH . $filename . '.php';
+        }
 
-            ob_start();
+        if (file_exists($filename)) {
+            extract(shy('view')->getParams());
+
             include "{$filename}";
-            ob_end_flush();
+            unset($filename);
+
+            shy('view')->with(get_defined_vars());
         } else {
             shy('view')->error('include_view() file ' . $filename . ' is not exist.');
-        }
-    }
-}
-
-if (!function_exists('include_sub_view')) {
-    /**
-     * Include sub view
-     */
-    function include_sub_view()
-    {
-        $view = shy('view');
-        $subViewContent = $view->getSubView();
-        if (empty($subViewContent) || !is_string($subViewContent)) {
-            $view->error('include_sub_view() Layout ' . $view->getLayout() . ' include sub view ' . $view->getView() . ' failed.');
-        } else {
-            echo $subViewContent;
         }
     }
 }
@@ -83,7 +70,7 @@ if (!function_exists('get_param')) {
      * @param bool $allow_not_exist
      * @return mixed
      */
-    function get_param(string $key, bool $allow_not_exist = true)
+    function get_param(string $key, bool $allow_not_exist = TRUE)
     {
         $params = shy('view')->getParams();
         if (isset($params[$key]) && (is_string($params[$key]) || is_numeric($params[$key]))) {
@@ -105,7 +92,7 @@ if (!function_exists('param')) {
      * @param string $key
      * @param bool $allow_not_exist
      */
-    function param(string $key, bool $allow_not_exist = true)
+    function param(string $key, bool $allow_not_exist = TRUE)
     {
         echo get_param($key, $allow_not_exist);
     }
@@ -119,7 +106,7 @@ if (!function_exists('param_array')) {
      * @param string
      * @param bool $allow_not_exist
      */
-    function param_array(string $arrayKey, string $key, bool $allow_not_exist = true)
+    function param_array(string $arrayKey, string $key, bool $allow_not_exist = TRUE)
     {
         $params = shy('view')->getParams();
         if (isset($params[$arrayKey][$key]) && (is_string($params[$arrayKey][$key]) || is_numeric($params[$arrayKey][$key]))) {
@@ -167,7 +154,7 @@ if (!function_exists('push_resource')) {
                 $old = [];
             }
             if (!is_array($old)) {
-                throw new InvalidArgumentException('push_resource() Resource value of id ' . $id . ' type error.');
+                throw new \InvalidArgumentException('push_resource() Resource value of id ' . $id . ' type error.');
             }
             array_push($old, $resource);
             $old = array_unique($old);

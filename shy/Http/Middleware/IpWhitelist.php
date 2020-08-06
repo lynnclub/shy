@@ -19,20 +19,20 @@ class IpWhitelist implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        $hit = false;
+        $hit = FALSE;
 
         $userIps = Request::getClientIps();
 
         foreach ($userIps as $userIp) {
             if (in_array($userIp, config('ip_whitelist'))) {
-                $hit = true;
+                $hit = TRUE;
             }
         }
 
         if (!$hit) {
             Logger::info('Ip whitelist block request', Request::all());
 
-            if (Request::ajax()) {
+            if (Request::expectsJson()) {
                 return get_response_json(5000);
             } else {
                 throw new HttpException(403, lang(5000));

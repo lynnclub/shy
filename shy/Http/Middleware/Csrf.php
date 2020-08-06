@@ -19,9 +19,8 @@ class Csrf implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        if (Request::headers()->has('X-CSRF-TOKEN')) {
-            $token = Request::headers()->get('X-CSRF-TOKEN');
-        } else {
+        $token = Request::csrfToken();
+        if (empty($token)) {
             $token = Request::get('csrf-token');
             if (empty($token)) {
                 $token = Request::get('_token');
@@ -29,7 +28,7 @@ class Csrf implements Middleware
         }
 
         if (empty($token) || $token !== Session::get('csrf-token')) {
-            if (Request::ajax()) {
+            if (Request::expectsJson()) {
                 return get_response_json(5002);
             } else {
                 throw new HttpException(403, lang(5002));

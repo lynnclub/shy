@@ -34,7 +34,7 @@ class Memory implements CacheInterface, CacheContracts
      * @param string $cacheFile
      * @param bool $persistent
      */
-    public function __construct(string $cacheFile = '', $persistent = true)
+    public function __construct(string $cacheFile = '', $persistent = TRUE)
     {
         if (empty($cacheFile)) {
             $cacheFile = CACHE_PATH . 'app/memory.cache';
@@ -44,7 +44,7 @@ class Memory implements CacheInterface, CacheContracts
         $this->cacheFile = $cacheFile;
 
         if ($persistent) {
-            $cache = @json_decode(file_get_contents($cacheFile), true);
+            $cache = @json_decode(file_get_contents($cacheFile), TRUE);
             if (isset($cache['cache'], $cache['ttl'])) {
                 $this->cache = $cache['cache'];
                 $this->ttl = $cache['ttl'];
@@ -117,7 +117,7 @@ class Memory implements CacheInterface, CacheContracts
      *                                      the driver supports TTL then the library may set a default value
      *                                      for it or let the driver take care of that.
      *
-     * @return bool True on success and false on failure.
+     * @return bool True on success and FALSE on failure.
      *
      * @throws InvalidArgumentException
      *   MUST be thrown if the $key string is not a legal value.
@@ -143,7 +143,7 @@ class Memory implements CacheInterface, CacheContracts
 
         $this->gc();
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -167,19 +167,19 @@ class Memory implements CacheInterface, CacheContracts
 
         unset($this->cache[$key], $this->ttl[$key]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Wipes clean the entire cache's keys.
      *
-     * @return bool True on success and false on failure.
+     * @return bool True on success and FALSE on failure.
      */
     public function clear()
     {
         unset($this->cache, $this->ttl);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -220,7 +220,7 @@ class Memory implements CacheInterface, CacheContracts
      *                                       the driver supports TTL then the library may set a default value
      *                                       for it or let the driver take care of that.
      *
-     * @return bool True on success and false on failure.
+     * @return bool True on success and FALSE on failure.
      *
      * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if $values is neither an array nor a Traversable,
@@ -239,7 +239,7 @@ class Memory implements CacheInterface, CacheContracts
             $this->set($key, $value, $ttl);
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -266,14 +266,14 @@ class Memory implements CacheInterface, CacheContracts
             $this->delete($key);
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
-     * Returns true if the container can return an entry for the given identifier.
-     * Returns false otherwise.
+     * Returns TRUE if the container can return an entry for the given identifier.
+     * Returns FALSE otherwise.
      *
-     * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+     * `has($id)` returning TRUE does not mean that `get($id)` will not throw an exception.
      * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
      *
      * @param string $key Identifier of the entry to look for.
@@ -283,10 +283,10 @@ class Memory implements CacheInterface, CacheContracts
     public function has($key)
     {
         if (array_key_exists($key, $this->cache)) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -295,7 +295,7 @@ class Memory implements CacheInterface, CacheContracts
      * @param mixed $offset <p>
      * An offset to check for.
      * </p>
-     * @return boolean true on success or false on failure.
+     * @return boolean TRUE on success or FALSE on failure.
      * </p>
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.

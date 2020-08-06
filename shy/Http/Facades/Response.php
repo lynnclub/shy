@@ -10,10 +10,10 @@ use Shy\Http\Contracts\Response as ResponseContracts;
  * @package Shy\Http\Facades
  *
  * @method static initialize()
- * @method static Response set($response)
- * @method static Response setCode(int $code)
- * @method static Response setHeader($header)
- * @method static send($view = null)
+ * @method static Response withStatus(int $code)
+ * @method static Response withHeader($name, $value = '')
+ * @method static Response withHeaders(array $headers)
+ * @method static output($view = null)
  */
 class Response extends Facade
 {

@@ -13,9 +13,9 @@ if (!function_exists('smarty')) {
      */
     function smarty(string $view, $params = [])
     {
-        $smarty = shy(Smarty::class);
+        $smarty = shy(\Smarty::class);
         if (!is_object($smarty)) {
-            throw new RuntimeException('Class Smarty not found.');
+            throw new \RuntimeException('Class Smarty not found.');
         }
 
         $config = config('smarty');
@@ -28,7 +28,7 @@ if (!function_exists('smarty')) {
         $params['GLOBALS'] = $GLOBALS;
 
         if (config('app.debug')) {
-            $smarty->debugging = true;
+            $smarty->debugging = TRUE;
         }
 
         return $smarty->fetch($view, $params);
@@ -53,7 +53,7 @@ if (!function_exists('url')) {
             $host = $matches[2];
         }
 
-        $hostRouter = shy(Shy\Http\Contracts\Router::class)->getRouteIndex();
+        $hostRouter = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
 
         if (isset($hostRouter[$host])) {
             $router = $hostRouter[$host];
@@ -64,8 +64,13 @@ if (!function_exists('url')) {
 
             if (isset($router[$path])) {
                 return $base_url . $path;
-            } elseif ($paramStart = strrpos($path, '/')) {
-                $subPath = substr($path, 0, $paramStart);
+            } else {
+                $paramStart = strrpos($path, '/');
+
+                $subPath = '';
+                if ($paramStart > 0) {
+                    $subPath = substr($path, 0, $paramStart);
+                }
 
                 if (isset($router[$subPath]) && isset($router[$subPath]['with_param'])) {
                     return $base_url . $path;
@@ -73,7 +78,7 @@ if (!function_exists('url')) {
             }
         }
 
-        throw new RuntimeException('Path "' . $path . '" not found in router config.');
+        throw new \RuntimeException('Path "' . $path . '" not found in router config.');
     }
 }
 
@@ -131,7 +136,7 @@ if (!function_exists('csrf_token')) {
      */
     function csrf_token()
     {
-        return shy(Shy\Http\Contracts\Session::class)->token('csrf-token');
+        return shy(\Shy\Http\Contracts\Session::class)->token('csrf-token');
     }
 }
 
@@ -144,18 +149,18 @@ if (!function_exists('csrf_verify')) {
      */
     function csrf_verify(string $token)
     {
-        $sessionToken = shy(Shy\Http\Contracts\Session::class)->get('csrf-token');
+        $sessionToken = shy(\Shy\Http\Contracts\Session::class)->get('csrf-token');
         if (!empty($token) && $token === $sessionToken) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 }
 
 if (!function_exists('is_valid_ip')) {
     /**
-     * Get valid ip
+     * Is valid ip
      *
      * @param string $ip
      * @return bool
@@ -163,10 +168,37 @@ if (!function_exists('is_valid_ip')) {
     function is_valid_ip(string $ip)
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
+    }
+}
+
+if (!function_exists('get_valid_ips')) {
+    /**
+     * Get valid ips
+     *
+     * @param array $ips
+     * @return array
+     */
+    function get_valid_ips(array $ips)
+    {
+        $validIps = [];
+
+        foreach ($ips as $ip) {
+            if (is_array($ip)) {
+                $validIps = array_merge($validIps, get_valid_ips($ip));
+            } elseif (is_string($ip)) {
+                if (stripos($ip, ',') !== FALSE) {
+                    $validIps = array_merge($validIps, get_valid_ips(explode(',', $ip)));
+                } else if (is_valid_ip($ip)) {
+                    $validIps[] = trim($ip);
+                }
+            }
+        }
+
+        return array_filter(array_unique($validIps));
     }
 }
 
@@ -185,7 +217,7 @@ if (!function_exists('get_response_json')) {
             $msg = lang($code);
         }
 
-        return json_encode(array('code' => $code, 'msg' => $msg, 'data' => $data), JSON_UNESCAPED_UNICODE);
+        return json_encode(array('code' => $code, 'msg' => $msg, 'data' => $data), JSON_UNESCAPED_SLASHES);
     }
 }
 
@@ -265,10 +297,10 @@ if (!function_exists('is_mobile')) {
             ];
 
             if (preg_match("/(" . implode('|', $client_keywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 }

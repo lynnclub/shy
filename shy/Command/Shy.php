@@ -4,6 +4,7 @@ namespace Shy\Command;
 
 use Shy\Command;
 use RuntimeException;
+use Shy\HttpInSwoole;
 use Shy\SocketInWorkerMan;
 use Shy\HttpInWorkerMan;
 use Workerman\Worker;
@@ -43,22 +44,17 @@ class Shy
     }
 
     /**
-     * Delete config cache file
+     * Show route index
      *
      * @return string
      */
-    public function deleteConfigCacheFile()
+    public function showRouteIndex()
     {
-        $cache = CACHE_PATH . 'app/config.cache';
-        if (!file_exists($cache)) {
-            return 'No cache';
-        }
+        $router = new \Shy\Http\Router();
+        $router->initialize();
+        $router->buildRouteIndexByConfig();
 
-        if (unlink($cache)) {
-            return 'Success';
-        } else {
-            return 'Failed';
-        }
+        return json_encode($router->getRouteIndex());
     }
 
     /**
@@ -66,7 +62,7 @@ class Shy
      *
      * @throws \Exception
      */
-    public function http()
+    public function httpWorkerMan()
     {
         $config = config('workerman.http');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
@@ -87,6 +83,21 @@ class Shy
 
         Worker::$stdoutFile = CACHE_PATH . 'log/command/' . date('Ymd') . '.log';
         Worker::runAll();
+    }
+
+    /**
+     * Swoole http service
+     *
+     * @throws \Exception
+     */
+    public function httpSwoole()
+    {
+        $config = config('swoole.http');
+        if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
+            throw new RuntimeException('Swoole http setting error.');
+        }
+
+        shy(HttpInSwoole::class, null, '0.0.0.0', $config);
     }
 
     /**

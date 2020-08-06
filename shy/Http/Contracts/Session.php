@@ -30,6 +30,11 @@ interface Session
     public function set(string $key, $val);
 
     /**
+     * @param string $key
+     */
+    public function delete(string $key);
+
+    /**
      * @param string $name
      * @return string
      */

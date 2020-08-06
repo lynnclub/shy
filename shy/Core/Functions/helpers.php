@@ -54,7 +54,7 @@ if (!function_exists('empty_or_splice')) {
      * @param bool $is_prefix
      * @return string
      */
-    function empty_or_splice(string $string, string $splice = '', bool $is_prefix = true)
+    function empty_or_splice(string $string, string $splice = '', bool $is_prefix = TRUE)
     {
         if (empty($string)) {
             return '';
@@ -76,7 +76,7 @@ if (!function_exists('mime')) {
      * @param bool $flip
      * @return string
      */
-    function mime(string $type, bool $flip = false)
+    function mime(string $type, bool $flip = FALSE)
     {
         $mime = [
             //applications

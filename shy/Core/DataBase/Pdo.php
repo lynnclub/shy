@@ -68,7 +68,7 @@ class Pdo extends PhpPdo implements DataBase
             $dsn,
             $config['username'],
             $config['password'],
-            [PDO::ATTR_PERSISTENT => true]
+            [PDO::ATTR_PERSISTENT => TRUE]
         );
 
         $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

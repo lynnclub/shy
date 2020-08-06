@@ -96,7 +96,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
     /**
      * Wipes clean the entire cache's keys.
      *
-     * @return bool True on success and false on failure.
+     * @return bool True on success and FALSE on failure.
      */
     public function clear()
     {
@@ -139,7 +139,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
      *                                       the driver supports TTL then the library may set a default value
      *                                       for it or let the driver take care of that.
      *
-     * @return bool True on success and false on failure.
+     * @return bool True on success and FALSE on failure.
      *
      * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if $values is neither an array nor a Traversable,
@@ -155,16 +155,16 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
         }
 
         if (!$this->multi()) {
-            return false;
+            return FALSE;
         }
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
         if ($this->exec()) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -189,14 +189,14 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
 
         $this->delete(...$keys);
 
-        return true;
+        return TRUE;
     }
 
     /**
-     * Returns true if the container can return an entry for the given identifier.
-     * Returns false otherwise.
+     * Returns TRUE if the container can return an entry for the given identifier.
+     * Returns FALSE otherwise.
      *
-     * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+     * `has($id)` returning TRUE does not mean that `get($id)` will not throw an exception.
      * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
      *
      * @param string $key Identifier of the entry to look for.
@@ -214,7 +214,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
      * @param mixed $offset <p>
      * An offset to check for.
      * </p>
-     * @return boolean true on success or false on failure.
+     * @return boolean TRUE on success or FALSE on failure.
      * </p>
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.

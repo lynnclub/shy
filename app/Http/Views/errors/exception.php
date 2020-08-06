@@ -120,7 +120,7 @@
                         $trace['args'][$argKey] = '(' . gettype($arg) . ')';
                         if (is_string($arg)) {
                             if (strlen($arg) > 100) {
-                                $arg = str_limit($arg, 100);
+                                $arg = substr($arg, 0, 100) . '...';
                             }
                             $trace['args'][$argKey] .= "'{$arg}'";
                         } elseif (is_object($arg)) {
@@ -128,7 +128,7 @@
                         } elseif (is_array($arg)) {
                             $json = json_encode($arg, JSON_UNESCAPED_UNICODE);
                             if (strlen($json) > 100) {
-                                $json = str_limit($json, 100) . '}';
+                                $json = substr($json, 0, 100) . '...}';
                             }
                             $trace['args'][$argKey] .= $json;
                         }
@@ -215,6 +215,9 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_SESSION as $key => $value) {
+                if (!is_string($value)) {
+                    $value = json_encode($value);
+                }
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -243,6 +246,7 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_SERVER as $key => $value) {
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 

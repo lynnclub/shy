@@ -68,22 +68,20 @@ class Handler implements ExceptionHandler
         }
 
         $view->initialize();
+
         if ($this->throwable instanceof HttpException) {
-            $response->setCode($this->throwable->getStatusCode())
-                ->setHeader($this->throwable->getHeaders());
+            $response->withStatus($this->throwable->getStatusCode())
+                ->withHeaders($this->throwable->getHeaders());
 
             if ($this->throwable->getStatusCode() === 404) {
-                $response->set($view->view('errors/404'));
+                $response->output($view->view('errors/404'));
             } else {
-                $response->set($view->view('errors/common')->with(['e' => $this->throwable]));
+                $response->output($view->view('errors/common')->with(['e' => $this->throwable]));
             }
-
-            $response->send();
         } else {
-            $response->setCode(500)
-                ->setHeader([])
-                ->set($config->find('app.debug') ? $view->view('errors/exception')->with(['e' => $this->throwable]) : '')
-                ->send();
+            $response->withStatus(500)
+                ->withoutHeader(null)
+                ->output($config->find('app.debug') ? $view->view('errors/exception')->with(['e' => $this->throwable]) : '');
         }
     }
 

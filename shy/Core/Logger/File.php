@@ -78,7 +78,7 @@ class File extends AbstractLogger implements LoggerContract
         }
 
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . strtoupper($level) . ']';
-        if (is_object($this->request) && $this->request->isInitialized()) {
+        if (method_exists($this->request, 'isInitialized') && $this->request->isInitialized()) {
             $prefix .= ' [' . $this->request->getUrl() . ']';
 
             $userIps = $this->request->getClientIps();
@@ -86,13 +86,14 @@ class File extends AbstractLogger implements LoggerContract
                 $prefix .= ' [' . implode(',', $userIps) . ']';
             }
 
+            $prefix .= ' [' . $this->request->getMethod() . ']';
             $prefix .= ' [' . $this->request->userAgent() . ']';
         }
 
         $contextString = '';
         foreach ($context as $key => $val) {
             if (!is_numeric($key)) {
-                $contextString .= '[' . $key . '] ';
+                $contextString .= $key . ' ';
             }
 
             if (is_string($val)) {

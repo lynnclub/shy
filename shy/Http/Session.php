@@ -29,9 +29,9 @@ class Session implements SessionContract
     public function exist(string $key)
     {
         if (isset($_SESSION[$key])) {
-            return true;
+            return TRUE;
         } else {
-            return false;
+            return FALSE;
         }
     }
 
@@ -45,7 +45,7 @@ class Session implements SessionContract
             return $_SESSION[$key];
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -55,6 +55,14 @@ class Session implements SessionContract
     public function set(string $key, $val)
     {
         $_SESSION[$key] = $val;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function delete(string $key)
+    {
+        unset($_SESSION[$key]);
     }
 
     /**

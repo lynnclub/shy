@@ -46,20 +46,18 @@
         }
 
         .error-message {
-            color: #ff9000;
             font-size: 16px;
             font-weight: bold;
             margin-bottom: 25px;
         }
 
         .error-right h1 {
-            color: #ff9000;
             font-size: 30px;
         }
 
         a.return, a.return:hover {
-            border: 1px solid #ff9000;
-            color: #ff9000;
+            border: 1px solid black;
+            color: black;
             display: flex;
             -webkit-box-pack: center;
             justify-content: center;
@@ -77,8 +75,7 @@
 <body>
 <div class="error">
     <div class="content">
-        <i class="fa fa-anchor" style="color: #778899" aria-hidden="true"></i>
-        <span><?php echo lang(5003); ?></span>
+        <i class="fa fa-anchor" aria-hidden="true"></i>
     </div>
     <p class="error-message"><?php echo $e->getMessage() ?></p>
     <a class="return" href="<?php param('BASE_URL') ?>">

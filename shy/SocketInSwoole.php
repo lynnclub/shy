@@ -2,6 +2,8 @@
 
 namespace Shy;
 
+use Swoole;
+
 class SocketInSwoole
 {
     /**
@@ -12,7 +14,7 @@ class SocketInSwoole
      */
     public function __construct($socket_name, $context_option = array())
     {
-        $server = new swoole_server("127.0.0.1", 9503);
+        $server = new swoole_server('127.0.0.1', 9503);
         $server->on('connect', function ($server, $fd) {
             echo "connection open: {$fd}\n";
         });

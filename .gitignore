@@ -1,9 +1,9 @@
+.DS_Store
 /.idea
 /node_modules
 /bower_components
 /vendor
 !/public/vendor
-.DS_Store
 npm-debug.log
 workerman.log
 *.pid

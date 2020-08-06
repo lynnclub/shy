@@ -14,6 +14,7 @@ use Shy\Http\Contracts\Session as SessionContracts;
  * @method static bool exist(string $key)
  * @method static bool|mixed get(string $key)
  * @method static set(string $key, $val)
+ * @method static delete(string $key)
  * @method static string token(string $name)
  */
 class Session extends Facade
