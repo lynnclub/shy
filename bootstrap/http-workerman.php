@@ -45,7 +45,7 @@ try {
     $container[HandlerRegister::class]->setView($container->make(ViewContract::class));
     $container[HandlerRegister::class]->setResponse($container->make(ResponseContract::class));
 
-    $container->intelligentSchedulingOn();
+    //$container->intelligentSchedulingOn();
 
     /**
      * Clear global variables

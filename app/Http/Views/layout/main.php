@@ -11,7 +11,7 @@
     <?php push_resource('header-css') ?>
 </head>
 <body>
-<?php include_sub_view() ?>
+<?php include_view() ?>
 <?php include_view('component/footer') ?>
 <?php push_resource('footer-js') ?>
 </body>

@@ -158,10 +158,9 @@ class Container implements ContainerContract
      *
      * @param \ReflectionParameter[] $dependencies
      * @param array $parameters
-     *
      * @return array
-     *
      * @throws NotFoundException
+     * @throws \ReflectionException
      */
     public function handleDependencies(array $dependencies, array $parameters = [])
     {
