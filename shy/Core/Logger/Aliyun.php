@@ -42,7 +42,7 @@ class Aliyun extends File implements LoggerContract
         /**
          * Log Item
          */
-        $logItem = shy(Aliyun_Log_Models_LogItem::class);
+        $logItem = new Aliyun_Log_Models_LogItem;
         $logItem->pushBack('Message', $message);
         $logItem->pushBack('Level', strtoupper($level));
         $logItem->pushBack('Date', date('Y-m-d H:i:s'));
@@ -57,7 +57,7 @@ class Aliyun extends File implements LoggerContract
         /**
          * Push
          */
-        $putLogsRequest = shy(Aliyun_Log_Models_PutLogsRequest::class, null, $config['project'], $config['logStore'], null, null, [$logItem]);
+        $putLogsRequest = new Aliyun_Log_Models_PutLogsRequest($config['project'], $config['logStore'], null, null, [$logItem]);
         $client->putLogs($putLogsRequest);
 
         parent::log($level, $message, $context);
