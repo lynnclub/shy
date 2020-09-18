@@ -285,12 +285,15 @@ class Container implements ContainerContract
 
     /**
      * @param array $binds
+     * @return $this
      */
     public function binds(array $binds)
     {
         foreach ($binds as $id => $concrete) {
             $this->bind($id, $concrete);
         }
+
+        return $this;
     }
 
     /**
@@ -380,12 +383,15 @@ class Container implements ContainerContract
 
     /**
      * @param array $aliases
+     * @return $this
      */
     public function aliases(array $aliases)
     {
         foreach ($aliases as $alias => $id) {
             $this->alias($alias, $id);
         }
+
+        return $this;
     }
 
     /**

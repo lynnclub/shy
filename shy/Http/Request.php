@@ -147,4 +147,13 @@ class Request extends SymfonyRequest implements RequestContract
         return $this->headers->get('X-CSRF-TOKEN');
     }
 
+    /**
+     * Returns HTTP_REFERER.
+     *
+     * @return string|null
+     */
+    public function httpReferer()
+    {
+        return $this->headers->get('HTTP_REFERER');
+    }
 }

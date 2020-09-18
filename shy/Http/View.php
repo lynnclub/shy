@@ -51,13 +51,15 @@ class View implements ViewContract
     /**
      * View constructor.
      *
-     * @param Config $config
-     *
-     * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
+     * @param string $viewPath
      */
-    public function __construct(Config $config)
+    public function __construct(string $viewPath = '')
     {
-        $this->viewPath = $config->find('path.view');
+        if (empty($viewPath)) {
+            $this->viewPath = VIEW_PATH;
+        } else {
+            $this->viewPath = $viewPath;
+        }
     }
 
     /**

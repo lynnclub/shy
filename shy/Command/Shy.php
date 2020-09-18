@@ -79,7 +79,7 @@ class Shy
 
         $web = shy(HttpInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
         $web->count = $config['worker'];
-        $web->addRoot('localhost', config('path.public'));
+        $web->addRoot('localhost', PUBLIC_PATH);
 
         Worker::$stdoutFile = CACHE_PATH . 'log/command/' . date('Ymd') . '.log';
         Worker::runAll();

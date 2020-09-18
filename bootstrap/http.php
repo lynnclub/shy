@@ -30,50 +30,17 @@ use Shy\Http\Router;
 use Shy\Http\View;
 
 try {
-    /**
-     * Env and Config
-     */
-    $env = getenv('SHY_ENV');
-    if (empty($env)) {
-        $env = 'develop';
-    }
-    defined('SHY_ENV') or define('SHY_ENV', $env);
+    //Define Constants
+    defined('BASE_PATH') or define('BASE_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
+    defined('APP_PATH') or define('APP_PATH', BASE_PATH . 'app' . DIRECTORY_SEPARATOR);
+    defined('CACHE_PATH') or define('CACHE_PATH', BASE_PATH . 'cache' . DIRECTORY_SEPARATOR);
+    defined('PUBLIC_PATH') or define('PUBLIC_PATH', BASE_PATH . 'public' . DIRECTORY_SEPARATOR);
+    defined('VIEW_PATH') or define('VIEW_PATH', APP_PATH . 'Http' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR);
 
-    unset($env);
-
-    $config = new Config(dirname(__DIR__) . '/config/' . SHY_ENV . DIRECTORY_SEPARATOR);
-
-    /**
-     * Set Timezone
-     */
-    date_default_timezone_set($config->find('app.timezone'));
-
-    /**
-     * Define Constant
-     */
-    $path = $config->load('path');
-    defined('BASE_PATH') or define('BASE_PATH', $path['base']);
-    defined('APP_PATH') or define('APP_PATH', $path['app']);
-    defined('VIEW_PATH') or define('VIEW_PATH', $path['view']);
-    defined('CACHE_PATH') or define('CACHE_PATH', $path['cache']);
-    defined('PUBLIC_PATH') or define('PUBLIC_PATH', $path['public']);
-
-    unset($path);
-    $config->delete('path');
-
-    /**
-     * Container
-     */
+    //Container Initialization
     $container = Container::getContainer();
-    $container->set(ConfigContract::class, $config)
-        ->alias('config', ConfigContract::class);
-
-    unset($config);
-
-    /**
-     * Binding Contract
-     */
     $container->binds([
+        ConfigContract::class => Config::class,
         LoggerContract::class => File::class,
         ExceptionHandlerContract::class => Handler::class,
         PipelineContract::class => Pipeline::class,
@@ -86,12 +53,27 @@ try {
         ViewContract::class => View::class,
     ]);
     $container->aliases([
+        'config' => ConfigContract::class,
         'session' => SessionContract::class,
         'router' => RouterContract::class,
         'request' => RequestContract::class,
         'response' => ResponseContract::class,
         'view' => ViewContract::class,
     ]);
+
+    //Set Environment
+    $env = getenv('SHY_ENV');
+    defined('SHY_ENV') or define('SHY_ENV', empty($env) ? 'develop' : $env);
+    unset($env);
+
+    //Make Config
+    $container->make(
+        ConfigContract::class,
+        BASE_PATH . 'config/' . SHY_ENV . DIRECTORY_SEPARATOR,
+        CACHE_PATH . 'app/config.cache'
+    );
+
+    date_default_timezone_set($container['config']->find('app.timezone'));
 
     /**
      * Registering Exception Handler Through Dependency Injection
@@ -105,11 +87,10 @@ try {
 
     unset($container);
 
-    /**
-     * Loading view functions
-     */
+    //Loading files
     require __DIR__ . '/../shy/Http/Functions/view.php';
-} catch (Throwable $throwable) {
+    require __DIR__ . '/../app/Functions/common.php';
+} catch (\Throwable $throwable) {
     echo implode('<br>', get_throwable_array($throwable));
     exit(1);
 }

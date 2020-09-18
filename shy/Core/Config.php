@@ -18,11 +18,12 @@ class Config extends Memory implements ConfigContract
      * Config constructor.
      *
      * @param string $dir
+     * @param string $cacheDir
      *
      * @throws Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public function __construct(string $dir)
+    public function __construct(string $dir, string $cacheDir)
     {
         if (is_dir($dir)) {
             $this->dir = $dir;
@@ -30,7 +31,7 @@ class Config extends Memory implements ConfigContract
             throw new Exception('Config dir is not a dir.');
         }
 
-        parent::__construct($this->find('path.cache') . 'app/config.cache', $this->find('app.cache'));
+        parent::__construct($cacheDir, $this->find('app.cache'));
     }
 
     /**
