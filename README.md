@@ -1018,6 +1018,22 @@ php command workerman chat start
 
 框架可使用phpunit做单元测试。在tests文件夹中编写测试代码，在框架根目录执行下面的命令即可执行测试。
 
+由于框架支持php7.0及以上版本，适配phpunit版本为phpunit 6.x。
+
+安装phpunit 6.5：
+
+```bash
+wget https://phar.phpunit.de/phpunit-6.5.phar
+
+php phpunit-6.5.phar --version
+
+chmod +x phpunit-6.5.phar
+
+mv phpunit-6.5.phar /usr/local/bin/phpunit
+```
+
+执行单元测试：
+
 ```bash
 phpunit tests/containerTest
 ```
