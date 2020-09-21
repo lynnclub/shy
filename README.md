@@ -177,6 +177,24 @@ shy 框架根目录
 
 **契约在容器中的使用方式：容器中的类名为契约类名，容器中对应的实例是实现了契约的实体类。遵守相同契约的实体类可以在容器中随意替换。**
 
+bootstrap程序中，契约与实体类的绑定：
+
+```php
+$container->binds([
+    ConfigContract::class => Config::class,
+    LoggerContract::class => File::class,
+    ExceptionHandlerContract::class => Handler::class,
+    PipelineContract::class => Pipeline::class,
+    CacheContract::class => Memory::class,
+    DataBaseContract::class => Pdo::class,
+    RequestContract::class => Request::class,
+    ResponseContract::class => Response::class,
+    SessionContract::class => Session::class,
+    RouterContract::class => Router::class,
+    ViewContract::class => View::class,
+]);
+```
+
 ## 三、 容器与依赖注入（Container and Dependency Injection）
 
 本框架的容器类，遵守PSR（PHP Standards Recommendations）中的《PSR-11: Container interface》接口规范；并且，实现了PHP的ArrayAccess、Countable接口，可以当作数组使用。
