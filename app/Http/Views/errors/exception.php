@@ -233,7 +233,6 @@
             . '<tr><td>APP_PATH</td><td>' . (defined('APP_PATH') ? APP_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
             . '<tr><td>VIEW_PATH</td><td>' . (defined('VIEW_PATH') ? VIEW_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
             . '<tr><td>CACHE_PATH</td><td>' . (defined('CACHE_PATH') ? CACHE_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
-            . '<tr><td>BASE_URL</td><td>' . (defined('BASE_URL') ? BASE_URL : '<span class="empty">not defined</span>') . '</td></tr>'
             . '</tbody></table>';
         ?>
     </div>

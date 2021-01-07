@@ -53,7 +53,7 @@ class Command
          */
         $config = config('command');
         if (!isset($config[$command])) {
-            $this->notFound($command);
+            return $this->commandNotFound($command);
         }
         if (!is_array($config[$command])) {
             throw new Exception('Command ' . $command . ' config error.');
@@ -85,30 +85,23 @@ class Command
      */
     public function run()
     {
-        $this->parse();
+        if (!$result = $this->parse()) {
+            $result = shy(Pipeline::class)
+                ->send(...$this->params)
+                ->through($this->class)
+                ->via($this->method)
+                ->run();
+        }
 
-        $result = shy(Pipeline::class)
-            ->send(...$this->params)
-            ->through($this->class)
-            ->via($this->method)
-            ->run();
-
-        echo PHP_EOL . $result . PHP_EOL . PHP_EOL;
+        echo 'Shy Framework ' . shy()->version() . PHP_EOL . PHP_EOL . $result . PHP_EOL . PHP_EOL;
     }
 
     /**
      * @param string $command
      * @return string
      */
-    protected function notFound($command = '')
+    protected function commandNotFound($command = '')
     {
-        echo <<<EOT
-        
-Command '{$command}' not find.
-You can run `php command list` to get all commands.
-
-
-EOT;
-        exit(1);
+        return "Command '{$command}' not find.\r\nRun `php command list` to get all commands.\r\n";
     }
 }

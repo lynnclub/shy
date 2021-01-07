@@ -1,6 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__ . '/bootstrap/command.php';
+/**
+ * @var $container \Shy\Core\Container
+ */
+$container = require __DIR__ . '/bootstrap/command.php';
 
-shy(Shy\Command::class)->run();
+$container->make(\Shy\Command::class)->run();

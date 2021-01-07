@@ -8,7 +8,7 @@
     <meta name="renderer" content="webkit">
     <title>404 not found</title>
     <script src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8"
-            homePageUrl="<?php param('BASE_URL'); ?>" homePageName="Back"></script>
+            homePageUrl="<?php url(); ?>" homePageName="Back"></script>
 </head>
 <body>
 <div>

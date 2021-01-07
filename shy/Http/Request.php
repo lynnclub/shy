@@ -99,9 +99,7 @@ class Request extends SymfonyRequest implements RequestContract
         $clientIps = array();
 
         $clientIps[] = $this->server->get('HTTP_X_FORWARDED_FOR');
-
         $clientIps[] = $this->server->get('HTTP_CLIENT_IP');
-
         $clientIps[] = $this->server->get('REMOTE_ADDR');
 
         return array_reverse(get_valid_ips($clientIps));

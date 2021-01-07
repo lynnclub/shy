@@ -516,7 +516,7 @@ class Container implements ContainerContract
      */
     public function offsetGet($offset)
     {
-        return $this->get($offset);
+        return $this->getOrMake($offset);
     }
 
     /**

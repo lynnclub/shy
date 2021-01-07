@@ -8,10 +8,12 @@ class Session implements SessionContract
 {
     /**
      * Session Start
+     *
+     * @return bool
      */
     public function sessionStart()
     {
-        session_start();
+        return session_start();
     }
 
     /**
@@ -66,6 +68,8 @@ class Session implements SessionContract
     }
 
     /**
+     * Session token
+     *
      * @param string $name
      * @return string
      */

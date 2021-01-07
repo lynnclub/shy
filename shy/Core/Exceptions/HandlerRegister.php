@@ -71,20 +71,26 @@ class HandlerRegister
      * Set response
      *
      * @param Response $response
+     * @return $this
      */
     public function setResponse(Response $response = null)
     {
         $this->response = $response;
+
+        return $this;
     }
 
     /**
      * Set view
      *
      * @param View $view
+     * @return $this
      */
     public function setView(View $view = null)
     {
         $this->view = $view;
+
+        return $this;
     }
 
     /**

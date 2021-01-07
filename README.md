@@ -534,7 +534,7 @@ use Shy\Http\Facades\Request;
 /**
  * 是否初始化（常驻内存模式使用）
  */
-Request::isInitialized();
+Request::initialized();
 
 /**
  * 全部请求
@@ -801,7 +801,7 @@ include\_view函数用于在布局页中输出子模版，或者引入模版组�
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
     <title><?php param('title') ?></title>
-    <link type="text/css" rel="stylesheet" href="<?php param('BASE_URL') ?>css/app.css">
+    <link type="text/css" rel="stylesheet" href="<?php url() ?>css/app.css">
     <?php push_resource('header-css') ?>
 </head>
 <body>
@@ -817,7 +817,7 @@ include\_view函数用于在布局页中输出子模版，或者引入模版组�
 ```php
 <?php
 
-push_resource('footer-js', [get_param('BASE_URL') . 'vendor/jquery/dist/jquery.js', ''], 'js');
+push_resource('footer-js', [url() . 'vendor/jquery/dist/jquery.js', ''], 'js');
 
 ?>
 
@@ -1065,7 +1065,6 @@ phpunit tests/containerTest
 3. VIEW_PATH：模版目录
 4. CACHE_PATH：缓存文件目录
 5. PUBLIC_PATH：Http服务开放目录
-6. BASE_URL：项目URL
 
 ## 二十二、 杂项函数
 

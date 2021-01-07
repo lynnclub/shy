@@ -1,7 +1,4 @@
 <?php
-/**
- * Http functions
- */
 
 if (!function_exists('smarty')) {
     /**
@@ -53,13 +50,12 @@ if (!function_exists('url')) {
             $host = $matches[2];
         }
 
-        $hostRouter = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
-
-        if (isset($hostRouter[$host])) {
-            $router = $hostRouter[$host];
+        $routeIndex = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
+        if (isset($routeIndex[$host])) {
+            $router = $routeIndex[$host];
 
             if (empty($base_url)) {
-                $base_url = BASE_URL;
+                $base_url = shy(\Shy\Http\Contracts\Request::class)->getBaseUrl();
             }
 
             if (isset($router[$path])) {

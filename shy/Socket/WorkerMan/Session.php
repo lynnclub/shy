@@ -8,9 +8,12 @@ use Workerman\Protocols\Http;
 
 class Session extends HttpSession implements SessionContract
 {
+    /**
+     * @return bool
+     */
     public function sessionStart()
     {
-        Http::sessionStart();
+        return Http::sessionStart();
     }
 
     /**

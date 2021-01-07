@@ -1,10 +1,12 @@
 <?php
 
+// Composer autoload
 require __DIR__ . '/../vendor/autoload.php';
 
 use Shy\Core\Container;
 use Shy\Core\Exceptions\HandlerRegister;
 
+// Contracts
 use Shy\Core\Contracts\Config as ConfigContract;
 use Shy\Core\Contracts\Logger as LoggerContract;
 use Shy\Core\Contracts\ExceptionHandler as ExceptionHandlerContract;
@@ -17,6 +19,7 @@ use Shy\Http\Contracts\Session as SessionContract;
 use Shy\Http\Contracts\Router as RouterContract;
 use Shy\Http\Contracts\View as ViewContract;
 
+// Entry
 use Shy\Core\Config;
 use Shy\Core\Logger\File;
 use Shy\Http\Exceptions\Handler;
@@ -28,6 +31,11 @@ use Shy\Http\Response;
 use Shy\Http\Session;
 use Shy\Http\Router;
 use Shy\Http\View;
+
+//Set Environment
+$env = getenv('SHY_ENV');
+defined('SHY_ENV') or define('SHY_ENV', empty($env) ? 'develop' : $env);
+unset($env);
 
 try {
     //Define Constants
@@ -51,20 +59,13 @@ try {
         SessionContract::class => Session::class,
         RouterContract::class => Router::class,
         ViewContract::class => View::class,
-    ]);
-    $container->aliases([
+    ])->aliases([
         'config' => ConfigContract::class,
         'session' => SessionContract::class,
-        'router' => RouterContract::class,
         'request' => RequestContract::class,
         'response' => ResponseContract::class,
         'view' => ViewContract::class,
     ]);
-
-    //Set Environment
-    $env = getenv('SHY_ENV');
-    defined('SHY_ENV') or define('SHY_ENV', empty($env) ? 'develop' : $env);
-    unset($env);
 
     //Make Config
     $container->make(
@@ -85,11 +86,11 @@ try {
      */
     $container->make(HandlerRegister::class);
 
-    unset($container);
-
     //Loading files
     require __DIR__ . '/../shy/Http/Functions/view.php';
     require __DIR__ . '/../app/Functions/common.php';
+
+    return $container;
 } catch (\Throwable $throwable) {
     echo implode('<br>', get_throwable_array($throwable));
     exit(1);

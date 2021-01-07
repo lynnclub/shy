@@ -9,7 +9,7 @@ use Shy\Http\Contracts\Session as SessionContracts;
  * Class Session
  * @package Shy\Http\Facades
  *
- * @method static sessionStart()
+ * @method static bool sessionStart()
  * @method static string sessionId()
  * @method static bool exist(string $key)
  * @method static bool|mixed get(string $key)

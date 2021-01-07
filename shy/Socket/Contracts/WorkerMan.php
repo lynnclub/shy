@@ -30,5 +30,4 @@ interface WorkerMan
      * @return mixed
      */
     public function onClose(Connection $connection);
-
 }

@@ -1,10 +1,12 @@
 <?php
 
+// Composer autoload
 require __DIR__ . '/../vendor/autoload.php';
 
 use Shy\Core\Container;
 use Shy\Core\Exceptions\HandlerRegister;
 
+// Contracts
 use Shy\Core\Contracts\Config as ConfigContract;
 use Shy\Core\Contracts\Logger as LoggerContract;
 use Shy\Core\Contracts\ExceptionHandler as ExceptionHandlerContract;
@@ -12,12 +14,18 @@ use Shy\Core\Contracts\Pipeline as PipelineContract;
 use Shy\Core\Contracts\Cache as CacheContract;
 use Shy\Core\Contracts\DataBase as DataBaseContract;
 
+// Entry
 use Shy\Core\Config;
 use Shy\Core\Logger\File;
 use Shy\Http\Exceptions\Handler;
 use Shy\Core\Pipeline;
 use Shy\Core\Cache\Memory;
 use Shy\Core\DataBase\Pdo;
+
+//Set Environment
+$env = getenv('SHY_ENV');
+defined('SHY_ENV') or define('SHY_ENV', empty($env) ? 'develop' : $env);
+unset($env);
 
 try {
     //Define Constants
@@ -36,15 +44,9 @@ try {
         PipelineContract::class => Pipeline::class,
         CacheContract::class => Memory::class,
         DataBaseContract::class => Pdo::class,
-    ]);
-    $container->aliases([
+    ])->aliases([
         'config' => ConfigContract::class,
     ]);
-
-    //Set Environment
-    $env = getenv('SHY_ENV');
-    defined('SHY_ENV') or define('SHY_ENV', empty($env) ? 'develop' : $env);
-    unset($env);
 
     //Make Config
     $container->make(
@@ -65,7 +67,7 @@ try {
      */
     $container->make(HandlerRegister::class);
 
-    unset($container);
+    return $container;
 } catch (Throwable $throwable) {
     echo implode(PHP_EOL, get_throwable_array($throwable));
     exit(1);

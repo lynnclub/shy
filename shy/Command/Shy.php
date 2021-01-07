@@ -4,7 +4,6 @@ namespace Shy\Command;
 
 use Shy\Command;
 use RuntimeException;
-use Shy\HttpInSwoole;
 use Shy\SocketInWorkerMan;
 use Shy\HttpInWorkerMan;
 use Workerman\Worker;
@@ -20,6 +19,7 @@ class Shy
     {
         $list = shy(Command::class)->getList();
         asort($list);
+
         return implode(PHP_EOL, $list);
     }
 

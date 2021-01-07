@@ -1,15 +1,6 @@
 <?php
 
 return [
-
-    /*
-    | Base Url
-    |
-    | main domain. (optional)
-    */
-
-    'base_url' => '',
-
     /*
     | Debug
     |

@@ -5,6 +5,9 @@ namespace Shy;
 use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
+use Shy\Core\Contracts\Pipeline;
+use Shy\Http\Contracts\Response;
+use Shy\Http\Contracts\Router;
 use Shy\Core\Exceptions\HandlerRegister;
 use Exception;
 use Throwable;
@@ -32,6 +35,11 @@ class HttpInWorkerMan extends Worker
      * @var callback
      */
     protected $_onWorkerStart = null;
+
+    /**
+     * @var $container \Shy\Core\Container
+     */
+    protected $container;
 
     /**
      * Add virtual host.
@@ -63,7 +71,7 @@ class HttpInWorkerMan extends Worker
         /**
          * Bootstrap In CLI
          */
-        require __DIR__ . '/../bootstrap/http-workerman.php';
+        $this->container = require __DIR__ . '/../bootstrap/http_workerman.php';
     }
 
     /**
@@ -107,7 +115,7 @@ class HttpInWorkerMan extends Worker
             }
         }
 
-        shy()->addForkPid($this->id);
+        $this->container->addForkPid($this->id);
     }
 
     /**
@@ -143,7 +151,7 @@ class HttpInWorkerMan extends Worker
      * Emit when http message coming.
      *
      * @param TcpConnection $connection
-     * @return void
+     * @throws Core\Exceptions\Container\NotFoundException
      */
     public function onMessage($connection)
     {
@@ -210,18 +218,28 @@ class HttpInWorkerMan extends Worker
                 /**
                  * Cycle information
                  */
-                shy()->set('SHY_CYCLE_COUNT', shy()->get('SHY_CYCLE_COUNT') + 1);
-                shy()->set('SHY_CYCLE_START_TIME', microtime(TRUE));
+                $this->container->set('SHY_CYCLE_COUNT', $this->container->get('SHY_CYCLE_COUNT') + 1);
+                $this->container->set('SHY_CYCLE_START_TIME', microtime(TRUE));
 
-                /**
-                 * Run framework
-                 */
-                shy('request')->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
-                shy('session')->sessionStart();
+                $this->container['request']->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
+                $this->container['session']->sessionStart();
 
-                shy(\Shy\Http::class)->run();
+                // Run
+                $this->container->make(Pipeline::class)
+                    ->send($this->container['request'])
+                    ->through(Router::class)
+                    ->then(function ($body) {
+                        if ($body instanceof Response) {
+                            $body->output();
+                        } else {
+                            $this->container['response']->output($body);
+                        }
+                    });
+
+                // Clear Request
+                $this->container['request']->initialize();
             } catch (Throwable $e) {
-                shy(HandlerRegister::class)->handleException($e);
+                $this->container->get(HandlerRegister::class)->handleException($e);
             }
 
             $content = ob_get_clean();

@@ -7,7 +7,7 @@
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
     <title>Http Error</title>
-    <link rel="stylesheet" href="<?php param('BASE_URL') ?>vendor/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php url() ?>vendor/font-awesome-4.7.0/css/font-awesome.min.css">
     <style>
         html, body, h1, div, li, p, input {
             margin: 0;
@@ -78,7 +78,7 @@
         <i class="fa fa-anchor" aria-hidden="true"></i>
     </div>
     <p class="error-message"><?php echo $e->getMessage() ?></p>
-    <a class="return" href="<?php param('BASE_URL') ?>">
+    <a class="return" href="<?php url() ?>">
         <i class="fa fa-reply" aria-hidden="true"></i>
         &nbsp;Back Home
     </a>

@@ -9,6 +9,9 @@ use Shy\Http\Contracts\Request;
 
 class ServerRequest implements ServerRequestInterface
 {
+    /**
+     * @var Request
+     */
     protected $request;
 
     public function __construct(Request $request)

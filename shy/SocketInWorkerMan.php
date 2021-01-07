@@ -62,5 +62,4 @@ class SocketInWorkerMan extends Worker
         // Timer init.
         Timer::init();
     }
-
 }
