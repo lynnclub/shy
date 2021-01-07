@@ -2,8 +2,6 @@
 
 namespace Shy\Command;
 
-use Shy\Command;
-use RuntimeException;
 use Shy\SocketInWorkerMan;
 use Shy\HttpInWorkerMan;
 use Workerman\Worker;
@@ -15,26 +13,16 @@ class Shy
      *
      * @return string
      */
-    public function list()
+    public function commandList()
     {
-        $list = shy(Command::class)->getList();
+        $list = array_keys(config('command'));
         asort($list);
 
         return implode(PHP_EOL, $list);
     }
 
     /**
-     * Get Version
-     *
-     * @return string
-     */
-    public function version()
-    {
-        return 'Shy Framework ' . shy()->version();
-    }
-
-    /**
-     * Shy env
+     * SHY_ENV
      *
      * @return mixed
      */
@@ -50,7 +38,9 @@ class Shy
      */
     public function showRouteIndex()
     {
-        $router = new \Shy\Http\Router();
+        bind(\Shy\Http\Contracts\Request::class, \Shy\Http\Request::class);
+
+        $router = shy(\Shy\Http\Contracts\Router::class, \Shy\Http\Router::class);
         $router->initialize();
         $router->buildRouteIndexByConfig();
 
@@ -66,7 +56,7 @@ class Shy
     {
         $config = config('workerman.http');
         if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
-            throw new RuntimeException('WorkerMan http setting error.');
+            return 'WorkerMan http setting error in `config/*/workerman.php`';
         }
 
         global $argv;
@@ -75,6 +65,9 @@ class Shy
         }
         if (isset($argv[0])) {
             $argv[1] = $argv[0];
+            $argv[0] = 'command http_workerman';
+        } else {
+            $argv[0] = '';
         }
 
         $web = shy(HttpInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
@@ -86,38 +79,25 @@ class Shy
     }
 
     /**
-     * Swoole http service
-     *
-     * @throws \Exception
-     */
-    public function httpSwoole()
-    {
-        $config = config('swoole.http');
-        if (!isset($config['port'], $config['worker']) || !is_int($config['port']) || !is_int($config['worker'])) {
-            throw new RuntimeException('Swoole http setting error.');
-        }
-
-        shy(HttpInSwoole::class, null, '0.0.0.0', $config);
-    }
-
-    /**
      * WorkerMan socket
      */
     public function workerMan()
     {
         global $argv;
         if (!isset($argv[0])) {
-            throw new RuntimeException('WorkerMan socket config not specified.');
+            return 'WorkerMan socket config not found in `config/*/workerman.php`';
         }
 
         $config = config('workerman.socket');
         if (isset($config[$argv[0]])) {
             $config = $config[$argv[0]];
+            $argv[0] = 'command workerman ' . $argv[0];
         } else {
-            throw new RuntimeException('WorkerMan socket config ' . $argv[0] . ' not found.');
+            return 'WorkerMan socket config `' . $argv[0] . '` not found in `config/*/workerman.php`';
         }
+
         if (!isset($config['address'], $config['worker'], $config['onConnect'], $config['onMessage'], $config['onClose']) || !is_int($config['worker'])) {
-            throw new RuntimeException('WorkerMan socket setting error');
+            return 'WorkerMan socket setting error';
         }
 
         $worker = shy(SocketInWorkerMan::class, null, $config['address']);

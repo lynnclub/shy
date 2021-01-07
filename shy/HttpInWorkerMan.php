@@ -225,7 +225,7 @@ class HttpInWorkerMan extends Worker
                 $this->container['session']->sessionStart();
 
                 // Run
-                $this->container->make(Pipeline::class)
+                $this->container->get(Pipeline::class)
                     ->send($this->container['request'])
                     ->through(Router::class)
                     ->then(function ($body) {

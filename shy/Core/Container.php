@@ -16,7 +16,7 @@ class Container implements ContainerContract
     /**
      * @var string
      */
-    protected $shyVersion = '1.1.3';
+    protected $shyVersion = '1.2.0';
 
     /**
      * @var Container

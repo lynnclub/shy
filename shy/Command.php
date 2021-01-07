@@ -27,17 +27,10 @@ class Command
     protected $method;
 
     /**
-     * @return array
-     */
-    public function getList()
-    {
-        return array_keys(config('command'));
-    }
-
-    /**
      * Parse Command
      *
      * @throws Exception
+     * @return string Error Message
      */
     protected function parse()
     {
@@ -85,7 +78,9 @@ class Command
      */
     public function run()
     {
-        if (!$result = $this->parse()) {
+        $result = $this->parse();
+
+        if (empty($result)) {
             $result = shy(Pipeline::class)
                 ->send(...$this->params)
                 ->through($this->class)
