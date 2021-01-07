@@ -325,10 +325,6 @@ class Router implements RouterContract
 
     protected function addHostRouteIndexByConfig($host, $path, $index)
     {
-        if (empty($host)) {
-            $host = url();
-        }
-
         if (is_array($host)) {
             foreach ($host as $item) {
                 $this->addHostRouteIndexByConfig($item, $path, $index);
