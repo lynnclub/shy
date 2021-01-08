@@ -43,38 +43,44 @@ if (!function_exists('url')) {
     function url(string $path = '', string $base_url = '')
     {
         $path = trim($path, " \/\t\n\r\0\x0B");
-        $base_url = trim($base_url);
 
-        $host = '';
-        if (!empty($base_url) && preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $base_url, $matches) && !empty($matches[2])) {
+        if (empty($base_url)) {
+            $scheme = shy(\Shy\Http\Contracts\Request::class)->getScheme() . '://';
+            $host = shy(\Shy\Http\Contracts\Request::class)->getHttpHost();
+        } elseif (preg_match("/^(\/\/|http:\/\/|https:\/\/)?([^\/]+)/i", $base_url, $matches) && isset($matches[1]) && !empty($matches[2])) {
+            $scheme = $matches[1];
             $host = $matches[2];
+        } else {
+            throw new \RuntimeException('Can not handle scheme and host.');
         }
+
+        $base_url = shy(\Shy\Http\Contracts\Request::class)->getBaseUrl();
 
         $routeIndex = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
-        if (isset($routeIndex[$host])) {
-            $router = $routeIndex[$host];
-
-            if (empty($base_url)) {
-                $base_url = shy(\Shy\Http\Contracts\Request::class)->getBaseUrl();
+        if (isset($routeIndex[$host][$path])) {
+            $url = $base_url . $path;
+        } elseif (isset($routeIndex[''][$path])) {
+            $url = $base_url . $path;
+        } else {
+            // Path with param
+            $pathWithoutParam = '';
+            $pathParamEnd = strrpos($path, '/');
+            if ($pathParamEnd > 0) {
+                $pathWithoutParam = substr($path, 0, $pathParamEnd);
             }
 
-            if (isset($router[$path])) {
-                return $base_url . $path;
-            } else {
-                $paramStart = strrpos($path, '/');
-
-                $subPath = '';
-                if ($paramStart > 0) {
-                    $subPath = substr($path, 0, $paramStart);
-                }
-
-                if (isset($router[$subPath]) && isset($router[$subPath]['with_param'])) {
-                    return $base_url . $path;
-                }
+            if (isset($routeIndex[$host][$pathWithoutParam], $routeIndex[$host][$pathWithoutParam]['with_param'])) {
+                $url = $base_url . $path;
+            } elseif (isset($routeIndex[''][$pathWithoutParam], $routeIndex[''][$pathWithoutParam]['with_param'])) {
+                $url = $base_url . $path;
             }
         }
 
-        throw new \RuntimeException('Path "' . $path . '" not found in router config.');
+        if (isset($url)) {
+            return $scheme . $host . '/' . $url;
+        } else {
+            throw new \RuntimeException('Path "' . $path . '" not found in router config.');
+        }
     }
 }
 
