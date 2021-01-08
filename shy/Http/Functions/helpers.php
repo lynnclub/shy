@@ -43,24 +43,24 @@ if (!function_exists('url')) {
     function url(string $path = '', string $base_url = '')
     {
         $path = trim($path, " \/\t\n\r\0\x0B");
+        $base_url = trim($base_url, " \/\t\n\r\0\x0B");
 
         if (empty($base_url)) {
-            $scheme = shy(\Shy\Http\Contracts\Request::class)->getScheme() . '://';
-            $host = shy(\Shy\Http\Contracts\Request::class)->getHttpHost();
-        } elseif (preg_match("/^(\/\/|http:\/\/|https:\/\/)?([^\/]+)/i", $base_url, $matches) && isset($matches[1]) && !empty($matches[2])) {
-            $scheme = $matches[1];
+            $request = shy(\Shy\Http\Contracts\Request::class);
+
+            $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+            $host = $request->getHttpHost();
+        } elseif (preg_match("/^(\/\/|http:\/\/|https:\/\/){1}([^\/]+)/i", $base_url, $matches) && !empty($matches[2])) {
             $host = $matches[2];
         } else {
             throw new \RuntimeException('Can not handle scheme and host.');
         }
 
-        $base_url = shy(\Shy\Http\Contracts\Request::class)->getBaseUrl();
-
         $routeIndex = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
         if (isset($routeIndex[$host][$path])) {
-            $url = $base_url . $path;
+            $validPath = $path;
         } elseif (isset($routeIndex[''][$path])) {
-            $url = $base_url . $path;
+            $validPath = $path;
         } else {
             // Path with param
             $pathWithoutParam = '';
@@ -70,14 +70,14 @@ if (!function_exists('url')) {
             }
 
             if (isset($routeIndex[$host][$pathWithoutParam], $routeIndex[$host][$pathWithoutParam]['with_param'])) {
-                $url = $base_url . $path;
+                $validPath = $path;
             } elseif (isset($routeIndex[''][$pathWithoutParam], $routeIndex[''][$pathWithoutParam]['with_param'])) {
-                $url = $base_url . $path;
+                $validPath = $path;
             }
         }
 
-        if (isset($url)) {
-            return $scheme . $host . '/' . $url;
+        if (isset($validPath)) {
+            return $base_url . '/' . $validPath;
         } else {
             throw new \RuntimeException('Path "' . $path . '" not found in router config.');
         }
