@@ -24,8 +24,8 @@ use Shy\Http\Contracts\Request as RequestContracts;
  * @method static bool isXmlHttpRequest()
  * @method static bool isPjax()
  * @method static bool expectsJson()
- * @method static null|string userAgent()
- * @method static string|null csrfToken()
+ * @method static string|null header($key, $default = null)
+ * @method static string|null server($key, $default = null)
  */
 class Request extends Facade
 {

@@ -144,7 +144,7 @@ class Pipeline implements PipelineContract
                         list($name, $parameters) = $this->parsePipeString($pipe);
                         $pipe = shy($name);
                         if (!is_object($pipe)) {
-                            throw new RuntimeException('Class ' . $name . ' can not make object');
+                            throw new RuntimeException('Class `' . $name . '` cannot make');
                         }
 
                         $parameters = array_merge(is_array($next) ? $next : [$next], $passable, $parameters);

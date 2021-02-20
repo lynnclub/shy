@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     | http in socket
     */
@@ -24,5 +23,4 @@ return [
             'onClose' => [App\Socket\Example::class => 'onClose']
         ],
     ]
-
 ];

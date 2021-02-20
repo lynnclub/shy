@@ -1,59 +1,63 @@
 <?php
 
 return [
-    /*
-    | Debug
-    |
-    | for error reporting.
-    */
+    /**
+     * Constant BASE_URL
+     */
+
+    'base_url' => '',
+
+    /**
+     * Debug
+     *
+     * for error reporting.
+     */
 
     'debug' => false,
 
-    /*
-    | Cache config.
-    */
+    /**
+     * Cache config.
+     */
 
     'cache' => true,
 
-    /*
-    | Time Zone
-    |
-    | for time() date()...
-    | options: PRC, Asia/Shanghai, Asia/Tokyo...
-    */
+    /**
+     * Time Zone
+     *
+     * options: PRC, Asia/Shanghai, Asia/Tokyo...
+     */
 
     'timezone' => 'PRC',
 
-    /*
-    | Default language
-    */
+    /**
+     * Default language
+     */
 
-    'default_lang' => 'en-US',
+    'default_lang' => 'zh-CN',
 
-    /*
-    | Slow Log Limit (second)
-    |
-    | setting 0 means to turn off logging
-    */
+    /**
+     * Slow Log Limit (second)
+     *
+     * set 0 means to turn off slow log
+     */
 
     'slow_log_limit' => 1,
 
-    /*
-    | Route By Config
-    */
+    /**
+     * Route By Config
+     */
 
     'route_by_config' => true,
 
-    /*
-    | Route By Path
-    */
+    /**
+     * Route By Path
+     */
 
     'route_by_path' => false,
 
-    /*
-    | Default Controller
-    */
+    /**
+     * Default Controller
+     */
 
     'default_controller' => 'home'
-
 ];

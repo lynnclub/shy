@@ -117,7 +117,7 @@ class Router implements RouterContract
     {
         $this->initialize();
 
-        $this->host = $request->getHost();
+        $this->host = $request->getHttpHost();
         $this->pathInfo = trim($request->getPathInfo(), " \/\t\n\r\0\x0B");
 
         /**
@@ -220,7 +220,7 @@ class Router implements RouterContract
         list($this->controller, $this->method) = array_pad(explode('@', $config['handle']), 2, 'index');
 
         if (isset($config['middleware'])) {
-            $this->middleware = $config['middleware'];
+            $this->middleware = array_filter($config['middleware']);
         }
 
         $this->param = $param;
@@ -356,7 +356,7 @@ class Router implements RouterContract
                     $middleware[] = $className . (isset($param) ? ':' . $param : '');
                 }
             } else {
-                //This step does not report an error
+                // Full classname
                 $middleware[] = $name;
             }
         }
@@ -402,5 +402,4 @@ class Router implements RouterContract
 
         return $pipeline->run();
     }
-
 }

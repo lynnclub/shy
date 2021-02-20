@@ -183,10 +183,20 @@ interface Request
     public function expectsJson();
 
     /**
-     * User Agent
+     * Get Header
      *
-     * @return null|string|string[]
+     * @param string $key
+     * @param string|null $default
+     * @return string|null
      */
-    public function userAgent();
+    public function header($key, $default = null);
 
+    /**
+     * Get Server
+     *
+     * @param string $key
+     * @param string|null $default
+     * @return string|null
+     */
+    public function server($key, $default = null);
 }

@@ -19,7 +19,7 @@ class Csrf implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        $token = Request::csrfToken();
+        $token = Request::header('X-CSRF-TOKEN');
         if (empty($token)) {
             $token = Request::get('csrf-token');
             if (empty($token)) {

@@ -39,8 +39,9 @@ class Command
          */
         global $argv;
         array_shift($argv);
-        $command = array_shift($argv);
-        $this->params = $argv;
+        $params = $argv;
+        $command = array_shift($params);
+
         /**
          * Config
          */
@@ -66,6 +67,7 @@ class Command
 
             $this->class = $class;
             $this->method = $method;
+            $this->params = $params;
         } else {
             throw new Exception('Command ' . $command . ' config error.');
         }
@@ -78,6 +80,8 @@ class Command
      */
     public function run()
     {
+        echo 'Shy Framework ' . shy()->version() . PHP_EOL . PHP_EOL;
+
         $result = $this->parse();
 
         if (empty($result)) {
@@ -88,7 +92,7 @@ class Command
                 ->run();
         }
 
-        echo 'Shy Framework ' . shy()->version() . PHP_EOL . PHP_EOL . $result . PHP_EOL . PHP_EOL;
+        echo $result . PHP_EOL . PHP_EOL;
     }
 
     /**
@@ -97,6 +101,6 @@ class Command
      */
     protected function commandNotFound($command = '')
     {
-        return "Command '{$command}' not find.\r\nRun `php command list` to get all commands.\r\n";
+        return "Command '{$command}' not found. See 'php command list'.";
     }
 }

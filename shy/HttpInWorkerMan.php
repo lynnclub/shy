@@ -28,7 +28,6 @@ class HttpInWorkerMan extends Worker
      */
     protected static $mimeTypeMap = array();
 
-
     /**
      * Used to save user OnWorkerStart callback settings.
      *
@@ -221,8 +220,18 @@ class HttpInWorkerMan extends Worker
                 $this->container->set('SHY_CYCLE_COUNT', $this->container->get('SHY_CYCLE_COUNT') + 1);
                 $this->container->set('SHY_CYCLE_START_TIME', microtime(TRUE));
 
-                $this->container['request']->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
+                $this->container['request']->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
                 $this->container['session']->sessionStart();
+
+                if (!defined('BASE_URL')) {
+                    if (empty($base_url = config('app.base_url'))) {
+                        define('BASE_URL', $this->container['request']->getSchemeAndHttpHost() . $this->container['request']->getBaseUrl() . '/');
+                    } else {
+                        define('BASE_URL', rtrim($base_url, '/') . '/');
+                    }
+
+                    unset($base_url);
+                }
 
                 // Run
                 $this->container->get(Pipeline::class)

@@ -15,20 +15,29 @@ class Config extends Memory implements ConfigContract
     protected $dir;
 
     /**
+     * @var string
+     */
+    protected $envDir;
+
+    /**
      * Config constructor.
      *
      * @param string $dir
+     * @param string $env
      * @param string $cacheDir
      *
      * @throws Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public function __construct(string $dir, string $cacheDir)
+    public function __construct(string $dir, string $env, string $cacheDir)
     {
-        if (is_dir($dir)) {
-            $this->dir = $dir;
+        $envDir = $dir . DIRECTORY_SEPARATOR . $env . DIRECTORY_SEPARATOR;
+
+        if (is_dir($envDir)) {
+            $this->dir = $dir . DIRECTORY_SEPARATOR;
+            $this->envDir = $envDir;
         } else {
-            throw new Exception('Config dir is not a dir.');
+            throw new Exception('Config dir is not exist.');
         }
 
         parent::__construct($cacheDir, $this->find('app.cache'));
@@ -37,25 +46,28 @@ class Config extends Memory implements ConfigContract
     /**
      * Load config file to cache
      *
-     * @param string $filename
+     * @param string $file
      *
      * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      *
-     * @return array|null
+     * @return array|false
      */
-    public function load(string $filename)
+    public function load(string $file)
     {
-        if ($this->has($filename)) {
-            return $this->get($filename);
+        if ($this->has($file)) {
+            return $this->get($file);
         }
 
-        $configFile = $this->dir . $filename . '.php';
-        if ($config = require_file($configFile)) {
-            $this->set($filename, $config);
+        if (file_exists($file)) {
+            if ($config = require "$file") {
+                $this->set($file, $config);
 
-            return $this->get($filename);
+                return $this->get($file);
+            }
         }
+
+        return false;
     }
 
     /**
@@ -75,12 +87,39 @@ class Config extends Memory implements ConfigContract
             throw new InvalidArgumentException('No configuration file specified.');
         }
 
-        $config = $this->load(array_shift($keyLevels));
-        if (empty($keyLevels)) {
-            return $config;
-        } elseif (is_array($config)) {
-            return get_array_key($keyLevels, $config);
+        $filename = array_shift($keyLevels);
+        $configItem = null;
+
+        if ($config = $this->load($this->envDir . $filename . '.php')) {
+            $configItem = $this->getConfig($config, $keyLevels);
         }
+        if (is_null($configItem)) {
+            if ($config = $this->load($this->dir . $filename . '.php')) {
+                $configItem = $this->getConfig($config, $keyLevels);
+            }
+        }
+
+        return $configItem;
     }
 
+    /**
+     * Get config
+     *
+     * @param $config
+     * @param array $keyLevels
+     * @return array|string|null
+     */
+    protected function getConfig($config, $keyLevels)
+    {
+        $configItem = null;
+        if (is_array($config)) {
+            if (empty($keyLevels)) {
+                $configItem = $config;
+            } else {
+                $configItem = get_array_key($keyLevels, $config);
+            }
+        }
+
+        return $configItem;
+    }
 }

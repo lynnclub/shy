@@ -372,5 +372,4 @@ class Memory implements CacheInterface, CacheContracts
             file_put_contents($this->cacheFile, json_encode(['cache' => $this->cache, 'ttl' => $this->ttl]));
         }
     }
-
 }

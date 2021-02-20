@@ -24,8 +24,8 @@ use Shy\Core\Config;
 use Shy\Core\Logger\File;
 use Shy\Http\Exceptions\Handler;
 use Shy\Core\Pipeline;
-use Shy\Core\Cache\Memory;
-use Shy\Core\DataBase\Pdo;
+use Shy\Core\Cache\Redis;
+use Shy\Core\DataBase\Illuminate;
 use Shy\Http\Request;
 use Shy\Http\Response;
 use Shy\Http\Session;
@@ -52,8 +52,8 @@ try {
         LoggerContract::class => File::class,
         ExceptionHandlerContract::class => Handler::class,
         PipelineContract::class => Pipeline::class,
-        CacheContract::class => Memory::class,
-        DataBaseContract::class => Pdo::class,
+        CacheContract::class => Redis::class,
+        DataBaseContract::class => Illuminate::class,
         RequestContract::class => Request::class,
         ResponseContract::class => Response::class,
         SessionContract::class => Session::class,
@@ -70,7 +70,8 @@ try {
     //Make Config
     $container->make(
         ConfigContract::class,
-        BASE_PATH . 'config/' . SHY_ENV . DIRECTORY_SEPARATOR,
+        BASE_PATH . 'config',
+        SHY_ENV,
         CACHE_PATH . 'app/config.cache'
     );
 

@@ -11,7 +11,7 @@ if (!function_exists('view')) {
      * @param array $params
      * @param string $layout
      *
-     * @return object
+     * @return \Shy\Http\Contracts\View
      */
     function view(string $view, array $params = [], string $layout = '')
     {

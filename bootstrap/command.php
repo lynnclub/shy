@@ -19,8 +19,8 @@ use Shy\Core\Config;
 use Shy\Core\Logger\File;
 use Shy\Http\Exceptions\Handler;
 use Shy\Core\Pipeline;
-use Shy\Core\Cache\Memory;
-use Shy\Core\DataBase\Pdo;
+use Shy\Core\Cache\Redis;
+use Shy\Core\DataBase\Illuminate;
 
 //Set Environment
 $env = getenv('SHY_ENV');
@@ -42,8 +42,8 @@ try {
         LoggerContract::class => File::class,
         ExceptionHandlerContract::class => Handler::class,
         PipelineContract::class => Pipeline::class,
-        CacheContract::class => Memory::class,
-        DataBaseContract::class => Pdo::class,
+        CacheContract::class => Redis::class,
+        DataBaseContract::class => Illuminate::class,
     ])->aliases([
         'config' => ConfigContract::class,
     ]);
@@ -51,7 +51,8 @@ try {
     //Make Config
     $container->make(
         ConfigContract::class,
-        BASE_PATH . 'config/' . SHY_ENV . DIRECTORY_SEPARATOR,
+        BASE_PATH . 'config',
+        SHY_ENV,
         CACHE_PATH . 'app/config.cache'
     );
 
@@ -66,6 +67,9 @@ try {
      * @dependency ResponseContract
      */
     $container->make(HandlerRegister::class);
+
+    //Loading files
+    require __DIR__ . '/../app/Functions/common.php';
 
     return $container;
 } catch (Throwable $throwable) {

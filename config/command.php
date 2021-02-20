@@ -6,9 +6,9 @@ return [
      */
     'list' => [Shy\Command\Shy::class => 'commandList'],
     'env' => [Shy\Command\Shy::class => 'env'],
-    'show_route_index' => [Shy\Command\Shy::class => 'showRouteIndex'],
-    'http_workerman' => [Shy\Command\Shy::class => 'httpWorkerMan'],
-    'workerman' => [Shy\Command\Shy::class => 'workerMan'],
+    'route' => [Shy\Command\Shy::class => 'routeIndex'],
+    'workerman' => [Shy\Command\WorkerMan::class => 'workerMan'],
+    'http_workerman' => [Shy\Command\WorkerMan::class => 'httpWorkerMan'],
 
     /*
      * Customer command

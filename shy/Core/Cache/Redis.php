@@ -2,16 +2,16 @@
 
 namespace Shy\Core\Cache;
 
+use Exception;
+use Redis as PhpRedis;
 use Shy\Core\Contracts\Cache as CacheContracts;
 use Shy\Core\Contracts\DataBase;
 use Shy\Core\Exceptions\Cache\InvalidArgumentException;
-use Redis as PhpRedis;
-use Exception;
 
 class Redis extends PhpRedis implements CacheContracts, DataBase
 {
     /**
-     * @var $this []
+     * @var Redis []
      */
     protected $connections;
 
@@ -19,28 +19,35 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
      * Redis constructor.
      *
      * @param string $config_name
-     *
      * @throws Exception
      */
     public function __construct($config_name = 'default')
     {
+        parent::__construct();
+
         $this->connection($config_name);
     }
 
     /**
+     * Connection
+     *
      * @param string $config_name
-     *
      * @throws Exception
-     *
-     * @return $this
+     * @return Redis
      */
     public function connection($config_name = 'default')
     {
         if (isset($this->connections[$config_name])) {
-            return $this->connections[$config_name];
+            try {
+                if ($this->connections[$config_name]->ping()) {
+                    return $this->connections[$config_name];
+                }
+            } catch (\Throwable $throwable) {
+                unset($this->connections[$config_name]);
+            }
         }
 
-        $configs = config('database.redis');
+        $configs = config('cache.redis');
         if (!isset($configs[$config_name])) {
             throw new Exception('Redis Config ' . $config_name . ' not set');
         }
@@ -49,21 +56,33 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
             throw new Exception('Redis Config ' . $config_name . ' no host or port');
         }
 
-        $this->connect($config['host'], $config['port']);
+        if ($config_name == 'default') {
+            $redis = $this;
+        } else {
+            $redis = new self();
+        }
 
-        if (isset($config['password'])) {
-            $this->auth($config['password']);
-        }
-        if (isset($config['database'])) {
-            $this->select($config['database']);
-        }
-        if (!$this->ping()) {
+        if (!$redis->connect($config['host'], $config['port'])) {
             throw new Exception('Redis Config ' . $config_name . ' connect failed');
         }
 
-        $this->connections[$config_name] = $this;
+        if (!empty($config['password'])) {
+            if (!$redis->auth($config['password'])) {
+                throw new Exception('Redis Config ' . $config_name . ' auth failed');
+            }
+        }
 
-        return $this;
+        if (!$redis->ping()) {
+            throw new Exception('Redis Config ' . $config_name . ' connect failed');
+        }
+
+        if (isset($config['database'])) {
+            if (!$redis->select($config['database'])) {
+                throw new Exception('Redis Config ' . $config_name . ' db ' . $config['database'] . ' select failed');
+            }
+        }
+
+        return $this->connections[$config_name] = $redis;
     }
 
     /**
@@ -277,5 +296,4 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
     {
         $this->delete($offset);
     }
-
 }

@@ -50,7 +50,7 @@ class Aliyun extends File implements LoggerContract
 
         if (method_exists($this->request, 'isInitialized') && $this->request->isInitialized()) {
             $logItem->pushBack('URL', $this->request->getUrl());
-            $logItem->pushBack('UA', $this->request->userAgent());
+            $logItem->pushBack('UA', $this->request->header('User-Agent'));
             $logItem->pushBack('Method', $this->request->getMethod());
             $logItem->pushBack('ClientIps', implode(',', $this->request->getClientIps()));
         }
@@ -62,5 +62,4 @@ class Aliyun extends File implements LoggerContract
 
         parent::log($level, $message, $context);
     }
-
 }

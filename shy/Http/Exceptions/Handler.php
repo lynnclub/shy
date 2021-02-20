@@ -84,5 +84,4 @@ class Handler implements ExceptionHandler
                 ->output($config->find('app.debug') ? $view->view('errors/exception')->with(['e' => $this->throwable]) : '');
         }
     }
-
 }

@@ -6,7 +6,7 @@ return [
 
     'right_delimiter' => '}',
 
-    'caching' => false,
+    'caching' => true,
 
     'cache_lifetime' => 120 //seconds
 

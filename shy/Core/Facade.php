@@ -34,6 +34,10 @@ abstract class Facade
             throw new RuntimeException('Can not get facade object.');
         }
 
-        return $instance->$method(...$args);
+        if (method_exists($instance, $method)) {
+            return $instance->$method(...$args);
+        } else {
+            return $instance::$method(...$args);
+        }
     }
 }

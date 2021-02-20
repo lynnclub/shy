@@ -50,7 +50,7 @@ class Pdo extends PhpPdo implements DataBase
             return $this->connections[$config_name];
         }
 
-        $configs = config('database.db');
+        $configs = config('database');
         if (!isset($configs[$config_name])) {
             throw new Exception(500, 'DataBase Config ' . $config_name . ' not set');
         }

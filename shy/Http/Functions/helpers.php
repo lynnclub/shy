@@ -84,6 +84,23 @@ if (!function_exists('url')) {
     }
 }
 
+if (!function_exists('redirect')) {
+    /**
+     * Redirect
+     *
+     * @param string $url
+     * @return \Shy\Http\Facades\Response
+     */
+    function redirect($url = '')
+    {
+        if (empty($url)) {
+            $url = url();
+        }
+
+        return \Shy\Http\Facades\Response::withStatus(302)->withHeader('Location', $url);
+    }
+}
+
 if (!function_exists('xss_clean')) {
     /**
      * XSS Clean

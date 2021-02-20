@@ -87,7 +87,7 @@ class File extends AbstractLogger implements LoggerContract
             }
 
             $prefix .= ' [' . $this->request->getMethod() . ']';
-            $prefix .= ' [' . $this->request->userAgent() . ']';
+            $prefix .= ' [' . $this->request->header('User-Agent') . ']';
         }
 
         $contextString = '';
@@ -109,5 +109,4 @@ class File extends AbstractLogger implements LoggerContract
 
         file_put_contents($dir . date('Ymd') . '.log', $prefix . ' ' . $message . PHP_EOL . $contextString, FILE_APPEND);
     }
-
 }

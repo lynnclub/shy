@@ -104,26 +104,6 @@ if (!function_exists('config')) {
     }
 }
 
-if (!function_exists('require_file')) {
-    /**
-     * Require file get config
-     *
-     * @param string $filename
-     *
-     * @throws \Exception
-     *
-     * @return mixed
-     */
-    function require_file(string $filename)
-    {
-        if (file_exists($filename)) {
-            return require "$filename";
-        } else {
-            throw new \Exception('require_file() file not exist ' . $filename);
-        }
-    }
-}
-
 if (!function_exists('lang')) {
     /**
      * lang

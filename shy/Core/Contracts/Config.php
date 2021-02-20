@@ -7,14 +7,14 @@ interface Config extends Cache
     /**
      * Load config file to cache
      *
-     * @param string $filename
+     * @param string $file
      *
      * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
      * @throws \Exception
      *
-     * @return array|null
+     * @return array|false
      */
-    public function load(string $filename);
+    public function load(string $file);
 
     /**
      * Find key in config file cache
@@ -26,5 +26,4 @@ interface Config extends Cache
      * @return string|array|null
      */
     public function find(string $key);
-
 }

@@ -126,32 +126,45 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * User Agent
+     * Get Header
      *
+     * @param string $key
+     * @param string|null $default
      * @return string|null
      */
-    public function userAgent()
+    public function header($key, $default = null)
     {
-        return $this->headers->get('User-Agent');
+        return $this->headers->get($key, $default);
     }
 
     /**
-     * Returns csrf token.
+     * Get Server
      *
+     * @param string $key
+     * @param string|null $default
      * @return string|null
      */
-    public function csrfToken()
+    public function server($key, $default = null)
     {
-        return $this->headers->get('X-CSRF-TOKEN');
+        return $this->server->get($key, $default);
     }
 
     /**
-     * Returns HTTP_REFERER.
+     * Prepares the base URL.
      *
-     * @return string|null
+     * @return string
      */
-    public function httpReferer()
+    protected function prepareBaseUrl()
     {
-        return $this->headers->get('HTTP_REFERER');
+        $baseUrl = parent::prepareBaseUrl();
+
+        if (empty($baseUrl)) {
+            $path = $this->server->get('PHP_SELF');
+            if (false !== $pos = stripos($path, '/index.php')) {
+                $baseUrl = substr($path, 0, $pos);
+            }
+        }
+
+        return $baseUrl;
     }
 }
