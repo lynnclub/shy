@@ -36,7 +36,7 @@ if (!function_exists('get_array_key')) {
         } elseif (isset($array[$currentLevel])) {
             if (empty($key_levels)) {
                 return $array[$currentLevel];
-            } else {
+            } elseif (is_array($array[$currentLevel])) {
                 return get_array_key($key_levels, $array[$currentLevel]);
             }
         }
