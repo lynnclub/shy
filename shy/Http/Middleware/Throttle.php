@@ -60,7 +60,7 @@ class Throttle implements Middleware
             Cache::set($cacheKey . $userIp, json_encode($cache), $limitMinute * 60);
 
             if ($remaining <= 0) {
-                Logger::info('Throttle block request', Request::all());
+                Logger::notice('Throttle block request', Request::all());
 
                 $headers[] = 'X-RateLimit-Retry-After:' . ($cache['time'] - $time);
 
