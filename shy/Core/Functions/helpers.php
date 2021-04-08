@@ -68,6 +68,39 @@ if (!function_exists('empty_or_splice')) {
     }
 }
 
+if (!function_exists('random_code')) {
+    /**
+     * Random code
+     *
+     * @param int $length
+     * @param string $type
+     * @param array|null $code_arr
+     * @return bool|string
+     */
+    function random_code(int $length = 8, string $type = 'alpha-number', array $code_arr = null)
+    {
+        if (empty($code_arr)) {
+            $code_arr = array(
+                'alpha' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                'number' => '0123456789',
+                'sign' => '#$%@*-_',
+            );
+        }
+
+        $type_arr = explode('-', $type);
+
+        $chars = '';
+        foreach ($type_arr as $t) {
+            $chars .= $code_arr[$t];
+        }
+
+        $chars = str_shuffle($chars);
+        $number = $length > strlen($chars) - 1 ? strlen($chars) - 1 : $length;
+
+        return substr($chars, 0, $number);
+    }
+}
+
 if (!function_exists('mime')) {
     /**
      * Get mime
