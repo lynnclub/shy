@@ -151,6 +151,7 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_GET as $key => $value) {
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -167,6 +168,7 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_POST as $key => $value) {
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -183,6 +185,7 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_FILES as $key => $value) {
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -199,6 +202,7 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_COOKIE as $key => $value) {
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -215,9 +219,7 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_SESSION as $key => $value) {
-                if (!is_string($value)) {
-                    $value = json_encode($value);
-                }
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -233,6 +235,7 @@
             . '<tr><td>APP_PATH</td><td>' . (defined('APP_PATH') ? APP_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
             . '<tr><td>VIEW_PATH</td><td>' . (defined('VIEW_PATH') ? VIEW_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
             . '<tr><td>CACHE_PATH</td><td>' . (defined('CACHE_PATH') ? CACHE_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>BASE_URL</td><td>' . (defined('BASE_URL') ? BASE_URL : '<span class="empty">not defined</span>') . '</td></tr>'
             . '</tbody></table>';
         ?>
     </div>

@@ -2,6 +2,22 @@
 
 namespace Shy\Http\Contracts;
 
+use Symfony\Component\HttpFoundation\FileBag;
+use Symfony\Component\HttpFoundation\HeaderBag;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\ServerBag;
+
+/**
+ * Interface Request
+ *
+ * @package Shy\Http\Contracts
+ * @property ParameterBag $request
+ * @property ParameterBag $query
+ * @property ServerBag $server
+ * @property FileBag $files
+ * @property ParameterBag $cookies
+ * @property HeaderBag $headers
+ */
 interface Request
 {
     /**

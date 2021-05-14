@@ -53,15 +53,14 @@ class Process
      */
     const STATUS_STARTING = 1;
     const STATUS_RUNNING = 2;
-    const STATUS_RELOADING = 3;
-    const STATUS_STOPPING = 4;
+    const STATUS_STOPPING = 3;
 
     protected $status = self::STATUS_STARTING;
 
     /**
      * @var int second
      */
-    public $statusShowLoading = 3;
+    public $statusLoadingTime = 3;
 
     /**
      * @var int second
@@ -100,8 +99,12 @@ class Process
             return $errorMsg;
         }
 
+        $this->status = self::STATUS_STARTING;
+
         // Master daemon
-        $this->daemon();
+        if ($this->daemon) {
+            $this->daemon();
+        }
 
         // Inter Process communication
         $this->installSignal();
@@ -135,10 +138,9 @@ class Process
             'start',
             'stop',
             'restart',
-            'reload',
             'status',
         );
-        $usage = "Usage: php command <command> <operation> [mode]\nOperations: \nstart\t\tUse mode -d to start in DAEMON mode.\nstop\t\tUse mode -f to force stop.\t\nrestart\t\tUse mode -d to start in DAEMON mode.\t\nreload\t\tDo not stop and reload business code.\nstatus\t\tShow status.";
+        $usage = "Usage: php command <command> <operation> [mode]\nOperations: \n\nstart\t\tProcess start.\t\n\t\tUse mode -d to start in DAEMON mode.\n\nstop\t\tGraceful stop.\t\n\t\tUse mode -f to force stop.\n\t\nrestart\t\tGraceful stop and restart.\t\n\t\tUse mode -f to force stop.\t\n\t\tUse mode -d to start in DAEMON mode.\n\nstatus\t\tShow status.";
         if (!isset($argv[1]) || !\in_array($argv[1], $available_operation)) {
             if (isset($argv[1])) {
                 $usage = 'Unknown operation: ' . $argv[1] . "\n" . $usage;
@@ -177,10 +179,10 @@ class Process
 
                     echo "\nLoading...\n";
 
-                    // Master process will send SIGUSR2 signal to all child processes.
-                    \posix_kill($master_pid, SIGUSR2);
+                    // Master process will send SIGUSR1 signal to all child processes.
+                    \posix_kill($master_pid, SIGUSR1);
                     // Loading wait.
-                    \sleep($this->statusShowLoading);
+                    \sleep($this->statusLoadingTime);
                     // Clear terminal.
                     \print_r("\033c");
                     // Echo status data.
@@ -219,9 +221,9 @@ class Process
                         continue;
                     }
 
-                    // Stop success.
                     echo "[$entryCommand] stop success\n";
                     if ($command === 'stop') {
+                        // Stop current.
                         exit(0);
                     }
 
@@ -233,9 +235,6 @@ class Process
                     $this->daemon = true;
                 }
                 break;
-            case 'reload':
-                \posix_kill($master_pid, \SIGUSR1);
-                exit;
             default :
                 return $usage;
         }
@@ -248,10 +247,6 @@ class Process
      */
     protected function daemon()
     {
-        if (!$this->daemon) {
-            return;
-        }
-
         \umask(0);
         $pid = \pcntl_fork();
         if (-1 === $pid) {
@@ -285,10 +280,8 @@ class Process
         \pcntl_signal(\SIGINT, array($this, 'signalHandler'), false);
         // stop
         \pcntl_signal(\SIGTERM, array($this, 'signalHandler'), false);
-        // reload
-        \pcntl_signal(\SIGUSR1, array($this, 'signalHandler'), false);
         // status
-        \pcntl_signal(\SIGUSR2, array($this, 'signalHandler'), false);
+        \pcntl_signal(\SIGUSR1, array($this, 'signalHandler'), false);
         // pipe ignore
         \pcntl_signal(\SIGPIPE, \SIG_IGN, false);
     }
@@ -304,10 +297,10 @@ class Process
         \pcntl_signal(\SIGINT, \SIG_IGN, false);
         // stop
         \pcntl_signal(\SIGTERM, \SIG_IGN, false);
-        // reload
-        \pcntl_signal(\SIGUSR1, \SIG_IGN, false);
         // status
-        \pcntl_signal(\SIGUSR2, \SIG_IGN, false);
+        \pcntl_signal(\SIGUSR1, \SIG_IGN, false);
+        // pipe ignore
+        \pcntl_signal(\SIGPIPE, \SIG_IGN, false);
     }
 
     /**
@@ -319,6 +312,7 @@ class Process
     {
         switch ($signal) {
             // Force stop.
+            // Ctrl + C.
             case \SIGINT:
                 $this->forceStop = true;
                 $this->stopAll();
@@ -329,12 +323,8 @@ class Process
                 $this->forceStop = false;
                 $this->stopAll();
                 break;
-            // Reload.
-            case \SIGUSR1:
-                $this->reload();
-                break;
             // Show status.
-            case \SIGUSR2:
+            case \SIGUSR1:
                 $this->writeStatisticsFile();
                 break;
         }
@@ -474,16 +464,11 @@ class Process
                 }
             }
 
-            if (empty($this->childRunningPidMap && $this->status === static::STATUS_STOPPING)) {
+            if (empty($this->childRunningPidMap) && $this->status === static::STATUS_STOPPING) {
                 echo 'Master stop';
                 exit(0);
             }
         }
-    }
-
-    protected function reload()
-    {
-        $this->status = static::STATUS_RELOADING;
     }
 
     /**
@@ -499,7 +484,7 @@ class Process
 
             // Send stop signal to all child processes.
             if ($this->forceStop) {
-                $sig = \SIGKILL;
+                $sig = \SIGKILL; // kill -9
             } else {
                 $sig = \SIGTERM;
             }
@@ -511,7 +496,7 @@ class Process
         } else {
             // For child process.
 
-            echo "Child process {$currentPid} stopping\n";
+            echo "Child process {$currentPid} graceful stop\n";
             exit(0);
         }
     }
@@ -521,7 +506,6 @@ class Process
      */
     public function writeStatisticsFile()
     {
-        echo PHP_EOL . 'writeStatisticsFile' . \posix_getpid() . PHP_EOL;
         if ($this->masterPid === \posix_getpid()) {
             // For master process.
 
@@ -530,7 +514,8 @@ class Process
                 $status_str .= "$name\t" . \count($tasks) . "\n\n";
                 foreach ($tasks as $pid) {
                     $status_str .= "PID\t$pid\n";
-                    \posix_kill($pid, \SIGUSR2);
+
+                    \posix_kill($pid, \SIGUSR1);
                 }
                 $status_str .= "-----------------------\n";
             }
