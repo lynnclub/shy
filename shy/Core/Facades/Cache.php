@@ -9,6 +9,7 @@ use Shy\Core\Contracts\Cache as CacheContract;
  * Class Cache
  * @package Shy\Core\Facades
  *
+ * @method static mixed connection($config_name = 'default')
  * @method static bool set($key, $value, $ttl = null)
  * @method static mixed get($key, $default = null)
  * @method static bool has($key)
