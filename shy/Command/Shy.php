@@ -28,6 +28,22 @@ class Shy
     }
 
     /**
+     * Route config
+     *
+     * @return string
+     */
+    public function routeConfig()
+    {
+        bind(\Shy\Http\Contracts\Request::class, \Shy\Http\Request::class);
+
+        $router = shy(\Shy\Http\Contracts\Router::class, \Shy\Http\Router::class);
+        $router->initialize();
+        $router->buildRouteByConfig();
+
+        return json_encode($router->getRouteConfig());
+    }
+
+    /**
      * Route index
      *
      * @return string
@@ -38,7 +54,7 @@ class Shy
 
         $router = shy(\Shy\Http\Contracts\Router::class, \Shy\Http\Router::class);
         $router->initialize();
-        $router->buildRouteIndexByConfig();
+        $router->buildRouteByConfig();
 
         return json_encode($router->getRouteIndex());
     }

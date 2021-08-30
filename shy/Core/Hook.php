@@ -24,12 +24,13 @@ class Hook
      * Run
      *
      * @param string $name
+     * @param $param
      */
-    public function run(string $name)
+    public function run(string $name, ...$param)
     {
         if (isset($this->hooks[$name])) {
             foreach ($this->hooks[$name] as $hook) {
-                call_user_func($hook);
+                call_user_func($hook, ...$param);
             }
         }
     }

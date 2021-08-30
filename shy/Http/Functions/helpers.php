@@ -47,32 +47,65 @@ if (!function_exists('url')) {
 
         if (empty($base_url)) {
             $request = shy(\Shy\Http\Contracts\Request::class);
+            if (is_object($request)) {
+                $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+            } else {
+                $base_url = config('app.base_url');
+            }
+        }
 
-            $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
-            $host = $request->getHttpHost();
-        } elseif (preg_match("/^(\/\/|http:\/\/|https:\/\/){1}([^\/]+)/i", $base_url, $matches) && !empty($matches[2])) {
+        if (preg_match("/^(\/\/|http:\/\/|https:\/\/){1}([^\/]+)/i", $base_url, $matches) && !empty($matches[2])) {
             $host = $matches[2];
         } else {
             throw new \RuntimeException('Can not handle scheme and host.');
         }
 
         $routeIndex = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
-        if (isset($routeIndex[$host][$path])) {
-            $validPath = $path;
-        } elseif (isset($routeIndex[''][$path])) {
-            $validPath = $path;
-        } else {
-            // Path with param
-            $pathWithoutParam = '';
-            $pathParamEnd = strrpos($path, '/');
-            if ($pathParamEnd > 0) {
-                $pathWithoutParam = substr($path, 0, $pathParamEnd);
+        $success = false;
+        $pathArray = explode('/', $path);
+        $count = count($pathArray);
+        if (isset($routeIndex[$host][$count])) {
+            $routeIndex = $routeIndex[$host][$count];
+            $matchSuccess = true;
+            $matchPath = [];
+            foreach ($pathArray as $path) {
+                if (isset($routeIndex[$path])) {
+                    $matchPath[] = $path;
+                    $routeIndex = $routeIndex[$path];
+                } elseif (isset($routeIndex['?'])) {
+                    $matchPath[] = $path;
+                    $routeIndex = $routeIndex['?'];
+                } else {
+                    $matchSuccess = false;
+                    break;
+                }
             }
 
-            if (isset($routeIndex[$host][$pathWithoutParam], $routeIndex[$host][$pathWithoutParam]['with_param'])) {
-                $validPath = $path;
-            } elseif (isset($routeIndex[''][$pathWithoutParam], $routeIndex[''][$pathWithoutParam]['with_param'])) {
-                $validPath = $path;
+            if ($matchSuccess && empty($routeIndex)) {
+                $success = true;
+                $validPath = implode('/', $matchPath);
+            }
+        }
+
+        if (!$success && isset($routeIndex[''][$count])) {
+            $routeIndex = $routeIndex[''][$count];
+            $matchSuccess = true;
+            $matchPath = [];
+            foreach ($pathArray as $path) {
+                if (isset($routeIndex[$path])) {
+                    $matchPath[] = $path;
+                    $routeIndex = $routeIndex[$path];
+                } elseif (isset($routeIndex['?'])) {
+                    $matchPath[] = $path;
+                    $routeIndex = $routeIndex['?'];
+                } else {
+                    $matchSuccess = false;
+                    break;
+                }
+            }
+
+            if ($matchSuccess && empty($routeIndex)) {
+                $validPath = implode('/', $matchPath);
             }
         }
 

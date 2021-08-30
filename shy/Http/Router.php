@@ -12,6 +12,11 @@ class Router implements RouterContract
     /**
      * @var string
      */
+    protected $namespace;
+
+    /**
+     * @var string
+     */
     protected $controller;
 
     /**
@@ -20,14 +25,9 @@ class Router implements RouterContract
     protected $method = 'index';
 
     /**
-     * @var string
+     * @var array
      */
     protected $param;
-
-    /**
-     * @var string
-     */
-    protected $controllerNamespace;
 
     /**
      * @var string
@@ -38,6 +38,11 @@ class Router implements RouterContract
      * @var string
      */
     protected $pathInfo;
+
+    /**
+     * @var array
+     */
+    protected $routeConfig;
 
     /**
      * @var array
@@ -56,9 +61,9 @@ class Router implements RouterContract
      */
     protected $parseRouteSuccess;
 
-    public function __construct($controllerNamespace = 'App\\Http\\Controllers\\', $defaultController = null)
+    public function __construct($defaultNamespace = null, $defaultController = null)
     {
-        $this->controllerNamespace = $controllerNamespace;
+        $this->namespace = $defaultNamespace ?? 'App\\Http\\Controllers\\';
         $this->controller = $defaultController ?? config('app.default_controller');
     }
 
@@ -69,6 +74,7 @@ class Router implements RouterContract
     {
         $this->parseRouteSuccess = FALSE;
         $this->routeIndex = [];
+        $this->routeConfig = [];
         $this->param = null;
         $this->middleware = [];
     }
@@ -92,6 +98,14 @@ class Router implements RouterContract
     /**
      * @return array
      */
+    public function getRouteConfig()
+    {
+        return $this->routeConfig;
+    }
+
+    /**
+     * @return array
+     */
     public function getRouteIndex()
     {
         return $this->routeIndex;
@@ -103,6 +117,14 @@ class Router implements RouterContract
     public function getMiddleware()
     {
         return $this->middleware;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getParam()
+    {
+        return $this->param;
     }
 
     /**
@@ -120,9 +142,7 @@ class Router implements RouterContract
         $this->host = $request->getHttpHost();
         $this->pathInfo = trim($request->getPathInfo(), " \/\t\n\r\0\x0B");
 
-        /**
-         * Parse Route
-         */
+        // Parse Route
         if (config('app.route_by_config')) {
             $this->parseRouteByConfig();
         }
@@ -130,9 +150,7 @@ class Router implements RouterContract
             $this->parseRouteByPath();
         }
 
-        /**
-         * Check controller
-         */
+        // Check controller
         if (!$this->parseRouteSuccess) {
             throw new httpException(404, 'Route not found. ' . $this->pathInfo);
         }
@@ -140,9 +158,10 @@ class Router implements RouterContract
             throw new httpException(404, 'Controller not found. ' . $this->pathInfo . ' ' . $this->controller . '->' . $this->method);
         }
 
-        /**
-         * Run controller and middleware
-         */
+        // Hook
+        \Shy\Core\Facades\Hook::run('run_controller_before', $this->param);
+
+        // Run controller and middleware
         if (empty($this->middleware)) {
             $response = $this->runController();
         } else {
@@ -151,8 +170,10 @@ class Router implements RouterContract
                 ->then(function () {
                     return $this->runController();
                 });
+
             shy()->remove(array_values($this->middleware));
         }
+
         shy()->remove($this->controller);
 
         return $next($response);
@@ -163,65 +184,72 @@ class Router implements RouterContract
      */
     protected function parseRouteByConfig()
     {
-        /**
-         * Read cache or build route index
-         */
-        $isCache = config('app.cache');
-        if ($isCache && config()->has('__ROUTE_INDEX')) {
-            $this->routeIndex = config('__ROUTE_INDEX');
-        }
-        if (empty($this->routeIndex) || !is_array($this->routeIndex)) {
-            $this->buildRouteIndexByConfig();
+        // Read from cache, or build route
+        if (empty($this->routeConfig)) {
+            $isCacheOn = config('app.cache');
+            if ($isCacheOn && config()->has('__ROUTE_CONFIG')) {
+                $this->routeConfig = config('__ROUTE_CONFIG');
+                $this->routeIndex = config('__ROUTE_INDEX');
+            } else {
+                $this->buildRouteByConfig();
 
-            if ($isCache) {
-                config()->set('__ROUTE_INDEX', $this->routeIndex);
+                if ($isCacheOn) {
+                    config()->set('__ROUTE_CONFIG', $this->routeConfig);
+                    config()->set('__ROUTE_INDEX', $this->routeIndex);
+                }
             }
         }
-        /**
-         * Parse route
-         */
-        if (isset($this->routeIndex[$this->host])) {
-            $this->doParseRouteByConfig($this->routeIndex[$this->host]);
+
+        // Parse route with host
+        if (isset($this->routeConfig[$this->host])) {
+            $this->doParseRouteByConfig($this->routeConfig[$this->host], $this->routeIndex[$this->host]);
         }
-        if (!$this->parseRouteSuccess && isset($this->routeIndex[''])) {
-            $this->doParseRouteByConfig($this->routeIndex['']);
+        // Parse route without host
+        if (!$this->parseRouteSuccess && isset($this->routeConfig[''])) {
+            $this->doParseRouteByConfig($this->routeConfig[''], $this->routeIndex['']);
         }
     }
 
-    protected function doParseRouteByConfig($routeIndex)
+    protected function doParseRouteByConfig($routeConfig, $routeIndex)
     {
-        if (isset($routeIndex[$this->pathInfo])) {
-            $this->writeParseRouteByConfig($routeIndex[$this->pathInfo]);
+        if (isset($routeConfig[$this->pathInfo])) {
+            $this->useParsedRouteByConfig($routeConfig[$this->pathInfo]);
         } else {
-            $paramStart = strrpos($this->pathInfo, '/');
+            $pathArray = explode('/', $this->pathInfo);
+            $count = count($pathArray);
 
-            $pathInfo = '';
-            $param = $this->pathInfo;
-            if ($paramStart > 0) {
-                $pathInfo = substr($this->pathInfo, 0, $paramStart);
-                $param = substr($this->pathInfo, $paramStart + 1);
-            }
+            if (isset($routeIndex[$count])) {
+                $routeIndex = $routeIndex[$count];
+                $matchSuccess = true;
+                $matchPath = [];
+                $matchParam = [];
+                foreach ($pathArray as $path) {
+                    if (isset($routeIndex[$path])) {
+                        $matchPath[] = $path;
+                        $routeIndex = $routeIndex[$path];
+                    } elseif (isset($routeIndex['?'])) {
+                        $matchPath[] = '?';
+                        $matchParam[] = $path;
+                        $routeIndex = $routeIndex['?'];
+                    } else {
+                        $matchSuccess = false;
+                        break;
+                    }
+                }
 
-            if (isset($routeIndex[$pathInfo]) && isset($routeIndex[$pathInfo]['with_param'])) {
-                $this->writeParseRouteByConfig($routeIndex[$pathInfo], $param);
-            } elseif ($paramStart = strrpos($pathInfo, '/')) {
-                $pathInfo = substr($this->pathInfo, 0, $paramStart);
-                $param = substr($this->pathInfo, $paramStart + 1);
-
-                if (isset($routeIndex[$pathInfo]) && isset($routeIndex[$pathInfo]['with_param'])) {
-                    $this->writeParseRouteByConfig($routeIndex[$pathInfo], $param);
+                $matchPath = implode('/', $matchPath);
+                if ($matchSuccess && empty($routeIndex) && isset($routeConfig[$matchPath])) {
+                    $this->useParsedRouteByConfig($routeConfig[$matchPath], $matchParam);
                 }
             }
         }
     }
 
-    protected function writeParseRouteByConfig($config, $param = null)
+    protected function useParsedRouteByConfig($config, $param = null)
     {
-        list($this->controller, $this->method) = array_pad(explode('@', $config['handle']), 2, 'index');
+        list($this->controller, $this->method) = array_pad(explode('@', $config['hdl']), 2, 'index');
 
-        if (isset($config['middleware'])) {
-            $this->middleware = array_filter($config['middleware']);
-        }
+        $this->middleware = $config['mdw'] ?? [];
 
         $this->param = $param;
 
@@ -229,108 +257,128 @@ class Router implements RouterContract
     }
 
     /**
-     * Build route index by config
+     * Build route by config
      */
-    public function buildRouteIndexByConfig()
+    public function buildRouteByConfig()
     {
-        $this->routeIndex = [];
+        $this->routeConfig = [];
         $router = config('router');
 
-        /**
-         * Build path index
-         */
+        // Path route
         if (isset($router['path']) && is_array($router['path'])) {
             foreach ($router['path'] as $path => $handle) {
-                $this->addRouteIndexByConfig($path, $handle, $this->controllerNamespace);
+                $this->doBuildRouteByConfig('', $path, $this->namespace, $handle);
             }
         }
 
-        /**
-         * Build group path index
-         */
+        // Group route
         if (isset($router['group']) && is_array($router['group'])) {
             foreach ($router['group'] as $group) {
-                if (isset($group['path']) && is_array($group['path'])) {
-                    $host = '';
-                    if (isset($group['host']) && (is_string($group['host']) || is_array($group['host']))) {
-                        $host = $group['host'];
-                    }
+                if (!isset($group['path']) || !is_array($group['path'])) {
+                    continue;
+                }
 
-                    $prefix = '';
-                    if (isset($group['prefix']) && is_string($group['prefix'])) {
-                        $prefix = trim($group['prefix'], " \/\t\n\r\0\x0B");
-                    }
+                $host = '';
+                if (isset($group['host']) && (is_string($group['host']) || is_array($group['host']))) {
+                    $host = $group['host'];
+                }
 
-                    $controllerNamespace = $this->controllerNamespace;
-                    if (isset($group['namespace']) && is_string($group['namespace']) && !empty($group['namespace'])) {
-                        $controllerNamespace = trim($group['namespace'], " \\\/\t\n\r\0\x0B") . '\\';
-                    }
+                $prefix = '';
+                if (isset($group['prefix']) && is_string($group['prefix'])) {
+                    $prefix = trim($group['prefix'], " \/\t\n\r\0\x0B") . '/';
+                }
 
-                    $middlewareClass = [];
-                    if (isset($group['middleware']) && is_array($group['middleware'])) {
-                        $middlewareClass = $this->getMiddlewareClassInConfig($group['middleware']);
-                    }
+                $namespace = $this->namespace;
+                if (isset($group['namespace']) && is_string($group['namespace']) && !empty($group['namespace'])) {
+                    $namespace = trim($group['namespace'], " \\\/\t\n\r\0\x0B") . '\\';
+                }
 
-                    foreach ($group['path'] as $path => $handle) {
-                        $this->addRouteIndexByConfig($prefix . '/' . trim($path, " \/\t\n\r\0\x0B"), $handle, $controllerNamespace, $middlewareClass, $host);
-                    }
+                $middleware = [];
+                if (isset($group['middleware']) && is_array($group['middleware'])) {
+                    $middleware = $this->getMiddlewareClassInConfig($group['middleware']);
+                }
+
+                foreach ($group['path'] as $path => $handle) {
+                    $path = $prefix . trim($path, " \/\t\n\r\0\x0B");
+
+                    $this->doBuildRouteByConfig(
+                        $host,
+                        $path,
+                        $namespace,
+                        $handle,
+                        $middleware
+                    );
                 }
             }
         }
     }
 
     /**
-     * Add route index by config
+     * Do build route by config
      *
-     * @param string $path
-     * @param string $handle
-     * @param string $controllerNamespace
-     * @param array $middlewareClass
      * @param string|array $host
+     * @param string $path
+     * @param string $namespace
+     * @param string $handle
+     * @param array $middleware
      */
-    protected function addRouteIndexByConfig($path, $handle, string $controllerNamespace, array $middlewareClass = [], $host = '')
+    protected function doBuildRouteByConfig($host, string $path, string $namespace, string $handle, array $middleware = [])
     {
         $path = trim($path, " \/\t\n\r\0\x0B");
         $handle = trim($handle, " \\\/\t\n\r\0\x0B");
 
-        if (is_string($path) && is_string($handle)) {
-            $index = [];
-            if (substr($path, 0) === '?') {
-                $path = '';
-                $index['with_param'] = 0;
-            } elseif (substr($path, -2) === '/?') {
-                $path = substr($path, 0, -2);
-                $index['with_param'] = 1;
+        $routeConfig = [
+            'hdl' => $namespace . ucfirst($handle),
+        ];
 
-                if (substr($path, -2) === '/?') {
-                    unset($this->routeIndex[$path]);
-                    $path = substr($path, 0, -2);
-                    $index['with_param'] = 2;
+        if (!empty($middleware)) {
+            $routeConfig['mdw'] = $middleware;
+        }
+
+        $this->doBuildHostRouteByConfig($host, $path, $routeConfig);
+        $this->doBuildHostRouteIndexByConfig($host, $path);
+    }
+
+    protected function doBuildHostRouteByConfig($host, string $path, array $routeConfig)
+    {
+        if (empty($host)) {
+            $this->routeConfig[''][$path] = $routeConfig;
+        } else {
+            if (is_array($host)) {
+                foreach ($host as $oneHost) {
+                    $this->doBuildHostRouteByConfig($oneHost, $path, $routeConfig);
                 }
+            } elseif (is_string($host) && preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches) && !empty($matches[2])) {
+                $this->routeConfig[$matches[2]][$path] = $routeConfig;
             }
-
-            $index['handle'] = $controllerNamespace . ucfirst($handle);
-
-            if (!empty($middlewareClass)) {
-                $index['middleware'] = $middlewareClass;
-            }
-
-            if (empty($host)) {
-                $this->routeIndex[''][$path] = $index;
-            }
-
-            $this->addHostRouteIndexByConfig($host, $path, $index);
         }
     }
 
-    protected function addHostRouteIndexByConfig($host, $path, $index)
+    protected function doBuildHostRouteIndexByConfig($host, string $path)
     {
         if (is_array($host)) {
-            foreach ($host as $item) {
-                $this->addHostRouteIndexByConfig($item, $path, $index);
+            foreach ($host as $oneHost) {
+                $this->doBuildHostRouteIndexByConfig($oneHost, $path);
             }
-        } elseif (is_string($host) && preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches) && !empty($matches[2])) {
-            $this->routeIndex[$matches[2]][$path] = $index;
+        } elseif (empty($host) || (preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches) && !empty($matches[2]))) {
+            if (!empty($matches[2])) {
+                $host = $matches[2];
+            }
+
+            $paths = explode('/', $path);
+            $count = count($paths);
+            if (!isset($this->routeIndex[$host][$count])) {
+                $this->routeIndex[$host][$count] = [];
+            }
+
+            $currentIndex = &$this->routeIndex[$host][$count];
+            foreach ($paths as $currentPath) {
+                if (!isset($currentIndex[$currentPath])) {
+                    $currentIndex[$currentPath] = [];
+                }
+
+                $currentIndex = &$currentIndex[$currentPath];
+            }
         }
     }
 
@@ -361,7 +409,7 @@ class Router implements RouterContract
             }
         }
 
-        return $middleware;
+        return array_filter($middleware);
     }
 
     /**
@@ -397,7 +445,7 @@ class Router implements RouterContract
             ->via($this->method);
 
         if (isset($this->param)) {
-            $pipeline->send($this->param);
+            $pipeline->send(...$this->param);
         }
 
         return $pipeline->run();

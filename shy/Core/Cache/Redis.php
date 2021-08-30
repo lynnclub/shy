@@ -11,9 +11,14 @@ use Shy\Core\Exceptions\Cache\InvalidArgumentException;
 class Redis extends PhpRedis implements CacheContracts, DataBase
 {
     /**
+     * @var array
+     */
+    protected $configs = [];
+
+    /**
      * @var Redis []
      */
-    protected $connections;
+    protected $connections = [];
 
     /**
      * Redis constructor.
@@ -26,6 +31,17 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
         parent::__construct();
 
         $this->connection($config_name);
+    }
+
+    /**
+     * Add connection
+     *
+     * @param string $config_name
+     * @param array $config
+     */
+    public function addConnection(string $config_name, array $config)
+    {
+        $this->configs[$config_name] = $config;
     }
 
     /**
@@ -47,11 +63,14 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
             }
         }
 
-        $configs = config('cache.redis');
-        if (!isset($configs[$config_name])) {
+        if (empty($this->configs)) {
+            $this->configs = array_merge(config('cache.redis'), $this->configs);
+        }
+
+        if (!isset($this->configs[$config_name])) {
             throw new Exception('Redis Config ' . $config_name . ' not set');
         }
-        $config = $configs[$config_name];
+        $config = $this->configs[$config_name];
         if (!isset($config['host'], $config['port'])) {
             throw new Exception('Redis Config ' . $config_name . ' no host or port');
         }
