@@ -55,17 +55,6 @@ class Memory implements CacheInterface, CacheContracts
     }
 
     /**
-     * Connection
-     *
-     * @param string $config_name
-     * @return $this
-     */
-    public function connection($config_name = 'default')
-    {
-        return $this;
-    }
-
-    /**
      * Fetches a value from the cache.
      *
      * @param string $key The unique key of this item in the cache.
