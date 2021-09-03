@@ -2,8 +2,6 @@
 
 **简洁却强大的高性能框架**
 
-**框架还需要不断的优化、完善，欢迎提交问题、建议。**
-
 [English Document](https://github.com/lynncho/shy/blob/master/README-EN.md)
 
 Shy框架交流一群：963908345 加群暗号：lynncho
@@ -12,15 +10,17 @@ Shy框架交流一群：963908345 加群暗号：lynncho
 
 ### 1.1 简介
 
-框架全力遵守PHP-FIG组织制定的各种PSR（PHP Standards Recommendations）规范。其中，全局的编码风格遵守《PSR-1: Basic Coding Standard》规范。
+框架遵守PHP-FIG组织制定的PSR（PHP Standards Recommendations）系列规范。其中，全局的编码风格遵守《PSR-1: Basic Coding Standard》规范。
 
-框架以容器（Container）为核心，提供了便捷的实例（Instance）复用池。框架的所有服务组件都在容器里面，通过操作容器可以非常自由地定制框架。
+框架以容器（Container）为核心，提供了便捷的实例（Instance）复用池。所有服务组件的实例都在容器里面，通过契约（Contract）自由组合定制。
 
-框架以非常简洁的实现，提供了众多服务。核心服务包括：异常处理、配置文件、日志、缓存、门面、流水线等。基于核心服务，提供了面向使用场景的Web框架、命令框架、Socket框架，并且彼此可独立运行、互不干扰。
+框架以简洁的实现，提供了众多服务，比如异常处理、配置、日志、门面、流水线、进程管理等丰富的核心服务。基于这些核心服务，组合提供了面向使用场景的Web框架、命令框架、Socket框架，并且彼此可独立运行、互不干扰。
 
-此外，**框架还提供一种革新PHP语言 传统Web框架运行方式 的模式：常驻内存模式（PHP-CLI）。在常驻内存模式下，由于避免了代码重复编译的开销，本框架的Web服务性能相对于传统方式大幅度提升！！！**
+此外，**框架还提供一种革新PHP语言 传统Web框架运行方式 的模式——常驻内存模式（PHP-CLI）。**
 
-整个框架实现简洁，但是十分强大。正如她的名字：**Shy 纤细身形、不漏内秀**。
+在常驻内存模式下，由于避免了代码重复编译的开销，框架的Web服务性能相对于传统方式大幅提升！！！
+
+框架实现简洁，却十分强大，正如她的名字：**Shy——纤细身形、不漏内秀**。
 
 ### 1.2 特性列表
 
@@ -41,6 +41,7 @@ Shy框架交流一群：963908345 加群暗号：lynncho
 * 控制器（Controllers）
 * 数据库（DataBase）
 * 模版（View）
+* 进程管理（Process）
 * 命令模式（Command Mode）
 * 常驻内存模式（PHP-CLI Mode）
 * Socket模式（Socket Mode）
@@ -147,9 +148,8 @@ shy 框架根目录
 3. CSRF防御等中间件并写文档，XSS攻击防御
 4. Api便捷开发框架
 5. Swoole socket
-6. Response的header函数支持workerman
-7. 单元测试覆盖率100%
-8. 会话重构
+6. 单元测试覆盖率100%
+7. 会话重构
 
 ### 1.7 Http服务执行顺序
 
