@@ -3,6 +3,9 @@
  * Core functions
  */
 
+use Shy\Core\Container;
+use Shy\Core\Contracts\Config;
+
 if (!function_exists('get_throwable_array')) {
     /**
      * Get throwable array
@@ -21,31 +24,36 @@ if (!function_exists('get_throwable_array')) {
         ];
 
         foreach ($throwable->getTrace() as $key => $trace) {
-            $traceString = '[' . $key . '] ';
-            if (isset($trace['file'], $trace['line'])) {
-                $traceString .= $trace['file'] . ' ' . $trace['line'];
-            } else {
-                $traceString .= 'none';
-            }
-            $array[] = $traceString;
-
+            $argString = '';
             if (isset($trace['args'])) {
                 foreach ($trace['args'] as $argKey => $arg) {
                     if (is_object($arg)) {
-                        $trace['args'][$argKey] = '(object)' . get_class($arg);
+                        $arg = '(object)' . get_class($arg);
                     } elseif (is_array($arg)) {
-                        $trace['args'][$argKey] = '(array)' . json_encode($arg);
+                        $arg = '(array)' . json_encode($arg, JSON_UNESCAPED_UNICODE);
                     }
+
+                    $trace['args'][$argKey] = $arg;
                 }
-            } else {
-                $trace['args'] = [];
+
+                $argString = implode(', ', $trace['args']);
             }
 
+            // call
             $traceString = '';
             if (isset($trace['class'])) {
                 $traceString .= $trace['class'] . '->';
             }
-            $array[] = $traceString . $trace['function'] . '(' . implode(', ', $trace['args']) . ')' . PHP_EOL;
+            $array[] = $traceString . $trace['function'] . '(' . $argString . ')' . PHP_EOL;
+
+            // file
+            $traceString = '[' . $key . '] ';
+            if (isset($trace['file'], $trace['line'])) {
+                $traceString .= $trace['file'] . ' ' . $trace['line'];
+            } else {
+                $traceString .= '{anonymous}';
+            }
+            $array[] = $traceString;
         }
 
         return $array;
@@ -65,10 +73,10 @@ if (!function_exists('shy')) {
     function shy($id = null, $concrete = null, ...$parameters)
     {
         if (is_null($id)) {
-            return \Shy\Core\Container::getContainer();
+            return Container::getContainer();
         }
 
-        return \Shy\Core\Container::getContainer()->getOrMake($id, $concrete, ...$parameters);
+        return Container::getContainer()->getOrMake($id, $concrete, ...$parameters);
     }
 }
 
@@ -79,11 +87,11 @@ if (!function_exists('bind')) {
      * @param string $id
      * @param string|Closure|object|null $concrete
      *
-     * @return \Shy\Core\Container
+     * @return Container
      */
     function bind(string $id, $concrete = null)
     {
-        return \Shy\Core\Container::getContainer()->bind($id, $concrete);
+        return Container::getContainer()->bind($id, $concrete);
     }
 }
 
@@ -97,10 +105,10 @@ if (!function_exists('config')) {
     function config(string $key = null)
     {
         if (is_null($key)) {
-            return shy(\Shy\Core\Contracts\Config::class);
+            return shy(Config::class);
         }
 
-        return shy(\Shy\Core\Contracts\Config::class)->find($key);
+        return shy(Config::class)->find($key);
     }
 }
 

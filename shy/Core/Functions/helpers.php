@@ -24,10 +24,10 @@ if (!function_exists('get_array_key')) {
      * Get key in array
      *
      * @param array $key_levels
-     * @param array $array
-     * @return string|array
+     * @param array|string $array
+     * @return string|array|null
      */
-    function get_array_key(array $key_levels, array $array)
+    function get_array_key(array $key_levels, $array)
     {
         $currentLevel = array_shift($key_levels);
 
@@ -41,7 +41,7 @@ if (!function_exists('get_array_key')) {
             }
         }
 
-        return '';
+        return NULL;
     }
 }
 

@@ -26,26 +26,30 @@
         }
 
         .part {
-            padding: 25px;
+            margin: 25px 25px 30px;
         }
 
         .message {
-            padding: 10px 0;
+            margin: 25px 0;
             font-size: 30px;
+        }
+
+        .message-tip {
+            margin: 10px 0;
         }
 
         .title {
             font-size: 20px;
             font-weight: bold;
-            padding-bottom: 10px;
+            margin: 0 0 15px;
         }
 
         .file {
-            padding: 10px;
+            padding: 10px 15px;
         }
 
         .function {
-            padding: 10px 30px;
+            padding: 10px 0;
         }
 
         .params {
@@ -60,7 +64,7 @@
         }
 
         .params tr td {
-            padding: 5px;
+            padding: 5px 0;
             border-bottom: 1px solid rgba(34, 36, 38, 0.15);
         }
 
@@ -84,66 +88,67 @@
 <body>
 <div class="container">
     <div class="part">
-        <div class="message"><?php echo $e->getMessage(); ?></div>
-        <div>
-            Flie: <?php echo $e->getFile(); ?>
+        <div class="message">
+            <?php echo $e->getMessage(); ?>
         </div>
-        <div>
-            Line: <?php echo $e->getLine(); ?>
-        </div>
-        <div>
+        <div class="message-tip">
             Error Code: <?php echo $e->getCode(); ?>
+        </div>
+        <div class="message-tip">
+            File: <?php echo $e->getFile() . ' line ' . $e->getLine(); ?>
         </div>
     </div>
     <div class="part">
-        <div class="title">Trace:</div>
+        <div class="title">Trace</div>
         <?php foreach ($e->getTrace() as $key => $trace) : ?>
-            <div class="file">
+            <div class="function">
                 <?php echo ($key + 1) . '. '; ?>
 
                 <?php
-                if (isset($trace['file'], $trace['line'])) {
-                    echo $trace['file'] . ' Line: ' . $trace['line'];
-                } else {
-                    echo 'none';
+                $argString = '';
+                if (isset($trace['args'])) {
+                    foreach ($trace['args'] as $argKey => $arg) {
+                        if (is_string($arg)) {
+                            if (strlen($arg) > 200) {
+                                $arg = substr($arg, 0, 200) . '...';
+                            }
+                        } elseif (is_object($arg)) {
+                            $arg = '(object)' . get_class($arg);
+                        } elseif (is_array($arg)) {
+                            $arg = json_encode($arg, JSON_UNESCAPED_UNICODE);
+                            if (strlen($arg) > 200) {
+                                $arg = substr($arg, 0, 200) . '...';
+                            }
+
+                            $arg = '(array)' . $arg;
+                        }
+
+                        $trace['args'][$argKey] = $arg;
+                    }
+
+                    $argString = implode(', ', $trace['args']);
                 }
-                ?>
-            </div>
-            <div class="function">
-                <?php
+
                 if (isset($trace['class'])) {
                     echo $trace['class'] . '->';
                 }
 
-                if (isset($trace['args'])) {
-                    foreach ($trace['args'] as $argKey => $arg) {
-                        $trace['args'][$argKey] = '(' . gettype($arg) . ')';
-                        if (is_string($arg)) {
-                            if (strlen($arg) > 100) {
-                                $arg = substr($arg, 0, 100) . '...';
-                            }
-                            $trace['args'][$argKey] .= "'{$arg}'";
-                        } elseif (is_object($arg)) {
-                            $trace['args'][$argKey] .= get_class($arg);
-                        } elseif (is_array($arg)) {
-                            $json = json_encode($arg, JSON_UNESCAPED_UNICODE);
-                            if (strlen($json) > 100) {
-                                $json = substr($json, 0, 100) . '...}';
-                            }
-                            $trace['args'][$argKey] .= $json;
-                        }
-                    }
+                echo $trace['function'] . '(' . $argString . ')';
+                ?>
+            </div>
+            <div class="file">
+                <?php
+                if (isset($trace['file'], $trace['line'])) {
+                    echo $trace['file'] . ' line ' . $trace['line'];
                 } else {
-                    $trace['args'] = [];
+                    echo '{anonymous}';
                 }
-
-                echo $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
                 ?>
             </div>
         <?php endforeach; ?>
     </div>
     <div class="part">
-        <div class="title">GET Data:</div>
+        <div class="title">GET</div>
         <?php
         if (empty($_GET)) {
             echo '<div class="empty">empty</div>';
@@ -151,7 +156,10 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_GET as $key => $value) {
-                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $value = is_string($value)
+                    ? $value
+                    : json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -160,7 +168,7 @@
         ?>
     </div>
     <div class="part">
-        <div class="title">POST Data:</div>
+        <div class="title">POST</div>
         <?php
         if (empty($_POST)) {
             echo '<div class="empty">empty</div>';
@@ -168,7 +176,10 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_POST as $key => $value) {
-                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $value = is_string($value)
+                    ? $value
+                    : json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -177,7 +188,7 @@
         ?>
     </div>
     <div class="part">
-        <div class="title">Files:</div>
+        <div class="title">Files</div>
         <?php
         if (empty($_FILES)) {
             echo '<div class="empty">empty</div>';
@@ -185,7 +196,10 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_FILES as $key => $value) {
-                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $value = is_string($value)
+                    ? $value
+                    : json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -194,7 +208,7 @@
         ?>
     </div>
     <div class="part">
-        <div class="title">Cookies:</div>
+        <div class="title">Cookies</div>
         <?php
         if (empty($_COOKIE)) {
             echo '<div class="empty">empty</div>';
@@ -202,7 +216,10 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_COOKIE as $key => $value) {
-                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $value = is_string($value)
+                    ? $value
+                    : json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -211,7 +228,7 @@
         ?>
     </div>
     <div class="part">
-        <div class="title">Session:</div>
+        <div class="title">Session</div>
         <?php
         if (empty($_SESSION)) {
             echo '<div class="empty">empty</div>';
@@ -219,7 +236,10 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_SESSION as $key => $value) {
-                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $value = is_string($value)
+                    ? $value
+                    : json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 
@@ -228,19 +248,29 @@
         ?>
     </div>
     <div class="part">
-        <div class="title">Constants:</div>
+        <div class="title">Constants</div>
         <?php
         echo '<table class="params"><tbody>'
-            . '<tr><td>BASE_PATH</td><td>' . (defined('BASE_PATH') ? BASE_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
-            . '<tr><td>APP_PATH</td><td>' . (defined('APP_PATH') ? APP_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
-            . '<tr><td>VIEW_PATH</td><td>' . (defined('VIEW_PATH') ? VIEW_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
-            . '<tr><td>CACHE_PATH</td><td>' . (defined('CACHE_PATH') ? CACHE_PATH : '<span class="empty">not defined</span>') . '</td></tr>'
-            . '<tr><td>BASE_URL</td><td>' . (defined('BASE_URL') ? BASE_URL : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>BASE_PATH</td><td>' . (defined('BASE_PATH')
+                ? BASE_PATH
+                : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>APP_PATH</td><td>' . (defined('APP_PATH')
+                ? APP_PATH
+                : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>VIEW_PATH</td><td>' . (defined('VIEW_PATH')
+                ? VIEW_PATH
+                : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>CACHE_PATH</td><td>' . (defined('CACHE_PATH')
+                ? CACHE_PATH
+                : '<span class="empty">not defined</span>') . '</td></tr>'
+            . '<tr><td>BASE_URL</td><td>' . (defined('BASE_URL')
+                ? BASE_URL
+                : '<span class="empty">not defined</span>') . '</td></tr>'
             . '</tbody></table>';
         ?>
     </div>
     <div class="part">
-        <div class="title">Server:</div>
+        <div class="title">Server</div>
         <?php
         if (empty($_SERVER)) {
             echo '<div class="empty">empty</div>';
@@ -248,7 +278,10 @@
             echo '<table class="params"><tbody>';
 
             foreach ($_SERVER as $key => $value) {
-                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $value = is_string($value)
+                    ? $value
+                    : json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 echo '<tr><td>' . $key . '</td><td>' . $value . '</td></tr>';
             }
 

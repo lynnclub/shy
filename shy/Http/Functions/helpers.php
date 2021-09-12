@@ -1,5 +1,10 @@
 <?php
 
+use Shy\Http\Contracts\Request;
+use Shy\Http\Contracts\Response;
+use Shy\Http\Contracts\Router;
+use Shy\Http\Contracts\Session;
+
 if (!function_exists('smarty')) {
     /**
      * Smarty new view
@@ -46,7 +51,7 @@ if (!function_exists('url')) {
         $base_url = trim($base_url, " \/\t\n\r\0\x0B");
 
         if (empty($base_url)) {
-            $request = shy(\Shy\Http\Contracts\Request::class);
+            $request = shy(Request::class);
             if (is_object($request)) {
                 $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
             } else {
@@ -60,51 +65,49 @@ if (!function_exists('url')) {
             throw new \RuntimeException('Can not handle scheme and host.');
         }
 
-        $routeIndex = shy(\Shy\Http\Contracts\Router::class)->getRouteIndex();
-        $success = false;
         $pathArray = explode('/', $path);
-        $count = count($pathArray);
-        if (isset($routeIndex[$host][$count])) {
-            $routeIndex = $routeIndex[$host][$count];
-            $matchSuccess = true;
+        $sectionNum = count($pathArray);
+
+        $routeIndex = shy(Router::class)->getRouteIndex();
+
+        if (isset($routeIndex[$host][$sectionNum])) {
+            $sectionRouteIndex = $routeIndex[$host][$sectionNum];
+
             $matchPath = [];
             foreach ($pathArray as $path) {
-                if (isset($routeIndex[$path])) {
+                if (isset($sectionRouteIndex[$path])) {
                     $matchPath[] = $path;
-                    $routeIndex = $routeIndex[$path];
-                } elseif (isset($routeIndex['?'])) {
+                    $sectionRouteIndex = $sectionRouteIndex[$path];
+                } elseif (isset($sectionRouteIndex['?'])) {
                     $matchPath[] = $path;
-                    $routeIndex = $routeIndex['?'];
+                    $sectionRouteIndex = $sectionRouteIndex['?'];
                 } else {
-                    $matchSuccess = false;
                     break;
                 }
             }
 
-            if ($matchSuccess && empty($routeIndex)) {
-                $success = true;
+            if (count($matchPath) === $sectionNum) {
                 $validPath = implode('/', $matchPath);
             }
         }
 
-        if (!$success && isset($routeIndex[''][$count])) {
-            $routeIndex = $routeIndex[''][$count];
-            $matchSuccess = true;
+        if (empty($validPath) && isset($routeIndex[''][$sectionNum])) {
+            $sectionRouteIndex = $routeIndex[''][$sectionNum];
+
             $matchPath = [];
             foreach ($pathArray as $path) {
-                if (isset($routeIndex[$path])) {
+                if (isset($sectionRouteIndex[$path])) {
                     $matchPath[] = $path;
-                    $routeIndex = $routeIndex[$path];
-                } elseif (isset($routeIndex['?'])) {
+                    $sectionRouteIndex = $sectionRouteIndex[$path];
+                } elseif (isset($sectionRouteIndex['?'])) {
                     $matchPath[] = $path;
-                    $routeIndex = $routeIndex['?'];
+                    $sectionRouteIndex = $sectionRouteIndex['?'];
                 } else {
-                    $matchSuccess = false;
                     break;
                 }
             }
 
-            if ($matchSuccess && empty($routeIndex)) {
+            if (count($matchPath) === $sectionNum) {
                 $validPath = implode('/', $matchPath);
             }
         }
@@ -122,7 +125,7 @@ if (!function_exists('redirect')) {
      * Redirect
      *
      * @param string $url
-     * @return \Shy\Http\Facades\Response
+     * @return Response
      */
     function redirect($url = '')
     {
@@ -130,7 +133,7 @@ if (!function_exists('redirect')) {
             $url = url();
         }
 
-        return \Shy\Http\Facades\Response::withStatus(302)->withHeader('Location', $url);
+        return shy(Response::class)->withStatus(302)->withHeader('Location', $url);
     }
 }
 
@@ -188,7 +191,7 @@ if (!function_exists('csrf_token')) {
      */
     function csrf_token()
     {
-        return shy(\Shy\Http\Contracts\Session::class)->token('csrf-token');
+        return shy(Session::class)->token('csrf-token');
     }
 }
 
@@ -201,7 +204,7 @@ if (!function_exists('csrf_verify')) {
      */
     function csrf_verify(string $token)
     {
-        $sessionToken = shy(\Shy\Http\Contracts\Session::class)->get('csrf-token');
+        $sessionToken = shy(Session::class)->get('csrf-token');
         if (!empty($token) && $token === $sessionToken) {
             return TRUE;
         }
