@@ -19,6 +19,7 @@ if (!function_exists('get_throwable_array')) {
             'Message: ' . $throwable->getMessage(),
             'Error Code: ' . $throwable->getCode(),
             'File: ' . $throwable->getFile() . ' line ' . $throwable->getLine(),
+            '',
             'Trace: ',
         ];
 
