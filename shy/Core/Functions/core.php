@@ -17,9 +17,8 @@ if (!function_exists('get_throwable_array')) {
     {
         $array = [
             'Message: ' . $throwable->getMessage(),
-            'File: ' . $throwable->getFile(),
-            'Line: ' . $throwable->getLine(),
             'Error Code: ' . $throwable->getCode(),
+            'File: ' . $throwable->getFile() . ' line ' . $throwable->getLine(),
             'Trace: ',
         ];
 
@@ -40,16 +39,16 @@ if (!function_exists('get_throwable_array')) {
             }
 
             // call
-            $traceString = '';
+            $traceString = '[' . $key . '] ';
             if (isset($trace['class'])) {
                 $traceString .= $trace['class'] . '->';
             }
             $array[] = $traceString . $trace['function'] . '(' . $argString . ')' . PHP_EOL;
 
             // file
-            $traceString = '[' . $key . '] ';
+            $traceString = '';
             if (isset($trace['file'], $trace['line'])) {
-                $traceString .= $trace['file'] . ' ' . $trace['line'];
+                $traceString .= $trace['file'] . ' line ' . $trace['line'];
             } else {
                 $traceString .= '{anonymous}';
             }
