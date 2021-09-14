@@ -27,7 +27,7 @@ class Router implements RouterContract
     /**
      * @var array
      */
-    protected $param;
+    protected $param = [];
 
     /**
      * @var string
@@ -75,7 +75,7 @@ class Router implements RouterContract
         $this->parseRouteSuccess = FALSE;
         $this->routeIndex = [];
         $this->routeConfig = [];
-        $this->param = null;
+        $this->param = [];
         $this->middleware = [];
     }
 
@@ -246,7 +246,7 @@ class Router implements RouterContract
         }
     }
 
-    protected function useParsedRouteByConfig($config, $param = null)
+    protected function useParsedRouteByConfig($config, $param = [])
     {
         list($this->controller, $this->method) = array_pad(explode('@', $config['hdl']), 2, 'index');
 
@@ -425,7 +425,7 @@ class Router implements RouterContract
                 if (isset($path[1]) && !empty($path[1])) {
                     $this->method = ucfirst($path[1]);
                     if (isset($path[2])) {
-                        $this->param = $path[2];
+                        $this->param[] = $path[2];
                     }
                 }
             }
@@ -441,14 +441,10 @@ class Router implements RouterContract
      */
     protected function runController()
     {
-        $pipeline = shy(Pipeline::class)
+        return shy(Pipeline::class)
+            ->send(...$this->param)
             ->through($this->controller)
-            ->via($this->method);
-
-        if (isset($this->param)) {
-            $pipeline->send(...$this->param);
-        }
-
-        return $pipeline->run();
+            ->via($this->method)
+            ->run();
     }
 }
