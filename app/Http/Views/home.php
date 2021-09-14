@@ -39,6 +39,8 @@ push_resource('footer-js', '/vendor/jquery/dist/jquery.js', 'js');
     <br><br>
     <a href="/return/string/with/middleware?do=test345">Return string with middleware</a>
     <br><br>
+    <a href="/middleware_stop/<?php echo random_code() ?>">middleware path param</a>
+    <br><br>
     <a href="/test/prefix/home">Test url prefix</a>
     <br><br>
     <a href="/test/prefix/return/string/with/get/param?do=test">Return string with get param</a>

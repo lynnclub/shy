@@ -18,6 +18,9 @@ return [
         ['middleware' => ['GroupExample'], 'path' => [
             '/test4' => 'test2@test2',//echo string with middleware
         ]],
+        ['middleware' => ['Stop'], 'path' => [
+            '/middleware_stop/?' => 'test2@test2',//echo string with middleware
+        ]],
     ],
     'path' => [
         '/' => 'home@index',//view home

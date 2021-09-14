@@ -37,6 +37,8 @@
     <br><br>
     <a href="/return/string/with/middleware">Return string with middleware</a>
     <br><br>
+    <a href="/middleware_stop/{random_code()}">middleware path param</a>
+    <br><br>
     <a href="/test/prefix/home">Test url prefix</a>
     <br><br>
     <a href="/test/prefix/return/string/with/get/param?do=test">Return string with get param</a>
