@@ -166,6 +166,7 @@ class Router implements RouterContract
             $response = $this->runController();
         } else {
             $response = shy(Pipeline::class)
+                ->send(...$this->param)
                 ->through($this->middleware)
                 ->then(function () {
                     return $this->runController();
