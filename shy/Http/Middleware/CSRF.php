@@ -2,13 +2,13 @@
 
 namespace Shy\Http\Middleware;
 
-use Shy\Core\Contracts\Middleware;
 use Closure;
+use Shy\Core\Contracts\Middleware;
 use Shy\Http\Facades\Request;
 use Shy\Http\Facades\Session;
 use Shy\Http\Exceptions\HttpException;
 
-class Csrf implements Middleware
+class CSRF implements Middleware
 {
     /**
      * Handle
@@ -35,8 +35,6 @@ class Csrf implements Middleware
             }
         }
 
-        // run controller
         return $next();
     }
-
 }

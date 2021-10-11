@@ -2,8 +2,8 @@
 
 namespace Shy\Http\Middleware;
 
-use Shy\Core\Contracts\Middleware;
 use Closure;
+use Shy\Core\Contracts\Middleware;
 use Shy\Http\Facades\Request;
 use Shy\Core\Facades\Cache;
 use Shy\Core\Facades\Logger;
@@ -75,8 +75,6 @@ class Throttle implements Middleware
             }
         }
 
-        // run controller
         return $next();
     }
-
 }

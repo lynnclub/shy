@@ -600,7 +600,6 @@ class IpWhitelist implements Middleware
             }
         }
 
-        // run controller
         return $next();
     }
 
@@ -646,7 +645,7 @@ return [
     'Throttle' => Shy\Http\Middleware\Throttle::class,
     'Example' => App\Http\Middleware\Example::class,
     'GroupExample' => [
-        Shy\Http\Middleware\Csrf::class,
+        Shy\Http\Middleware\CSRF::class,
     ]
 ];
 ```
