@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     //2000 Success
 
     //3000 Need Further Action

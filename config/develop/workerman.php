@@ -1,18 +1,18 @@
 <?php
 
 return [
-    /*
-    | http in socket
-    */
+    /**
+     * http in socket
+     */
 
     'http' => [
         'port' => 2348,
         'worker' => 2
     ],
 
-    /*
-    | socket
-    */
+    /**
+     * socket
+     */
 
     'socket' => [
         'chat' => [
