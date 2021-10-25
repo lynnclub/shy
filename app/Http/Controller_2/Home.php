@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controller_2;
 
 use App\Http\Business\TestBusiness;
 use App\Http\Facades\TestBusiness as StaticTestBusiness;
 use Shy\Http\Session;
 use Shy\Http\Contracts\Request;
-use Shy\Core\Facades\Cache;
+use Shy\Core\Container;
 
 class Home
 {
@@ -25,9 +25,6 @@ class Home
         }
 
         $title = 'Shy Framework';
-
-        Cache::set('info', $info);
-        $info = Cache::get('info');
 
         return view('home', compact('title', 'info'))->layout('main');
     }
@@ -48,7 +45,7 @@ class Home
 
         $params['title'] = 'Shy Framework';
 
-        $params['shy'] = shy();
+        $params['shy'] = Container::getContainer();
 
         return smarty('smarty.tpl', $params);
     }
@@ -58,18 +55,4 @@ class Home
         return 'controller echo test ' . json_encode($request->all());
     }
 
-    public function test2()
-    {
-        return 'controller echo ' . url('controller_2/home');
-    }
-
-    public function test3($pathParam)
-    {
-        return 'controller echo path param ' . $pathParam;
-    }
-
-    public function test4()
-    {
-        return test_error();
-    }
 }

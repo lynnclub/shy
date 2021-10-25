@@ -63,7 +63,7 @@ class Router implements RouterContract
 
     public function __construct($defaultNamespace = null, $defaultController = null)
     {
-        $this->namespace = $defaultNamespace ?? 'App\\Http\\Controllers\\';
+        $this->namespace = $defaultNamespace ?? 'App\\Http\\Controller\\';
         $this->controller = $defaultController ?? config('app.default_controller');
     }
 

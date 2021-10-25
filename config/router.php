@@ -10,7 +10,7 @@ return [
             '/home' => 'home@index',
             '/return/string/with/get/param' => 'home@test',
         ]],
-        ['prefix' => 'controller_2', 'namespace' => 'App\\Http\\Controllers_2', 'path' => [
+        ['prefix' => 'controller_2', 'namespace' => 'App\\Http\\Controller_2', 'path' => [
             '/home' => 'home@index',
             '/return/string/without/get/param' => 'home@test',
             '/smarty' => 'home@smarty',
