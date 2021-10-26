@@ -9,6 +9,7 @@ use Shy\Http\Contracts\Router as RouterContracts;
  * Class Router
  * @package Shy\Http\Facades
  *
+ * @method static array getPathInfo()
  * @method static string getController()
  * @method static string getMethod()
  * @method static array getMiddleware()

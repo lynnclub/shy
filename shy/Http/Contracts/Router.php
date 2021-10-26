@@ -10,6 +10,11 @@ interface Router
     /**
      * @return string
      */
+    public function getPathInfo();
+
+    /**
+     * @return string
+     */
     public function getController();
 
     /**
@@ -30,5 +35,4 @@ interface Router
      * @return string|View
      */
     public function handle($next, RequestContract $request);
-
 }

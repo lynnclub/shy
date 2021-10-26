@@ -82,6 +82,14 @@ class Router implements RouterContract
     /**
      * @return string
      */
+    public function getPathInfo()
+    {
+        return $this->pathInfo;
+    }
+
+    /**
+     * @return string
+     */
     public function getController()
     {
         return $this->controller;
