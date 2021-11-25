@@ -3,7 +3,7 @@
  * View functions
  */
 
-use Shy\Core\Contracts\Config;
+use Shy\Core\Contract\Config;
 use Shy\Http\Contracts\View;
 
 if (!function_exists('view')) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Core\Contracts;
+namespace Shy\Core\Contract;
 
 use Psr\Log\LoggerInterface;
 use Shy\Http\Contracts\Request;

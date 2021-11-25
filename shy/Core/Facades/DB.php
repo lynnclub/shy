@@ -3,7 +3,7 @@
 namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
-use Shy\Core\Contracts\DataBase;
+use Shy\Core\Contract\DataBase;
 
 /**
  * Class DB

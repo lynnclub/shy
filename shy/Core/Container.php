@@ -2,7 +2,7 @@
 
 namespace Shy\Core;
 
-use Shy\Core\Contracts\Container as ContainerContract;
+use Shy\Core\Contract\Container as ContainerContract;
 use Shy\Core\Exception\Container\ContainerException;
 use Shy\Core\Exception\Container\NotFoundException;
 use Closure;

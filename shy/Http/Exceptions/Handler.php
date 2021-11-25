@@ -2,11 +2,11 @@
 
 namespace Shy\Http\Exceptions;
 
-use Shy\Core\Contracts\ExceptionHandler;
+use Shy\Core\Contract\ExceptionHandler;
 use Shy\Core\Exception\Cache\InvalidArgumentException;
 use Throwable;
-use Shy\Core\Contracts\Logger;
-use Shy\Core\Contracts\Config;
+use Shy\Core\Contract\Logger;
+use Shy\Core\Contract\Config;
 use Shy\Http\Contracts\Response;
 use Shy\Http\Contracts\View;
 

@@ -5,7 +5,7 @@ namespace Shy;
 use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
-use Shy\Core\Contracts\Pipeline;
+use Shy\Core\Contract\Pipeline;
 use Shy\Http\Contracts\Response;
 use Shy\Http\Contracts\Router;
 use Shy\Core\Exception\HandlerRegister;

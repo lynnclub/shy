@@ -9,7 +9,7 @@ use Shy\Http\Contracts\Response as ResponseContract;
 use Shy\Http\Contracts\Session as SessionContract;
 use Shy\Http\Contracts\Router as RouterContract;
 use Shy\Http\Contracts\View as ViewContract;
-use Shy\Core\Contracts\Logger as LoggerContract;
+use Shy\Core\Contract\Logger as LoggerContract;
 
 // Entry
 use Shy\Http\Request;

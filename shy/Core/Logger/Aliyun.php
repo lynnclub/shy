@@ -2,9 +2,9 @@
 
 namespace Shy\Core\Logger;
 
-use Shy\Core\Contracts\Logger as LoggerContract;
+use Shy\Core\Contract\Logger as LoggerContract;
 use Shy\Http\Contracts\Request;
-use Shy\Core\Contracts\Config;
+use Shy\Core\Contract\Config;
 use RuntimeException;
 use Aliyun_Log_Client;
 use Aliyun_Log_Models_LogItem;

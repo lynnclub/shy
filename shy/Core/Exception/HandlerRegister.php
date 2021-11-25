@@ -2,9 +2,9 @@
 
 namespace Shy\Core\Exception;
 
-use Shy\Core\Contracts\ExceptionHandler;
-use Shy\Core\Contracts\Config;
-use Shy\Core\Contracts\Logger;
+use Shy\Core\Contract\ExceptionHandler;
+use Shy\Core\Contract\Config;
+use Shy\Core\Contract\Logger;
 use Shy\Http\Contracts\Response;
 use Shy\Http\Contracts\View;
 use Exception;

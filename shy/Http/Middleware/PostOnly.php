@@ -3,7 +3,7 @@
 namespace Shy\Http\Middleware;
 
 use Closure;
-use Shy\Core\Contracts\Middleware;
+use Shy\Core\Contract\Middleware;
 use Shy\Http\Facades\Request;
 use Shy\Http\Exceptions\HttpException;
 

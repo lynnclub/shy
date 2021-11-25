@@ -3,7 +3,7 @@
 namespace Shy\Core\DataBase;
 
 use Pdo as PhpPdo;
-use Shy\Core\Contracts\DataBase;
+use Shy\Core\Contract\DataBase;
 use Exception;
 
 class Pdo extends PhpPdo implements DataBase

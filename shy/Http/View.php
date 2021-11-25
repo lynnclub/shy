@@ -3,7 +3,7 @@
 namespace Shy\Http;
 
 use Shy\Http\Contracts\View as ViewContract;
-use Shy\Core\Contracts\Config;
+use Shy\Core\Contract\Config;
 use RuntimeException;
 
 class View implements ViewContract

@@ -3,7 +3,7 @@
 namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
-use Shy\Core\Contracts\Cache as CacheContract;
+use Shy\Core\Contract\Cache as CacheContract;
 
 /**
  * Class Cache

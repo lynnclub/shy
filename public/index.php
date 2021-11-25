@@ -22,7 +22,7 @@ if (!defined('BASE_URL')) {
 }
 
 // Run
-$container->make(\Shy\Core\Contracts\Pipeline::class)
+$container->make(\Shy\Core\Contract\Pipeline::class)
     ->send($container['request'])
     ->through(\Shy\Http\Contracts\Router::class)
     ->then(function ($body) use ($container) {

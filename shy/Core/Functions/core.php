@@ -4,7 +4,7 @@
  */
 
 use Shy\Core\Container;
-use Shy\Core\Contracts\Config;
+use Shy\Core\Contract\Config;
 
 if (!function_exists('get_throwable_array')) {
     /**

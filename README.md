@@ -283,9 +283,9 @@ shy(Shy\Http::class, $param1, $param2);
 /**
  * 带参数实例化File类，契约为Logger
  */
-shy(Shy\Core\Contracts\Logger::class, Shy\Core\Logger\File::class, $param1, $param2);
+shy(Shy\Core\Contract\Logger::class, Shy\Core\Logger\File::class, $param1, $param2);
 //并且，使用契约为Logger的File实例
-shy(Shy\Core\Contracts\Logger::class);
+shy(Shy\Core\Contract\Logger::class);
 
 /**
  * 直接将实例加入容器
@@ -295,7 +295,7 @@ shy(Shy\Http::class, new Shy\Http());
 /**
  * 设置类名的别名
  */
-shy()->alias('pipeline', Shy\Core\Contracts\Pipeline::class);
+shy()->alias('pipeline', Shy\Core\Contract\Pipeline::class);
 //并且，使用别名
 shy('pipeline');
 ```
@@ -340,7 +340,7 @@ shy()->remove(Shy\Http::class);
 
 ```php
 use Shy\Http\Contracts\Request;
-use Shy\Core\Contracts\Config;
+use Shy\Core\Contract\Config;
 
 /**
  * Logger constructor.
@@ -368,7 +368,7 @@ use Shy\Core\Contracts\Config;
 namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
-use Shy\Core\Contracts\Cache as CacheContract;
+use Shy\Core\Contract\Cache as CacheContract;
 
 class Cache extends Facade
 {
@@ -397,7 +397,7 @@ class Cache extends Facade
 可以在bootstrap目录下的服务启动文件中，替换缓存契约绑定的实体类：
 
 ```php
-$container->bind(Shy\Core\Contracts\Cache::class, Shy\Core\Cache\Redis::class);
+$container->bind(Shy\Core\Contract\Cache::class, Shy\Core\Cache\Redis::class);
 ```
 
 调用缓存门面的方法：
@@ -446,7 +446,7 @@ $socketConfig = config('workerman.socket');
 可以在bootstrap目录下的服务启动文件中，替换日志契约绑定的实体类：
 
 ```php
-$container->bind(Shy\Core\Contracts\Logger::class, Shy\Core\Logger\Aliyun::class);
+$container->bind(Shy\Core\Contract\Logger::class, Shy\Core\Logger\Aliyun::class);
 ```
 
 ### 7.2 错误级别
@@ -462,7 +462,7 @@ $container->bind(Shy\Core\Contracts\Logger::class, Shy\Core\Logger\Aliyun::class
 
 ### 7.3 自定义日志
 
-自定义日志需要实现`Shy\Core\Contracts\Logger`接口，并且继承PSR的`Psr\Log\AbstractLogger`。
+自定义日志需要实现`Shy\Core\Contract\Logger`接口，并且继承PSR的`Psr\Log\AbstractLogger`。
 
 ## 八、 异常及错误的捕获处理（Exception Handler）
 
@@ -473,7 +473,7 @@ $container->bind(Shy\Core\Contracts\Logger::class, Shy\Core\Logger\Aliyun::class
 可以在bootstrap目录下的服务启动文件中，替换异常处理契约绑定的实体类：
 
 ```php
-$container->bind(Shy\Core\Contracts\ExceptionHandler::class, Shy\Http\Exceptions\Handler::class);
+$container->bind(Shy\Core\Contract\ExceptionHandler::class, Shy\Http\Exceptions\Handler::class);
 ```
 
 对于需要返回Http Code的错误，可以抛出HttpException。该错误的响应会输出`errors/common.php`模版:
@@ -563,7 +563,7 @@ Request::get('key');
 ```php
 namespace Shy\Http\Middleware;
 
-use Shy\Core\Contracts\Middleware;
+use Shy\Core\Contract\Middleware;
 use Closure;
 use Shy\Http\Exceptions\HttpException;
 use Shy\Http\Facades\Request;
@@ -609,7 +609,7 @@ class IpWhitelist implements Middleware
 ### 11.2 后置中间件
 
 ```php
-use Shy\Core\Contracts\Middleware;
+use Shy\Core\Contract\Middleware;
 use Closure;
 
 class Test implements Middleware
@@ -736,7 +736,7 @@ return [
 /**
  * 默认使用Pdo
  */
-$container->bind(Shy\Core\Contracts\DataBase::class, Shy\Core\DataBase\Pdo::class);
+$container->bind(Shy\Core\Contract\DataBase::class, Shy\Core\DataBase\Pdo::class);
 ```
 
 ### 15.1 laravel的DB包

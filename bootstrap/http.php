@@ -7,12 +7,12 @@ use Shy\Core\Container;
 use Shy\Core\Exception\HandlerRegister;
 
 // Contracts
-use Shy\Core\Contracts\Config as ConfigContract;
-use Shy\Core\Contracts\Logger as LoggerContract;
-use Shy\Core\Contracts\ExceptionHandler as ExceptionHandlerContract;
-use Shy\Core\Contracts\Pipeline as PipelineContract;
-use Shy\Core\Contracts\Cache as CacheContract;
-use Shy\Core\Contracts\DataBase as DataBaseContract;
+use Shy\Core\Contract\Config as ConfigContract;
+use Shy\Core\Contract\Logger as LoggerContract;
+use Shy\Core\Contract\ExceptionHandler as ExceptionHandlerContract;
+use Shy\Core\Contract\Pipeline as PipelineContract;
+use Shy\Core\Contract\Cache as CacheContract;
+use Shy\Core\Contract\DataBase as DataBaseContract;
 use Shy\Http\Contracts\Request as RequestContract;
 use Shy\Http\Contracts\Response as ResponseContract;
 use Shy\Http\Contracts\Session as SessionContract;

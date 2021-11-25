@@ -3,7 +3,7 @@
 namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
-use Shy\Core\Contracts\Config as ConfigContract;
+use Shy\Core\Contract\Config as ConfigContract;
 
 /**
  * Class Config

@@ -2,7 +2,7 @@
 
 namespace Shy\Core;
 
-use Shy\Core\Contracts\Pipeline as PipelineContract;
+use Shy\Core\Contract\Pipeline as PipelineContract;
 use Closure;
 use ReflectionMethod;
 use RuntimeException;

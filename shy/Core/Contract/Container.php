@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Core\Contracts;
+namespace Shy\Core\Contract;
 
 use Psr\Container\ContainerInterface;
 use ArrayAccess;

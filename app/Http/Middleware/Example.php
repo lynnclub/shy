@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use Shy\Core\Contracts\Middleware;
+use Shy\Core\Contract\Middleware;
 use Closure;
 use Shy\Http\Facades\Request;
 

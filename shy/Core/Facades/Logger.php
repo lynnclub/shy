@@ -3,7 +3,7 @@
 namespace Shy\Core\Facades;
 
 use Shy\Core\Facade;
-use Shy\Core\Contracts\Logger as LoggerContract;
+use Shy\Core\Contract\Logger as LoggerContract;
 
 /**
  * Class Logger

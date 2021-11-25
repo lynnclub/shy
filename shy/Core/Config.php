@@ -3,7 +3,7 @@
 namespace Shy\Core;
 
 use Shy\Core\Cache\Memory;
-use Shy\Core\Contracts\Config as ConfigContract;
+use Shy\Core\Contract\Config as ConfigContract;
 use Shy\Core\Exception\Cache\InvalidArgumentException;
 use Exception;
 
