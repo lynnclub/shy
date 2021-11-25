@@ -2,10 +2,6 @@
 
 **简洁却强大的高性能框架**
 
-[English Document](https://github.com/lynncho/shy/blob/master/README-EN.md)
-
-Shy框架交流一群：963908345 加群暗号：lynncho
-
 ## 一、 纲要
 
 ### 1.1 简介
@@ -16,16 +12,16 @@ Shy框架交流一群：963908345 加群暗号：lynncho
 
 框架以简洁的实现，提供了众多服务，比如异常处理、配置、日志、门面、流水线、进程管理等丰富的核心服务。基于这些核心服务，组合提供了面向使用场景的Web框架、命令框架、Socket框架，并且彼此可独立运行、互不干扰。
 
-此外，**框架还提供一种革新PHP语言 传统Web框架运行方式 的模式——常驻内存模式（PHP-CLI）。**
+**框架提供了一种 革新PHP语言传统Web框架运行方式 的模式——常驻内存模式（PHP-CLI）。**
 
 在常驻内存模式下，由于避免了代码重复编译的开销，框架的Web服务性能相对于传统方式大幅提升！！！
 
-框架实现简洁，却十分强大，正如她的名字：**Shy——纤细身形、不漏内秀**。
+框架实现简洁，却十分强大，正如她的名字：**Shy Framework——纤细身形、不漏内秀**。
 
 ### 1.2 特性列表
 
-* 常量（Constants）
-* 契约（Contracts）
+* 常量（Constant）
+* 契约（Contract）
 * 容器与依赖注入（Container and Dependency Injection）
 * 异常及错误的捕获处理（Exception Handler）
 * 配置（Config）
@@ -38,17 +34,16 @@ Shy框架交流一群：963908345 加群暗号：lynncho
 * 响应（Response）
 * 会话（Session）
 * 路由（Router）
-* 控制器（Controllers）
+* 控制器（Controller）
 * 数据库（DataBase）
 * 模版（View）
 * 进程管理（Process）
 * 命令模式（Command Mode）
 * 常驻内存模式（PHP-CLI Mode）
 * Socket模式（Socket Mode）
-* Api（未完成）
 * 单元测试（Unit Test）
 
-### 1.3 用法
+### 1.3 启动
 
 ##### 第一步：克隆项目
 
@@ -66,11 +61,9 @@ cd shy
 composer install
 ```
 
-恭喜！！！
+恭喜！接下来，只需要配置Web站点，或者启动常驻内存模式，就可以运行框架了。
 
-接下来，只需要配置Web站点、或者执行常驻内存模式，就可以运行框架了。
-
-##### 第三步（可选）：常驻内存模式执行
+##### 第三步（可选）：启动常驻内存模式
 
 ```bash
 php command http_workerman start
@@ -96,7 +89,6 @@ shy 框架根目录
 |    |
 |    |___command.php 命令服务启动程序
 |    |___http.php Http服务启动程序
-|    |___http-swoole.php 基于swoole的常驻内存Http服务启动程序
 |    |___http-workerman.php 基于workerman的常驻内存Http服务启动程序
 |
 |___cache 缓存目录
@@ -119,15 +111,14 @@ shy 框架根目录
 |___shy 框架目录
 |   |
 |   |   Command.php 命令服务
-|   |   Http.php Http服务
 |   |   HttpInWorkerMan.php 基于workerman的常驻内存Http服务
 |   |   SocketInWorkerMan.php 基于workerman的Socket服务
 |   |
 |   |___Command 命令模式目录
 |   |___Core 核心服务目录
 |   |___Http Http服务目录
+|   |___Library 类库目录
 |   |___Socket Socket服务目录
-|   |___library 类库目录
 |
 |___tests 单元测试目录
 |
@@ -145,31 +136,30 @@ shy 框架根目录
 
 1. 容器实例调度
 2. 文件上传
-3. CSRF防御等中间件并写文档，XSS攻击防御
-4. Api便捷开发框架
-5. Swoole socket
-6. 单元测试覆盖率100%
-7. 会话重构
+3. Api便捷开发框架
+4. Swoole socket
+5. 单元测试覆盖率100%
+6. 会话重构
 
-### 1.7 Http服务执行顺序
+### 1.7 Http服务生命周期
 
 1. 启动Http Bootstrap服务
-2. 启动Composer自动加载（框架核心函数也由Composer加载）
-3. 定义框架常量
-4. 启动容器、注册框架组件
-5. 读取并设置运行环境（SHY_ENV）
-6. 实例化配置组件（Config）
+2. 启动自动加载（Composer）
+3. 读取并设置运行环境（SHY_ENV）
+4. 定义内置常量
+5. 启动容器，注册组件（Container）
+6. 启动配置组件（Config）
 7. 设置时区
-8. 注册异常处理
-9. 引入模版相关函数或自定义依赖文件
-10. 实例化请求组件、并且载入当前请求
-11. 实例化会话组件、并且开启会话
-12. 流水线调度路由、并且设置输出闭包
-13. 路由初始化，解析执行中间件、控制器及其方法
-14. 控制器业务逻辑执行之后，流水线执行闭包输出
-15. 初始化请求组件
+8. 注册全局异常处理（ExceptionHandler）
+9. 引入模版函数文件、自定义文件（View）
+10. 装载请求（Request）
+11. 开启会话（Session）
+12. 流水线调度路由，并且设置输出闭包（Pipeline、Router、Response）
+13. 路由初始化，解析执行中间件、控制器（Middleware、Controller）
+14. 流水线后置操作，执行输出闭包（Response）
+15. 请求组件恢复初始化状态（Request）
 
-## 二、 契约（Contracts）
+## 二、 契约（Contract）
 
 契约是接口（interface）的广义概念，意义相同，但是不局限于接口的形式。契约可以是接口、抽象类、甚至非硬性约束的惯例。
 
