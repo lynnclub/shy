@@ -46,8 +46,8 @@ try {
     //$container->intelligentSchedulingOn();
 
     //Loading files
-    require __DIR__ . '/../shy/Http/Functions/view.php';
-    require __DIR__ . '/../app/Functions/common.php';
+    require __DIR__ . '/../shy/Http/Function/view.php';
+    require __DIR__ . '/../app/Function/common.php';
 
     return $container;
 } catch (Throwable $throwable) {

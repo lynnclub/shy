@@ -69,7 +69,7 @@ try {
     $container->make(HandlerRegister::class);
 
     //Loading files
-    require __DIR__ . '/../app/Functions/common.php';
+    require __DIR__ . '/../app/Function/common.php';
 
     return $container;
 } catch (Throwable $throwable) {
