@@ -4,11 +4,11 @@ namespace Shy\Http\Middleware;
 
 use Closure;
 use Shy\Core\Contract\Middleware;
-use Shy\Http\Facades\Request;
+use Shy\Http\Facade\Request;
 use Shy\Core\Facade\Cache;
 use Shy\Core\Facade\Logger;
-use Shy\Http\Facades\Response;
-use Shy\Http\Facades\Router;
+use Shy\Http\Facade\Response;
+use Shy\Http\Facade\Router;
 use Shy\Http\Exception\HttpException;
 
 class Throttle implements Middleware

@@ -529,7 +529,7 @@ $response = shy(Pipeline::class)
 调用请求门面的方法：
 
 ```php
-use Shy\Http\Facades\Request;
+use Shy\Http\Facade\Request;
 
 /**
  * 是否初始化（常驻内存模式使用）
@@ -566,7 +566,7 @@ namespace Shy\Http\Middleware;
 use Shy\Core\Contract\Middleware;
 use Closure;
 use Shy\Http\Exception\HttpException;
-use Shy\Http\Facades\Request;
+use Shy\Http\Facade\Request;
 use Shy\Core\Facade\Logger;
 
 class IpWhitelist implements Middleware

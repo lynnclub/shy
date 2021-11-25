@@ -4,8 +4,8 @@ namespace Shy\Http\Middleware;
 
 use Closure;
 use Shy\Core\Contract\Middleware;
-use Shy\Http\Facades\Request;
-use Shy\Http\Facades\Session;
+use Shy\Http\Facade\Request;
+use Shy\Http\Facade\Session;
 use Shy\Http\Exception\HttpException;
 
 class CSRF implements Middleware

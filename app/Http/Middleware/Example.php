@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Shy\Core\Contract\Middleware;
 use Closure;
-use Shy\Http\Facades\Request;
+use Shy\Http\Facade\Request;
 
 class Example implements Middleware
 {

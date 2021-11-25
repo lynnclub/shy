@@ -1,13 +1,13 @@
 <?php
 
-namespace Shy\Http\Facades;
+namespace Shy\Http\Facade;
 
 use Shy\Core\Facade;
 use Shy\Http\Contract\Response as ResponseContracts;
 
 /**
  * Class Response
- * @package Shy\Http\Facades
+ * @package Shy\Http\Facade
  *
  * @method static initialize()
  * @method static Response withStatus(int $code)

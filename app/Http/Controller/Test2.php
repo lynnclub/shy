@@ -2,7 +2,7 @@
 
 namespace App\Http\Controller;
 
-use Shy\Http\Facades\Request;
+use Shy\Http\Facade\Request;
 
 class Test2
 {
