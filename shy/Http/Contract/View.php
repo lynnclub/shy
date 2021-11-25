@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Http\Contracts;
+namespace Shy\Http\Contract;
 
 interface View
 {

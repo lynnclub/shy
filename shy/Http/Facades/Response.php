@@ -3,7 +3,7 @@
 namespace Shy\Http\Facades;
 
 use Shy\Core\Facade;
-use Shy\Http\Contracts\Response as ResponseContracts;
+use Shy\Http\Contract\Response as ResponseContracts;
 
 /**
  * Class Response

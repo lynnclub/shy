@@ -2,7 +2,7 @@
 
 namespace Shy\Http;
 
-use Shy\Http\Contracts\Request as RequestContract;
+use Shy\Http\Contract\Request as RequestContract;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 

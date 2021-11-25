@@ -13,11 +13,11 @@ use Shy\Core\Contract\ExceptionHandler as ExceptionHandlerContract;
 use Shy\Core\Contract\Pipeline as PipelineContract;
 use Shy\Core\Contract\Cache as CacheContract;
 use Shy\Core\Contract\DataBase as DataBaseContract;
-use Shy\Http\Contracts\Request as RequestContract;
-use Shy\Http\Contracts\Response as ResponseContract;
-use Shy\Http\Contracts\Session as SessionContract;
-use Shy\Http\Contracts\Router as RouterContract;
-use Shy\Http\Contracts\View as ViewContract;
+use Shy\Http\Contract\Request as RequestContract;
+use Shy\Http\Contract\Response as ResponseContract;
+use Shy\Http\Contract\Session as SessionContract;
+use Shy\Http\Contract\Router as RouterContract;
+use Shy\Http\Contract\View as ViewContract;
 
 // Entry
 use Shy\Core\Config;

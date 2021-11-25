@@ -339,7 +339,7 @@ shy()->remove(Shy\Http::class);
 容器执行闭包、或者通过反射实例化类的时候，会自动注入构造方法的依赖，无需手动实例化。
 
 ```php
-use Shy\Http\Contracts\Request;
+use Shy\Http\Contract\Request;
 use Shy\Core\Contract\Config;
 
 /**

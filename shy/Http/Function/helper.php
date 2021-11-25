@@ -1,9 +1,9 @@
 <?php
 
-use Shy\Http\Contracts\Request;
-use Shy\Http\Contracts\Response;
-use Shy\Http\Contracts\Router;
-use Shy\Http\Contracts\Session;
+use Shy\Http\Contract\Request;
+use Shy\Http\Contract\Response;
+use Shy\Http\Contract\Router;
+use Shy\Http\Contract\Session;
 
 if (!function_exists('smarty')) {
     /**

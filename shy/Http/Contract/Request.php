@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Http\Contracts;
+namespace Shy\Http\Contract;
 
 use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\HeaderBag;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\ServerBag;
 /**
  * Interface Request
  *
- * @package Shy\Http\Contracts
+ * @package Shy\Http\Contract
  * @property ParameterBag $request
  * @property ParameterBag $query
  * @property ServerBag $server

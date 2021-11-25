@@ -1,8 +1,8 @@
 <?php
 
-namespace Shy\Http\Contracts;
+namespace Shy\Http\Contract;
 
-use Shy\Http\Contracts\Request as RequestContract;
+use Shy\Http\Contract\Request as RequestContract;
 use Shy\Http\View;
 
 interface Router

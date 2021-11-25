@@ -3,7 +3,7 @@
 namespace Shy\Socket\WorkerMan;
 
 use Shy\Http\Response as HttpResponse;
-use Shy\Http\Contracts\Response as ResponseContract;
+use Shy\Http\Contract\Response as ResponseContract;
 use Workerman\Protocols\Http;
 
 class Response extends HttpResponse implements ResponseContract

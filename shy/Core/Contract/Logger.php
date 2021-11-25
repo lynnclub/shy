@@ -3,7 +3,7 @@
 namespace Shy\Core\Contract;
 
 use Psr\Log\LoggerInterface;
-use Shy\Http\Contracts\Request;
+use Shy\Http\Contract\Request;
 
 interface Logger extends LoggerInterface
 {

@@ -6,7 +6,7 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Shy\Core\Contract\Logger as LoggerContract;
-use Shy\Http\Contracts\Request;
+use Shy\Http\Contract\Request;
 use Shy\Core\Contract\Config;
 
 class File extends AbstractLogger implements LoggerContract

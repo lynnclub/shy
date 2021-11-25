@@ -4,7 +4,7 @@
  */
 
 use Shy\Core\Contract\Config;
-use Shy\Http\Contracts\View;
+use Shy\Http\Contract\View;
 
 if (!function_exists('view')) {
     /**

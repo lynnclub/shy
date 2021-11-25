@@ -3,8 +3,8 @@
 namespace Shy\Core\Contract;
 
 use Throwable;
-use Shy\Http\Contracts\Response;
-use Shy\Http\Contracts\View;
+use Shy\Http\Contract\Response;
+use Shy\Http\Contract\View;
 
 interface ExceptionHandler
 {

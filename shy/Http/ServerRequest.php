@@ -5,7 +5,7 @@ namespace Shy\Http;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
-use Shy\Http\Contracts\Request;
+use Shy\Http\Contract\Request;
 
 class ServerRequest implements ServerRequestInterface
 {

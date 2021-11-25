@@ -7,8 +7,8 @@ use Shy\Core\Exception\Cache\InvalidArgumentException;
 use Throwable;
 use Shy\Core\Contract\Logger;
 use Shy\Core\Contract\Config;
-use Shy\Http\Contracts\Response;
-use Shy\Http\Contracts\View;
+use Shy\Http\Contract\Response;
+use Shy\Http\Contract\View;
 
 class Handler implements ExceptionHandler
 {

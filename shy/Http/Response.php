@@ -2,8 +2,8 @@
 
 namespace Shy\Http;
 
-use Shy\Http\Contracts\Response as ResponseContract;
-use Shy\Http\Contracts\View;
+use Shy\Http\Contract\Response as ResponseContract;
+use Shy\Http\Contract\View;
 use Psr\Http\Message\StreamInterface;
 
 class Response implements ResponseContract

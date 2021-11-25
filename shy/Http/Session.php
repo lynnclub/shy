@@ -2,7 +2,7 @@
 
 namespace Shy\Http;
 
-use Shy\Http\Contracts\Session as SessionContract;
+use Shy\Http\Contract\Session as SessionContract;
 
 class Session implements SessionContract
 {

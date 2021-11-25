@@ -2,8 +2,8 @@
 
 namespace Shy\Http;
 
-use Shy\Http\Contracts\Router as RouterContract;
-use Shy\Http\Contracts\Request as RequestContract;
+use Shy\Http\Contract\Router as RouterContract;
+use Shy\Http\Contract\Request as RequestContract;
 use Shy\Core\Contract\Pipeline;
 use Shy\Http\Exception\HttpException;
 

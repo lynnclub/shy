@@ -2,7 +2,7 @@
 
 namespace Shy\Http;
 
-use Shy\Http\Contracts\View as ViewContract;
+use Shy\Http\Contract\View as ViewContract;
 use Shy\Core\Contract\Config;
 use RuntimeException;
 

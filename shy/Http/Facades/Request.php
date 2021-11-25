@@ -3,7 +3,7 @@
 namespace Shy\Http\Facades;
 
 use Shy\Core\Facade;
-use Shy\Http\Contracts\Request as RequestContracts;
+use Shy\Http\Contract\Request as RequestContracts;
 
 /**
  * Class Request

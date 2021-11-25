@@ -3,7 +3,7 @@
 namespace Shy\Http\Facades;
 
 use Shy\Core\Facade;
-use Shy\Http\Contracts\Session as SessionContracts;
+use Shy\Http\Contract\Session as SessionContracts;
 
 /**
  * Class Session

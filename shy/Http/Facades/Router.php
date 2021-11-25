@@ -3,7 +3,7 @@
 namespace Shy\Http\Facades;
 
 use Shy\Core\Facade;
-use Shy\Http\Contracts\Router as RouterContracts;
+use Shy\Http\Contract\Router as RouterContracts;
 
 /**
  * Class Router

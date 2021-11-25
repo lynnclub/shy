@@ -5,7 +5,7 @@ namespace App\Http\Controller_2;
 use App\Http\Business\TestBusiness;
 use App\Http\Facades\TestBusiness as StaticTestBusiness;
 use Shy\Http\Session;
-use Shy\Http\Contracts\Request;
+use Shy\Http\Contract\Request;
 use Shy\Core\Container;
 
 class Home

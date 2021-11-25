@@ -34,9 +34,9 @@ class Shy
      */
     public function routeConfig()
     {
-        bind(\Shy\Http\Contracts\Request::class, \Shy\Http\Request::class);
+        bind(\Shy\Http\Contract\Request::class, \Shy\Http\Request::class);
 
-        $router = shy(\Shy\Http\Contracts\Router::class, \Shy\Http\Router::class);
+        $router = shy(\Shy\Http\Contract\Router::class, \Shy\Http\Router::class);
         $router->initialize();
         $router->buildRouteByConfig();
 
@@ -50,9 +50,9 @@ class Shy
      */
     public function routeIndex()
     {
-        bind(\Shy\Http\Contracts\Request::class, \Shy\Http\Request::class);
+        bind(\Shy\Http\Contract\Request::class, \Shy\Http\Request::class);
 
-        $router = shy(\Shy\Http\Contracts\Router::class, \Shy\Http\Router::class);
+        $router = shy(\Shy\Http\Contract\Router::class, \Shy\Http\Router::class);
         $router->initialize();
         $router->buildRouteByConfig();
 

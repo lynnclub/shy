@@ -3,7 +3,7 @@
 namespace Shy\Core\Logger;
 
 use Shy\Core\Contract\Logger as LoggerContract;
-use Shy\Http\Contracts\Request;
+use Shy\Http\Contract\Request;
 use Shy\Core\Contract\Config;
 use RuntimeException;
 use Aliyun_Log_Client;

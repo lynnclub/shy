@@ -24,9 +24,9 @@ if (!defined('BASE_URL')) {
 // Run
 $container->make(\Shy\Core\Contract\Pipeline::class)
     ->send($container['request'])
-    ->through(\Shy\Http\Contracts\Router::class)
+    ->through(\Shy\Http\Contract\Router::class)
     ->then(function ($body) use ($container) {
-        if ($body instanceof \Shy\Http\Contracts\Response) {
+        if ($body instanceof \Shy\Http\Contract\Response) {
             $body->output();
         } else {
             $container['response']->output($body);
