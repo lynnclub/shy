@@ -3,7 +3,7 @@
 namespace App\Http\Controller_2;
 
 use App\Http\Business\TestBusiness;
-use App\Http\Facades\TestBusiness as StaticTestBusiness;
+use App\Http\Facade\TestBusiness as StaticTestBusiness;
 use Shy\Http\Session;
 use Shy\Http\Contract\Request;
 use Shy\Core\Container;

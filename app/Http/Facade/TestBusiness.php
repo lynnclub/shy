@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Facades;
+namespace App\Http\Facade;
 
 use Shy\Core\Facade;
 use App\Http\Business\TestBusiness as realTestBusiness;
