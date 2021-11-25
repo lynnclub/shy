@@ -365,7 +365,7 @@ use Shy\Core\Contract\Config;
 实现**门面类**需要继承框架的**门面抽象类**，并且重写父类的`getInstance()`方法，以便向父类传递**实体类**。实现代码示例如下：
 
 ```php
-namespace Shy\Core\Facades;
+namespace Shy\Core\Facade;
 
 use Shy\Core\Facade;
 use Shy\Core\Contract\Cache as CacheContract;
@@ -403,7 +403,7 @@ $container->bind(Shy\Core\Contract\Cache::class, Shy\Core\Cache\Redis::class);
 调用缓存门面的方法：
 
 ```php
-use Shy\Core\Facades\Cache;
+use Shy\Core\Facade\Cache;
 
 Cache::set('test', 123);
 
@@ -567,7 +567,7 @@ use Shy\Core\Contract\Middleware;
 use Closure;
 use Shy\Http\Exception\HttpException;
 use Shy\Http\Facades\Request;
-use Shy\Core\Facades\Logger;
+use Shy\Core\Facade\Logger;
 
 class IpWhitelist implements Middleware
 {

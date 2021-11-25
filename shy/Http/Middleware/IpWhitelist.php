@@ -5,7 +5,7 @@ namespace Shy\Http\Middleware;
 use Closure;
 use Shy\Core\Contract\Middleware;
 use Shy\Http\Facades\Request;
-use Shy\Core\Facades\Logger;
+use Shy\Core\Facade\Logger;
 use Shy\Http\Exception\HttpException;
 
 class IpWhitelist implements Middleware

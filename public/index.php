@@ -6,7 +6,7 @@
 $container = require __DIR__ . '/../bootstrap/http.php';
 
 // Hook
-\Shy\Core\Facades\Hook::run('request_before');
+\Shy\Core\Facade\Hook::run('request_before');
 
 $container['request']->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
 $container['session']->sessionStart();
@@ -33,7 +33,7 @@ $container->make(\Shy\Core\Contract\Pipeline::class)
         }
 
         // Hook
-        \Shy\Core\Facades\Hook::run('response_after');
+        \Shy\Core\Facade\Hook::run('response_after');
     });
 
 // Clear Request

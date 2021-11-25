@@ -1,13 +1,13 @@
 <?php
 
-namespace Shy\Core\Facades;
+namespace Shy\Core\Facade;
 
 use Shy\Core\Facade;
 use Shy\Core\Contract\Logger as LoggerContract;
 
 /**
  * Class Logger
- * @package Shy\Core\Facades
+ * @package Shy\Core\Facade
  *
  * @method static emergency($message, array $context = array())
  * @method static alert($message, array $context = array())

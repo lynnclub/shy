@@ -167,7 +167,7 @@ class Router implements RouterContract
         }
 
         // Hook
-        \Shy\Core\Facades\Hook::run('run_controller_before', $this->param);
+        \Shy\Core\Facade\Hook::run('run_controller_before', $this->param);
 
         // Run controller and middleware
         if (empty($this->middleware)) {

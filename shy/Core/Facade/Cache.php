@@ -1,21 +1,21 @@
 <?php
 
-namespace Shy\Core\Facades;
+namespace Shy\Core\Facade;
 
 use Shy\Core\Facade;
-use Shy\Core\Contract\Config as ConfigContract;
+use Shy\Core\Contract\Cache as CacheContract;
 
 /**
- * Class Config
- * @package Shy\Core\Facades
+ * Class Cache
+ * @package Shy\Core\Facade
  *
- * @method static array|false load(string $file)
- * @method static string|array|null find(string $key)
+ * @method static mixed connection($config_name = 'default')
  * @method static bool set($key, $value, $ttl = null)
  * @method static mixed get($key, $default = null)
+ * @method static bool has($key)
  * @method static bool delete($key)
  */
-class Config extends Facade
+class Cache extends Facade
 {
     /**
      * Get the instance.
@@ -24,6 +24,6 @@ class Config extends Facade
      */
     protected static function getInstance()
     {
-        return shy(ConfigContract::class);
+        return shy(CacheContract::class);
     }
 }

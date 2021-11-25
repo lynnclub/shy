@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Shy\Core\Facades\Cache;
+use Shy\Core\Facade\Cache;
 
 class redisTest extends TestCase
 {

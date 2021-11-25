@@ -9,7 +9,7 @@ namespace Shy\Core;
 
 use Exception;
 use Shy\Core\Contract\ProcessTask;
-use Shy\Core\Facades\Hook;
+use Shy\Core\Facade\Hook;
 
 class Process
 {
