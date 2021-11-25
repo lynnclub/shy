@@ -2,28 +2,22 @@
 
 **简洁却强大的高性能框架**
 
-## 一、 纲要
+## 零、 简介
 
-### 1.1 简介
+框架以容器（Container）为核心，提供了操作便捷的实例（Instance）复用池。通过契约（Contract）对组件（Component）进行约束，在容器内可以自由替换实现了该契约的实例。
 
-框架遵守PHP-FIG组织制定的PSR（PHP Standards Recommendations）系列规范。其中，全局的编码风格遵守《PSR-1: Basic Coding Standard》规范。
+框架提供了丰富的内置组件，例如容器、契约、异常处理、配置、日志、门面、流水线、进程管理等等。基于这些内置组件，组合提供了面向使用场景的 Web框架、CLI框架、Socket框架，并且彼此可以独立运行、互不干扰。
 
-框架以容器（Container）为核心，提供了便捷的实例（Instance）复用池。所有服务组件的实例都在容器里面，通过契约（Contract）自由组合定制。
+**框架还提供了一种 革新PHP传统Web框架运行方式 的模式——常驻内存模式（PHP-CLI）。**在该模式下，由于避免了代码重复编译导致的性能开销，框架的Web服务性能得以大幅提升！！！
 
-框架以简洁的实现，提供了众多服务，比如异常处理、配置、日志、门面、流水线、进程管理等丰富的核心服务。基于这些核心服务，组合提供了面向使用场景的Web框架、命令框架、Socket框架，并且彼此可独立运行、互不干扰。
+框架实现简洁，功能强大，覆盖场景全面，正如她的名字：**Shy——纤细身形、不漏内秀**。
 
-**框架提供了一种 革新PHP语言传统Web框架运行方式 的模式——常驻内存模式（PHP-CLI）。**
-
-在常驻内存模式下，由于避免了代码重复编译的开销，框架的Web服务性能相对于传统方式大幅提升！！！
-
-框架实现简洁，却十分强大，正如她的名字：**Shy Framework——纤细身形、不漏内秀**。
-
-### 1.2 特性列表
+特性列表：
 
 * 常量（Constant）
 * 契约（Contract）
 * 容器与依赖注入（Container and Dependency Injection）
-* 异常及错误的捕获处理（Exception Handler）
+* 异常与错误的捕获处理（Exception Handler）
 * 配置（Config）
 * 日志（Logger）
 * 流水线（Pipeline）
@@ -43,7 +37,13 @@
 * Socket模式（Socket Mode）
 * 单元测试（Unit Test）
 
-### 1.3 启动
+## 一、 概览
+
+### 1.1 规范
+
+框架全面遵守PHP-FIG组织制定的PSR（PHP Standards Recommendations）系列规范。其中，全局编码风格遵守《PSR-1: Basic Coding Standard》规范。
+
+### 1.2 启动
 
 ##### 第一步：克隆项目
 
@@ -69,7 +69,7 @@ composer install
 php command http_workerman start
 ```
 
-### 1.4 目录结构
+### 1.3 目录结构
 
 ```
 shy 框架根目录
@@ -125,23 +125,7 @@ shy 框架根目录
 |___vendor composer依赖包安装目录
 ```
 
-### 1.5 术语
-
-* 实例："类"或者说"对象"，在实例化之后叫做一个"实例"。类只是代码，而实例占有内存、是运行中的状态。
-* 链式调用：对象的方法返回自身，以便继续调用返回对象的方法。
-* 回调：一种函数或类方法，被传入其它函数或类方法中执行。
-* 闭包：即匿名函数。
-
-### 1.6 待办事项
-
-1. 容器实例调度
-2. 文件上传
-3. Api便捷开发框架
-4. Swoole socket
-5. 单元测试覆盖率100%
-6. 会话重构
-
-### 1.7 Http服务生命周期
+### 1.4 Http服务生命周期
 
 1. 启动Http Bootstrap服务
 2. 启动自动加载（Composer）
@@ -158,6 +142,14 @@ shy 框架根目录
 13. 路由初始化，解析执行中间件、控制器（Middleware、Controller）
 14. 流水线后置操作，执行输出闭包（Response）
 15. 请求组件恢复初始化状态（Request）
+
+### 1.5 待办事项
+
+1. 容器实例调度
+2. 单元测试覆盖率100%
+3. 会话重构
+4. Swoole socket 
+5. Api便捷开发框架
 
 ## 二、 契约（Contract）
 
@@ -1060,11 +1052,3 @@ phpunit tests/containerTest
 1. is_cli：是否处于CLI模式下
 2. dd：调试输出
 3. is\_valid\_ip：IP是否合法
-
-## 二十三、 特别鸣谢（排名不分先后）
-
-1. @JamFun
-2. @WeakChickenPeng
-3. @CrazyNing98
-
-感谢以上GitHub用户为框架提供的支持、帮助，意见、建议。有你们的陪伴，Shy框架能走的更远！
