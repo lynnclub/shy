@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Http\Exceptions;
+namespace Shy\Http\Exception;
 
 use Shy\Core\Contract\ExceptionHandler;
 use Shy\Core\Exception\Cache\InvalidArgumentException;

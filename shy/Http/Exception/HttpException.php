@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Http\Exceptions;
+namespace Shy\Http\Exception;
 
 use RuntimeException;
 use Exception;
@@ -32,5 +32,4 @@ class HttpException extends RuntimeException
     {
         return $this->headers;
     }
-
 }

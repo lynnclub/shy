@@ -5,7 +5,7 @@ namespace Shy\Http;
 use Shy\Http\Contracts\Router as RouterContract;
 use Shy\Http\Contracts\Request as RequestContract;
 use Shy\Core\Contract\Pipeline;
-use Shy\Http\Exceptions\HttpException;
+use Shy\Http\Exception\HttpException;
 
 class Router implements RouterContract
 {

@@ -473,13 +473,13 @@ $container->bind(Shy\Core\Contract\Logger::class, Shy\Core\Logger\Aliyun::class)
 可以在bootstrap目录下的服务启动文件中，替换异常处理契约绑定的实体类：
 
 ```php
-$container->bind(Shy\Core\Contract\ExceptionHandler::class, Shy\Http\Exceptions\Handler::class);
+$container->bind(Shy\Core\Contract\ExceptionHandler::class, Shy\Http\Exception\Handler::class);
 ```
 
 对于需要返回Http Code的错误，可以抛出HttpException。该错误的响应会输出`errors/common.php`模版:
 
 ```php
-use Shy\Http\Exceptions\HttpException;
+use Shy\Http\Exception\HttpException;
 
 throw new HttpException(403, lang(5000));
 ```
@@ -565,7 +565,7 @@ namespace Shy\Http\Middleware;
 
 use Shy\Core\Contract\Middleware;
 use Closure;
-use Shy\Http\Exceptions\HttpException;
+use Shy\Http\Exception\HttpException;
 use Shy\Http\Facades\Request;
 use Shy\Core\Facades\Logger;
 

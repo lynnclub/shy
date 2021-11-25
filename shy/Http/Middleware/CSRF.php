@@ -6,7 +6,7 @@ use Closure;
 use Shy\Core\Contract\Middleware;
 use Shy\Http\Facades\Request;
 use Shy\Http\Facades\Session;
-use Shy\Http\Exceptions\HttpException;
+use Shy\Http\Exception\HttpException;
 
 class CSRF implements Middleware
 {

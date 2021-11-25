@@ -9,7 +9,7 @@ use Shy\Core\Facades\Cache;
 use Shy\Core\Facades\Logger;
 use Shy\Http\Facades\Response;
 use Shy\Http\Facades\Router;
-use Shy\Http\Exceptions\HttpException;
+use Shy\Http\Exception\HttpException;
 
 class Throttle implements Middleware
 {

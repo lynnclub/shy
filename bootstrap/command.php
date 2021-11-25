@@ -17,7 +17,7 @@ use Shy\Core\Contract\DataBase as DataBaseContract;
 // Entry
 use Shy\Core\Config;
 use Shy\Core\Logger\File;
-use Shy\Http\Exceptions\Handler;
+use Shy\Http\Exception\Handler;
 use Shy\Core\Pipeline;
 use Shy\Core\Cache\Redis;
 use Shy\Core\DataBase\Illuminate;
