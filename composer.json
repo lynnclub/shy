@@ -33,8 +33,8 @@
     "autoload": {
         "files": [
             "shy/Core/Function/core.php",
-            "shy/Core/Function/helpers.php",
-            "shy/Http/Function/helpers.php"
+            "shy/Core/Function/helper.php",
+            "shy/Http/Function/helper.php"
         ],
         "psr-4": {
             "App\\": "app/",
