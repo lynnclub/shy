@@ -3,7 +3,7 @@
 namespace Shy\Http\Exceptions;
 
 use Shy\Core\Contracts\ExceptionHandler;
-use Shy\Core\Exceptions\Cache\InvalidArgumentException;
+use Shy\Core\Exception\Cache\InvalidArgumentException;
 use Throwable;
 use Shy\Core\Contracts\Logger;
 use Shy\Core\Contracts\Config;

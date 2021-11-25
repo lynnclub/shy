@@ -9,7 +9,7 @@ interface Config extends Cache
      *
      * @param string $file
      *
-     * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
+     * @throws \Shy\Core\Exception\Cache\InvalidArgumentException
      * @throws \Exception
      *
      * @return array|false
@@ -21,7 +21,7 @@ interface Config extends Cache
      *
      * @param string $key
      *
-     * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
+     * @throws \Shy\Core\Exception\Cache\InvalidArgumentException
      *
      * @return string|array|null
      */

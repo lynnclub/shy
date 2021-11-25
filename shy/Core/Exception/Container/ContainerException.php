@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Core\Exceptions\Container;
+namespace Shy\Core\Exception\Container;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;

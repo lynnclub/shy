@@ -1,7 +1,7 @@
 <?php
 
 use Shy\Core\Container;
-use Shy\Core\Exceptions\HandlerRegister;
+use Shy\Core\Exception\HandlerRegister;
 
 // Contracts
 use Shy\Http\Contracts\Request as RequestContract;

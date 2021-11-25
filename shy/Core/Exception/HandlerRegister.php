@@ -1,6 +1,6 @@
 <?php
 
-namespace Shy\Core\Exceptions;
+namespace Shy\Core\Exception;
 
 use Shy\Core\Contracts\ExceptionHandler;
 use Shy\Core\Contracts\Config;

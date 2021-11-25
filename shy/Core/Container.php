@@ -3,8 +3,8 @@
 namespace Shy\Core;
 
 use Shy\Core\Contracts\Container as ContainerContract;
-use Shy\Core\Exceptions\Container\ContainerException;
-use Shy\Core\Exceptions\Container\NotFoundException;
+use Shy\Core\Exception\Container\ContainerException;
+use Shy\Core\Exception\Container\NotFoundException;
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;

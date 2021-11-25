@@ -4,7 +4,7 @@ namespace Shy\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 use Shy\Core\Contracts\Cache as CacheContracts;
-use Shy\Core\Exceptions\Cache\InvalidArgumentException;
+use Shy\Core\Exception\Cache\InvalidArgumentException;
 
 class Memory implements CacheInterface, CacheContracts
 {

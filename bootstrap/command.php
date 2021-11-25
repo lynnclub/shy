@@ -4,7 +4,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use Shy\Core\Container;
-use Shy\Core\Exceptions\HandlerRegister;
+use Shy\Core\Exception\HandlerRegister;
 
 // Contracts
 use Shy\Core\Contracts\Config as ConfigContract;

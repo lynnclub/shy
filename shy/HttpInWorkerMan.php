@@ -8,7 +8,7 @@ use Workerman\Connection\TcpConnection;
 use Shy\Core\Contracts\Pipeline;
 use Shy\Http\Contracts\Response;
 use Shy\Http\Contracts\Router;
-use Shy\Core\Exceptions\HandlerRegister;
+use Shy\Core\Exception\HandlerRegister;
 use Exception;
 use Throwable;
 
@@ -150,7 +150,7 @@ class HttpInWorkerMan extends Worker
      * Emit when http message coming.
      *
      * @param TcpConnection $connection
-     * @throws Core\Exceptions\Container\NotFoundException
+     * @throws Core\Exception\Container\NotFoundException
      */
     public function onMessage($connection)
     {

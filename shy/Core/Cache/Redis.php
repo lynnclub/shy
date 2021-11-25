@@ -6,7 +6,7 @@ use Exception;
 use Redis as PhpRedis;
 use Shy\Core\Contracts\Cache as CacheContracts;
 use Shy\Core\Contracts\DataBase;
-use Shy\Core\Exceptions\Cache\InvalidArgumentException;
+use Shy\Core\Exception\Cache\InvalidArgumentException;
 
 class Redis extends PhpRedis implements CacheContracts, DataBase
 {

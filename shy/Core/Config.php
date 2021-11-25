@@ -4,7 +4,7 @@ namespace Shy\Core;
 
 use Shy\Core\Cache\Memory;
 use Shy\Core\Contracts\Config as ConfigContract;
-use Shy\Core\Exceptions\Cache\InvalidArgumentException;
+use Shy\Core\Exception\Cache\InvalidArgumentException;
 use Exception;
 
 class Config extends Memory implements ConfigContract
@@ -26,7 +26,7 @@ class Config extends Memory implements ConfigContract
      * @param string $env
      * @param string $cacheDir
      *
-     * @throws Exceptions\Cache\InvalidArgumentException
+     * @throws Exception\Cache\InvalidArgumentException
      * @throws \Exception
      */
     public function __construct(string $dir, string $env, string $cacheDir)
@@ -49,7 +49,7 @@ class Config extends Memory implements ConfigContract
      * @param string $file
      * @return array|false
      *
-     * @throws \Shy\Core\Exceptions\Cache\InvalidArgumentException
+     * @throws \Shy\Core\Exception\Cache\InvalidArgumentException
      * @throws \Exception
      */
     public function load(string $file)
@@ -75,7 +75,7 @@ class Config extends Memory implements ConfigContract
      * @param string $key
      * @return string|array|null
      *
-     * @throws Exceptions\Cache\InvalidArgumentException
+     * @throws Exception\Cache\InvalidArgumentException
      * @throws \Exception
      */
     public function find(string $key)
