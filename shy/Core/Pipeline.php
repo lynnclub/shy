@@ -106,10 +106,10 @@ class Pipeline implements PipelineContract
     public function run()
     {
         $pipeline = array_reduce(
-            array_reverse($this->pipes), $this->carry(), $this->passable
+            array_reverse($this->pipes), $this->carry()
         );
 
-        return $pipeline();
+        return $pipeline(...$this->passable);
     }
 
     /**
@@ -134,38 +134,44 @@ class Pipeline implements PipelineContract
     {
         return function ($next, $pipe) {
             return function (...$passable) use ($next, $pipe) {
-                if (is_callable($pipe)) {
-                    return shy()->runFunctionWithDependencyInjection($pipe, $next, ...$passable);
+                $container = Container::getContainer();
+
+                if (empty($next)) {
+                    $next = [];
                 } else {
-                    if (is_object($pipe)) {
-                        array_unshift($passable, $next);
-                        $parameters = $passable;
-                    } else {
-                        list($name, $parameters) = $this->parsePipeString($pipe);
-                        $pipe = shy($name);
-                        if (!is_object($pipe)) {
-                            throw new RuntimeException('Class `' . $name . '` cannot make');
-                        }
-
-                        $next = is_array($next) ? $next : [$next];
-                        $parameters = array_merge($next, $passable, $parameters);
-                    }
-
-                    if (method_exists($pipe, $this->method)) {
-                        $reflector = new ReflectionMethod($pipe, $this->method);
-                        $parameters = shy()->handleDependencies($reflector->getParameters(), $parameters);
-                        $method = $this->method;
-                    } else {
-                        throw new RuntimeException('Method ' . $this->method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
-                    }
-
-                    /**
-                     * Initialize pipeline before execute
-                     */
-                    $this->initialize();
-
-                    return $pipe->{$method}(...$parameters);
+                    $next = is_array($next) ? $next : [$next];
                 }
+
+                $passable = array_merge($next, $passable);
+
+                if (is_callable($pipe)) {
+                    return $container->runFunctionWithDependencyInjection($pipe, ...$passable);
+                }
+
+                if (is_string($pipe)) {
+                    list($name, $parameters) = $this->parsePipeString($pipe);
+                    $pipe = $container->getOrMake($name);
+                    if (!is_object($pipe)) {
+                        throw new RuntimeException('Class `' . $name . '` cannot make');
+                    }
+
+                    $passable = array_merge($passable, $parameters);
+                }
+
+                if (method_exists($pipe, $this->method)) {
+                    $reflector = new ReflectionMethod($pipe, $this->method);
+                    $passable = $container->handleDependencies($reflector->getParameters(), $passable);
+                    $method = $this->method;
+                } else {
+                    throw new RuntimeException('Method ' . $this->method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
+                }
+
+                /**
+                 * Initialize pipeline before execute
+                 */
+                $this->initialize();
+
+                return $pipe->{$method}(...$passable);
             };
         };
     }
@@ -173,10 +179,10 @@ class Pipeline implements PipelineContract
     /**
      * Parse full pipe string to get name and parameters.
      *
-     * @param  string $pipe
+     * @param string $pipe
      * @return array
      */
-    protected function parsePipeString($pipe)
+    protected function parsePipeString(string $pipe)
     {
         list($name, $parameters) = array_pad(explode(':', $pipe, 2), 2, []);
 
