@@ -462,12 +462,6 @@ If you need an extension command, you can configure the command name, object, an
 Code example for make new command：
 
 ```php
-/**
- * Example command
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
- */
 
 namespace app\console;
 

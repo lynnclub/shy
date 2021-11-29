@@ -1,9 +1,6 @@
 <?php
 /**
  * Example socket
- *
- * @author    lynn<admin@lynncho.cn>
- * @link      http://lynncho.cn/
  */
 
 namespace App\Socket;
