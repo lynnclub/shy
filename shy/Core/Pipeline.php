@@ -147,7 +147,8 @@ class Pipeline implements PipelineContract
                             throw new RuntimeException('Class `' . $name . '` cannot make');
                         }
 
-                        $parameters = array_merge(is_array($next) ? $next : [$next], $passable, $parameters);
+                        $next = is_array($next) ? $next : [$next];
+                        $parameters = array_merge($next, $passable, $parameters);
                     }
 
                     if (method_exists($pipe, $this->method)) {
@@ -155,7 +156,7 @@ class Pipeline implements PipelineContract
                         $parameters = shy()->handleDependencies($reflector->getParameters(), $parameters);
                         $method = $this->method;
                     } else {
-                        throw new RuntimeException('Method ' . $this->method . ' not exist');
+                        throw new RuntimeException('Method ' . $this->method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
                     }
 
                     /**
@@ -163,9 +164,7 @@ class Pipeline implements PipelineContract
                      */
                     $this->initialize();
 
-                    $response = $pipe->{$method}(...$parameters);
-
-                    return $response;
+                    return $pipe->{$method}(...$parameters);
                 }
             };
         };

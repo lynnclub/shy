@@ -2,9 +2,9 @@
 
 namespace Shy\Http;
 
+use Shy\Core\Contract\Pipeline;
 use Shy\Http\Contract\Router as RouterContract;
 use Shy\Http\Contract\Request as RequestContract;
-use Shy\Core\Contract\Pipeline;
 use Shy\Http\Exception\HttpException;
 
 class Router implements RouterContract
@@ -55,7 +55,7 @@ class Router implements RouterContract
     protected $middleware;
 
     /**
-     * Is Parse Route Success
+     * Is parse route success
      *
      * @var bool
      */
@@ -136,14 +136,13 @@ class Router implements RouterContract
     }
 
     /**
-     * Pipeline Handle
+     * Run
      *
-     * @param \Closure $next
      * @param RequestContract $request
      * @return mixed|View|string
      * @throws \Exception
      */
-    public function handle($next, RequestContract $request)
+    public function run(RequestContract $request)
     {
         $this->initialize();
 
@@ -185,7 +184,7 @@ class Router implements RouterContract
 
         shy()->remove($this->controller);
 
-        return $next($response);
+        return $response;
     }
 
     /**

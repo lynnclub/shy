@@ -28,11 +28,10 @@ interface Router
     public function getMiddleware();
 
     /**
-     * Pipeline Handle
+     * Run
      *
-     * @param \Closure $next
      * @param Request
      * @return string|View
      */
-    public function handle($next, RequestContract $request);
+    public function run(RequestContract $request);
 }

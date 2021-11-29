@@ -62,6 +62,7 @@ try {
     ])->aliases([
         'config' => ConfigContract::class,
         'session' => SessionContract::class,
+        'router' => RouterContract::class,
         'request' => RequestContract::class,
         'response' => ResponseContract::class,
         'view' => ViewContract::class,

@@ -2,6 +2,7 @@
 
 namespace Shy;
 
+use Shy\Core\Facade\Hook;
 use Workerman\Worker;
 use Workerman\Protocols\Http;
 use Workerman\Connection\TcpConnection;
@@ -234,16 +235,15 @@ class HttpInWorkerMan extends Worker
                 }
 
                 // Run
-                $this->container->get(Pipeline::class)
-                    ->send($this->container['request'])
-                    ->through(Router::class)
-                    ->then(function ($body) {
-                        if ($body instanceof Response) {
-                            $body->output();
-                        } else {
-                            $this->container['response']->output($body);
-                        }
-                    });
+                $response = $this->container['router']->run($this->container['request']);
+                if (method_exists($response, 'output')) {
+                    $response->output();
+                } else {
+                    $this->container['response']->output($response);
+                }
+
+                // Hook
+                Hook::run('response_after');
 
                 // Clear Request
                 $this->container['request']->initialize();

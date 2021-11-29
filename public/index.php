@@ -22,19 +22,15 @@ if (!defined('BASE_URL')) {
 }
 
 // Run
-$container->make(\Shy\Core\Contract\Pipeline::class)
-    ->send($container['request'])
-    ->through(\Shy\Http\Contract\Router::class)
-    ->then(function ($body) use ($container) {
-        if ($body instanceof \Shy\Http\Contract\Response) {
-            $body->output();
-        } else {
-            $container['response']->output($body);
-        }
+$response = $container['router']->run($container['request']);
+if (method_exists($response, 'output')) {
+    $response->output();
+} else {
+    $container['response']->output($response);
+}
 
-        // Hook
-        \Shy\Core\Facade\Hook::run('response_after');
-    });
+// Hook
+\Shy\Core\Facade\Hook::run('response_after');
 
 // Clear Request
 $container['request']->initialize();
