@@ -2,16 +2,13 @@
 
 namespace Shy;
 
-use Shy\Core\Facade\Hook;
-use Workerman\Worker;
-use Workerman\Protocols\Http;
-use Workerman\Connection\TcpConnection;
-use Shy\Core\Contract\Pipeline;
-use Shy\Http\Contract\Response;
-use Shy\Http\Contract\Router;
-use Shy\Core\Exception\HandlerRegister;
 use Exception;
+use Shy\Core\Exception\HandlerRegister;
+use Shy\Core\Facade\Hook;
 use Throwable;
+use Workerman\Connection\TcpConnection;
+use Workerman\Protocols\Http;
+use Workerman\Worker;
 
 class HttpInWorkerMan extends Worker
 {
