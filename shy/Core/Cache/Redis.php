@@ -30,6 +30,7 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
     {
         parent::__construct();
 
+        $this->configs = config('cache.redis');
         $this->connection($config_name);
     }
 
@@ -63,16 +64,12 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
             }
         }
 
-        if (empty($this->configs)) {
-            $this->configs = array_merge(config('cache.redis'), $this->configs);
-        }
-
         if (!isset($this->configs[$config_name])) {
-            throw new Exception('Redis Config ' . $config_name . ' not set');
+            throw new Exception('Redis config ' . $config_name . ' not set');
         }
         $config = $this->configs[$config_name];
         if (!isset($config['host'], $config['port'])) {
-            throw new Exception('Redis Config ' . $config_name . ' no host or port');
+            throw new Exception('Redis config ' . $config_name . ' no host or port');
         }
 
         if ($config_name == 'default') {
@@ -82,22 +79,20 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
         }
 
         if (!$redis->connect($config['host'], $config['port'])) {
-            throw new Exception('Redis Config ' . $config_name . ' connect failed');
+            throw new Exception('Redis config ' . $config_name . ' connect failed');
         }
 
         if (!empty($config['password'])) {
-            if (!$redis->auth($config['password'])) {
-                throw new Exception('Redis Config ' . $config_name . ' auth failed');
-            }
+            $redis->auth($config['password']);
         }
 
         if (!$redis->ping()) {
-            throw new Exception('Redis Config ' . $config_name . ' connect failed');
+            throw new Exception('Redis config ' . $config_name . ' connect failed');
         }
 
         if (isset($config['database'])) {
             if (!$redis->select($config['database'])) {
-                throw new Exception('Redis Config ' . $config_name . ' db ' . $config['database'] . ' select failed');
+                throw new Exception('Redis config ' . $config_name . ' select ' . $config['database'] . ' failed');
             }
         }
 
