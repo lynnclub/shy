@@ -3,6 +3,7 @@
 namespace Shy\Http;
 
 use Shy\Core\Contract\Pipeline;
+use Shy\Core\Facade\Hook;
 use Shy\Http\Contract\Router as RouterContract;
 use Shy\Http\Contract\Request as RequestContract;
 use Shy\Http\Exception\HttpException;
@@ -166,7 +167,7 @@ class Router implements RouterContract
         }
 
         // Hook
-        \Shy\Core\Facade\Hook::run('run_controller_before', $this->param);
+        Hook::run('run_controller_before', $this->param);
 
         // Run controller and middleware
         if (empty($this->middleware)) {
