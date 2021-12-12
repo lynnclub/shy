@@ -19,7 +19,7 @@ use Shy\Core\Config;
 use Shy\Core\Logger\File;
 use Shy\Http\Exception\Handler;
 use Shy\Core\Pipeline;
-use Shy\Core\Cache\Redis;
+use Shy\Core\Cache\Memory;
 use Shy\Core\DataBase\Illuminate;
 
 //Set Environment
@@ -42,7 +42,7 @@ try {
         LoggerContract::class => File::class,
         ExceptionHandlerContract::class => Handler::class,
         PipelineContract::class => Pipeline::class,
-        CacheContract::class => Redis::class,
+        CacheContract::class => Memory::class,
         DataBaseContract::class => Illuminate::class,
     ])->aliases([
         'config' => ConfigContract::class,

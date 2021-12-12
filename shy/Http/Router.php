@@ -393,13 +393,13 @@ class Router implements RouterContract
             $paths = explode('/', $path);
             $count = count($paths);
             if (!isset($this->routeIndex[$host][$count])) {
-                $this->routeIndex[$host][$count] = 1;
+                $this->routeIndex[$host][$count] = [];
             }
 
             $currentIndex = &$this->routeIndex[$host][$count];
             foreach ($paths as $currentPath) {
                 if (!isset($currentIndex[$currentPath])) {
-                    $currentIndex[$currentPath] = 1;
+                    $currentIndex[$currentPath] = [];
                 }
 
                 $currentIndex = &$currentIndex[$currentPath];
