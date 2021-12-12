@@ -28,7 +28,7 @@ class Router implements RouterContract
     /**
      * @var array
      */
-    protected $param = [];
+    protected $pathParam = [];
 
     /**
      * @var string
@@ -62,6 +62,12 @@ class Router implements RouterContract
      */
     protected $parseRouteSuccess;
 
+    /**
+     * Router constructor.
+     *
+     * @param string $defaultNamespace
+     * @param string $defaultController
+     */
     public function __construct($defaultNamespace = null, $defaultController = null)
     {
         $this->namespace = $defaultNamespace ?? 'App\\Http\\Controller\\';
@@ -69,15 +75,15 @@ class Router implements RouterContract
     }
 
     /**
-     * Initialize in cycle
+     * Initialize for cycle
      */
     public function initialize()
     {
-        $this->parseRouteSuccess = FALSE;
-        $this->routeIndex = [];
+        $this->pathParam = [];
         $this->routeConfig = [];
-        $this->param = [];
+        $this->routeIndex = [];
         $this->middleware = [];
+        $this->parseRouteSuccess = FALSE;
     }
 
     /**
@@ -129,11 +135,11 @@ class Router implements RouterContract
     }
 
     /**
-     * @return array|null
+     * @return array
      */
-    public function getParam()
+    public function getPathParam()
     {
-        return $this->param;
+        return $this->pathParam;
     }
 
     /**
@@ -167,14 +173,14 @@ class Router implements RouterContract
         }
 
         // Hook
-        Hook::run('run_controller_before', $this->param);
+        Hook::run('run_controller_before', $this->pathParam);
 
         // Run controller and middleware
         if (empty($this->middleware)) {
             $response = $this->runController();
         } else {
             $response = shy(Pipeline::class)
-                ->send(...$this->param)
+                ->send(...$this->pathParam)
                 ->through($this->middleware)
                 ->then(function () {
                     return $this->runController();
@@ -193,7 +199,7 @@ class Router implements RouterContract
      */
     protected function parseRouteByConfig()
     {
-        // Read from cache, or build route
+        // Read from cache, or build
         if (empty($this->routeConfig)) {
             $isCacheOn = config('app.cache');
             if ($isCacheOn && config()->has('__ROUTE_CONFIG')) {
@@ -219,6 +225,10 @@ class Router implements RouterContract
         }
     }
 
+    /**
+     * @param $routeConfig
+     * @param $routeIndex
+     */
     protected function doParseRouteByConfig($routeConfig, $routeIndex)
     {
         if (isset($routeConfig[$this->pathInfo])) {
@@ -254,13 +264,16 @@ class Router implements RouterContract
         }
     }
 
-    protected function useParsedRouteByConfig($config, $param = [])
+    /**
+     * @param $config
+     * @param array $pathParam
+     */
+    protected function useParsedRouteByConfig($config, $pathParam = [])
     {
         list($this->controller, $this->method) = array_pad(explode('@', $config['hdl']), 2, 'index');
 
         $this->middleware = $config['mdw'] ?? [];
-
-        $this->param = $param;
+        $this->pathParam = $pathParam;
 
         $this->parseRouteSuccess = TRUE;
     }
@@ -310,13 +323,7 @@ class Router implements RouterContract
                 foreach ($group['path'] as $path => $handle) {
                     $path = $prefix . trim($path, " \/\t\n\r\0\x0B");
 
-                    $this->doBuildRouteByConfig(
-                        $host,
-                        $path,
-                        $namespace,
-                        $handle,
-                        $middleware
-                    );
+                    $this->doBuildRouteByConfig($host, $path, $namespace, $handle, $middleware);
                 }
             }
         }
@@ -348,6 +355,11 @@ class Router implements RouterContract
         $this->doBuildHostRouteIndexByConfig($host, $path);
     }
 
+    /**
+     * @param $host
+     * @param string $path
+     * @param array $routeConfig
+     */
     protected function doBuildHostRouteByConfig($host, string $path, array $routeConfig)
     {
         if (empty($host)) {
@@ -363,6 +375,10 @@ class Router implements RouterContract
         }
     }
 
+    /**
+     * @param $host
+     * @param string $path
+     */
     protected function doBuildHostRouteIndexByConfig($host, string $path)
     {
         if (is_array($host)) {
@@ -377,13 +393,13 @@ class Router implements RouterContract
             $paths = explode('/', $path);
             $count = count($paths);
             if (!isset($this->routeIndex[$host][$count])) {
-                $this->routeIndex[$host][$count] = [];
+                $this->routeIndex[$host][$count] = 1;
             }
 
             $currentIndex = &$this->routeIndex[$host][$count];
             foreach ($paths as $currentPath) {
                 if (!isset($currentIndex[$currentPath])) {
-                    $currentIndex[$currentPath] = [];
+                    $currentIndex[$currentPath] = 1;
                 }
 
                 $currentIndex = &$currentIndex[$currentPath];
@@ -413,7 +429,7 @@ class Router implements RouterContract
                     $middleware[] = $className . (isset($param) ? ':' . $param : '');
                 }
             } else {
-                // Full classname
+                // Full class name
                 $middleware[] = $name;
             }
         }
@@ -427,19 +443,17 @@ class Router implements RouterContract
     protected function parseRouteByPath()
     {
         $path = explode('/', $this->pathInfo);
-        if (isset($path[0])) {
-            if (!empty($path[0])) {
-                $this->controller = ucfirst($path[0]);
-                if (isset($path[1]) && !empty($path[1])) {
-                    $this->method = ucfirst($path[1]);
-                    if (isset($path[2])) {
-                        $this->param[] = $path[2];
-                    }
+        if (!empty($path[0])) {
+            $this->controller = ucfirst($path[0]);
+            if (!empty($path[1])) {
+                $this->method = ucfirst($path[1]);
+                if (isset($path[2])) {
+                    $this->pathParam = array_slice($path, 2);
                 }
             }
-
-            $this->parseRouteSuccess = TRUE;
         }
+
+        $this->parseRouteSuccess = TRUE;
     }
 
     /**
@@ -450,7 +464,7 @@ class Router implements RouterContract
     protected function runController()
     {
         return shy(Pipeline::class)
-            ->send(...$this->param)
+            ->send(...$this->pathParam)
             ->through($this->controller)
             ->via($this->method)
             ->run();
