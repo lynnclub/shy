@@ -1,6 +1,5 @@
 <?php
 
-
 class callStaticA
 {
     public static function __callStatic($method, $parameters)
