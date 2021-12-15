@@ -5,6 +5,9 @@ use Shy\Core\Container;
 
 class containerTest extends TestCase
 {
+    /**
+     * @var Container
+     */
     protected $container;
 
     protected function setUp()

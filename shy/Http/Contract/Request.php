@@ -43,11 +43,11 @@ interface Request
     /**
      * Get a parameter.
      *
-     * @param $key
+     * @param string $key
      * @param null $default
      * @return mixed|null
      */
-    public function get($key, $default = null);
+    public function get(string $key, $default = null);
 
     /**
      * Get all parameters.
