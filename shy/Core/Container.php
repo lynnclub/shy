@@ -471,7 +471,7 @@ class Container implements ContainerContract
      *
      * @return bool
      */
-    public function has(string $id): bool
+    public function has($id): bool
     {
         if (isset($this->instances[$id])) {
             return TRUE;
