@@ -47,17 +47,14 @@
         }
     },
     "suggest": {
-        "ext-pcntl": "Required to use the socket.",
-        "ext-posix": "Required to use the socket.",
-        "ext-event": "Required in high concurrence.",
-        "ext-redis": "Required to use the redis.",
-        "ext-swoole": "Required to use the swoole socket.",
-        "smarty/smarty": "Required to use smarty.",
-        "phpmailer/phpmailer": "Required to use email.",
-        "swiftmailer/swiftmailer": "Required to use email.",
-        "workerman/workerman": "Required to use the socket. Support version ^3.5",
-        "illuminate/database": "Required to use the database. Support version <= 5.5.44",
-        "aliyunlog/aliyun-log-php-sdk": "Required to use the Aliyun log. Support version <= 0.6.1"
+        "ext-pcntl": "*",
+        "ext-posix": "*",
+        "ext-event": "*",
+        "ext-redis": "*",
+        "smarty/smarty": "^3.1",
+        "phpmailer/phpmailer": "^6.5",
+        "workerman/workerman": "^3.5",
+        "illuminate/database": "^5.8"
     },
     "prefer-stable": true
 }
