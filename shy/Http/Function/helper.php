@@ -51,11 +51,13 @@ if (!function_exists('url')) {
         $base_url = trim($base_url, " \/\t\n\r\0\x0B");
 
         if (empty($base_url)) {
-            $request = shy(Request::class);
-            if (is_object($request)) {
-                $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
-            } else {
-                $base_url = config('app.base_url');
+            if (empty($base_url = config('app.base_url'))) {
+                $request = shy(Request::class);
+                if (is_object($request)) {
+                    $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+                } else {
+                    $base_url = '';
+                }
             }
         }
 
