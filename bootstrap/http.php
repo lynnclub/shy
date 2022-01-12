@@ -89,8 +89,8 @@ try {
     $container->make(HandlerRegister::class);
 
     //Loading files
-    require __DIR__ . '/../shy/Http/Function/view.php';
-    require __DIR__ . '/../app/Function/common.php';
+    require BASE_PATH . 'shy/Http/Function/view.php';
+    require APP_PATH . 'Function/common.php';
 
     return $container;
 } catch (\Throwable $throwable) {
