@@ -95,7 +95,14 @@ class Pipeline implements PipelineContract
             array_reverse($this->pipes), $this->carry(), $this->prepareDestination($destination)
         );
 
-        return $pipeline(...$this->passable);
+        $return = $pipeline(...$this->passable);
+
+        /**
+         * Initialize pipeline after execute
+         */
+        $this->initialize();
+
+        return $return;
     }
 
     /**
@@ -109,7 +116,14 @@ class Pipeline implements PipelineContract
             array_reverse($this->pipes), $this->carry()
         );
 
-        return $pipeline(...$this->passable);
+        $return = $pipeline(...$this->passable);
+
+        /**
+         * Initialize pipeline after execute
+         */
+        $this->initialize();
+
+        return $return;
     }
 
     /**
@@ -165,11 +179,6 @@ class Pipeline implements PipelineContract
                 } else {
                     throw new RuntimeException('Method ' . $this->method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
                 }
-
-                /**
-                 * Initialize pipeline before execute
-                 */
-                $this->initialize();
 
                 return $pipe->{$method}(...$passable);
             };
