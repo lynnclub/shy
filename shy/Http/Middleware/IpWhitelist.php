@@ -21,11 +21,13 @@ class IpWhitelist implements Middleware
     {
         $hit = FALSE;
 
-        $userIps = Request::getClientIps();
-
-        foreach ($userIps as $userIp) {
-            if (in_array($userIp, config('ip_whitelist'))) {
-                $hit = TRUE;
+        $whitelist = config('ip_whitelist');
+        if (is_array($whitelist)) {
+            $userIps = Request::getClientIps();
+            foreach ($userIps as $userIp) {
+                if (in_array($userIp, $whitelist)) {
+                    $hit = TRUE;
+                }
             }
         }
 

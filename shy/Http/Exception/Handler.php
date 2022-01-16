@@ -35,7 +35,10 @@ class Handler implements ExceptionHandler
     public function logging(Logger $logger)
     {
         if ($this->throwable instanceof HttpException) {
-            $logger->error('Http Code ' . $this->throwable->getStatusCode() . ': ', [$this->throwable->getMessage()]);
+            $logger->info('Http Code ' . $this->throwable->getStatusCode(), [
+                'Message: ' . $this->throwable->getMessage(),
+                'File: ' . $this->throwable->getFile() . ' line ' . $this->throwable->getLine(),
+            ]);
         } else {
             $logger->error('Exception', get_throwable_array($this->throwable));
         }

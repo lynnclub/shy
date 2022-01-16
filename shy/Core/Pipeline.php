@@ -95,7 +95,14 @@ class Pipeline implements PipelineContract
             array_reverse($this->pipes), $this->carry(), $this->prepareDestination($destination)
         );
 
-        return $pipeline(...$this->passable);
+        $return = $pipeline();
+
+        /**
+         * Initialize pipeline after execute
+         */
+        $this->initialize();
+
+        return $return;
     }
 
     /**
@@ -109,7 +116,14 @@ class Pipeline implements PipelineContract
             array_reverse($this->pipes), $this->carry()
         );
 
-        return $pipeline(...$this->passable);
+        $return = $pipeline();
+
+        /**
+         * Initialize pipeline after execute
+         */
+        $this->initialize();
+
+        return $return;
     }
 
     /**
@@ -133,7 +147,7 @@ class Pipeline implements PipelineContract
     protected function carry()
     {
         return function ($next, $pipe) {
-            return function (...$passable) use ($next, $pipe) {
+            return function () use ($next, $pipe) {
                 $container = Container::getContainer();
 
                 if (empty($next)) {
@@ -142,7 +156,7 @@ class Pipeline implements PipelineContract
                     $next = is_array($next) ? $next : [$next];
                 }
 
-                $passable = array_merge($next, $passable);
+                $passable = array_merge($next, $this->passable);
 
                 if (is_callable($pipe)) {
                     return $container->runFunctionWithDependencyInjection($pipe, ...$passable);
@@ -165,11 +179,6 @@ class Pipeline implements PipelineContract
                 } else {
                     throw new RuntimeException('Method ' . $this->method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
                 }
-
-                /**
-                 * Initialize pipeline before execute
-                 */
-                $this->initialize();
 
                 return $pipe->{$method}(...$passable);
             };
