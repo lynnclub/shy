@@ -4,7 +4,7 @@
 
 框架实现简洁、功能强大、覆盖全面，正如她的名字：**Shy——纤细身形、不漏内秀**。
 
-## 简介
+## 一、概述
 
 框架内置了丰富的组件（Component），例如配置、日志、门面、缓存、流水线、进程管理等等。各个组件按照拼积木的方式灵活组合，形成了面向不同使用场景的 Web框架、CLI框架、Socket框架、API框架，并且可以多入口独立运行。
 
@@ -12,7 +12,17 @@
 
 此外，**框架提供了一种革新 PHP传统Web框架 的运行模式——常驻内存模式（PHP-CLI）。** 在该模式下，由于避免了代码重复编译导致的性能开销，框架的Web服务性能得以大幅提升！！！
 
-### 特性列表：
+### 1.1 框架兼容
+
+框架全力遵守 [PHP-FIG组织](https://www.php-fig.org/) 制定的PSR（PHP Standards Recommendations 系列规范，与遵守相同规范的框架互相兼容。
+
+1. 基础编码：遵守 [PSR-1: Basic Coding Standard](https://www.php-fig.org/psr/psr-1/) ；
+2. 日志：遵守 [PSR-3: Logger Interface](https://www.php-fig.org/psr/psr-3/)；
+3. 自动加载：遵守 [PSR-4: Autoloader](https://www.php-fig.org/psr/psr-4/)；
+4. 容器：遵守 [PSR-11: Container interface](https://www.php-fig.org/psr/psr-11/) ;
+5. 缓存：遵守 [PSR-16: Common Interface for Caching Libraries](https://www.php-fig.org/psr/psr-16/)。
+
+### 1.2 特性列表
 
 * 启动器（Bootstrap）
 * 内置常量（Constant）
@@ -38,40 +48,6 @@
 * 常驻内存模式（PHP-CLI Http Mode）
 * Socket模式（Socket Mode）
 * 单元测试（Unit Test）
-
-## 一、 概览
-
-### 1.1 规范
-
-框架全面遵守PHP-FIG组织制定的PSR（PHP Standards Recommendations）系列规范。其中，全局编码风格遵守《PSR-1: Basic Coding Standard》规范。
-
-### 1.2 启动
-
-##### 第一步：克隆项目
-
-```bash
-git clone https://github.com/lynncho/shy.git MyProject
-```
-
-默认克隆master分支，建议使用稳定的 [发行版本](https://github.com/lynncho/shy/releases)。
-
-##### 第二步：安装依赖包
-
-```bash
-#进入项目目录
-cd MyProject
-
-#执行composer依赖包安装
-composer install
-```
-
-恭喜！接下来，只需要配置Web站点，或者启动常驻内存模式，就可以运行框架了。
-
-##### 第三步（可选）：启动常驻内存模式
-
-```bash
-php command http_workerman start
-```
 
 ### 1.3 目录结构
 
@@ -131,7 +107,35 @@ shy 框架根目录
 |___vendor composer依赖包安装目录
 ```
 
-### 1.4 Http服务生命周期
+### 1.4 运行框架
+
+#### 第一步：克隆或下载项目
+
+```bash
+git clone https://github.com/lynncho/shy.git MyProjectName
+```
+
+默认克隆master分支，包含最新改动。建议下载稳定的 [发行版本](https://github.com/lynncho/shy/releases)。
+
+#### 第二步：安装依赖包
+
+```bash
+#进入项目目录
+cd MyProjectName
+
+#执行composer依赖包安装
+composer install
+```
+
+恭喜！！！接下来，只需要配置Web站点，或者启动常驻内存模式，就可以运行框架了。
+
+#### 第三步（可选）：启动常驻内存模式
+
+```bash
+php command http_workerman start
+```
+
+### 1.5 Http服务的生命周期
 
 1. 启动器运行（Bootstrap）
 2. 启动自动加载（Composer）
@@ -150,7 +154,7 @@ shy 框架根目录
 15. 输出响应（Response）
 16. 请求组件恢复初始化状态（Request）
 
-### 1.5 待办事项
+### 1.6 远期规划
 
 1. 容器实例调度
 2. 单元测试覆盖率100%
@@ -160,9 +164,9 @@ shy 框架根目录
 
 ## 二、 契约（Contract）
 
-契约是接口（interface）的广义概念，意义相似，但是不局限于接口的形式。契约可以是接口、抽象类，甚至是非硬性约束的惯例。
+契约是比接口（interface）更广义的概念，意义相似，但是不局限于接口的形式。契约可以是接口、抽象类，甚至是非硬性约束的惯例。
 
-框架的各种组件都按照契约的规范实现，比如容器、缓存、配置、日志、门面等。部分组件的契约兼容PSR规范。
+各种组件都按照契约的规范实现，比如容器、缓存、配置、日志、门面等，部分组件的契约还兼容PSR规范。
 
 契约在容器中的使用方式：**在容器中注册契约类名，绑定实现了该契约的对应实体类。遵守同一契约的实体类，可以在容器中替换。**
 
