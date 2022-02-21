@@ -357,8 +357,6 @@ use Shy\Core\Contract\Config;
 
 配置类继承了内存缓存类`Shy\Core\Cache\Memory::class`，因为该缓存满足需求且无外部依赖。在`cache`开启的时候，配置会被持久化缓存。
 
-使用方式：
-
 ```php
 /**
  * 读取配置文件app.php的配置
@@ -376,9 +374,11 @@ $isCache = config('app.cache');
 $socketConfig = config('workerman.socket');
 ```
 
-**配置组件将优先使用环境目录下的配置文件，当环境目录下不存在该文件时，将使用通用的配置文件**。
+### 环境配置
 
 框架预设了三种环境，develop开发环境、testing测试环境、production生产环境。如果未设置环境值，默认为develop开发环境。
+
+**配置组件将优先使用环境目录下的配置文件，当环境目录下不存在该文件时，将使用通用的配置文件**。
 
 Nginx fastcgi配置环境值：
 
@@ -393,7 +393,7 @@ Linux系统配置环境值：
 export SHY_ENV=production
 ```
 
-环境配置可以自由拓展，框架按照指定的环境值，读取config目录下的同名环境目录。
+环境配置可以自由拓展，框架按照配置的环境值，读取config目录下的同名环境目录。
 
 ## 五、 异常与错误的捕获处理（Exception Handler）
 
