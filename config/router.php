@@ -21,6 +21,10 @@ return [
         ['middleware' => ['Stop'], 'path' => [
             '/middleware_stop/?' => 'test2@test2',//echo string with middleware
         ]],
+        ['host' => 'www.test.com', 'middleware' => ['Throttle:10,5'], 'path' => [
+            '/home' => 'home@index',
+            '/return/string/with/get/param' => 'home@test',
+        ]],
     ],
     'path' => [
         '/' => 'home@index',//view home

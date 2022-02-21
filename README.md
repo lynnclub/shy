@@ -397,13 +397,14 @@ export SHY_ENV=production
 
 ## 五、 异常与错误的捕获处理（Exception Handler）
 
-**框架在各个服务的入口处，注册了异常（Exception）与错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误、甚至是Shut Down。错误及Shut Down会被转化成异常，统一按异常处理。**
+**框架在各个服务的入口处，注册了异常（Exception）与错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误，甚至是Shut Down。错误及Shut Down会被转化成异常，统一按异常处理。**
 
-框架为每个服务提供了异常处理类（Handler）。你也可以实现Handler接口来自定义异常处理，在启动器中替换服务入口的Handler使其生效。
+框架为每个服务提供了异常处理类（Handler）。你也可以实现Handler接口来自定义异常处理，在启动器的服务入口中替换绑定关系，使其生效。
 
-可以在bootstrap目录下的服务启动文件中，替换异常处理契约绑定的实体类：
+替换异常处理契约绑定的实体类：
 
 ```php
+// MyProjectName/bootstrap/http.php文件
 $container->bind(Shy\Core\Contract\ExceptionHandler::class, Shy\Http\Exception\Handler::class);
 ```
 
@@ -443,11 +444,9 @@ class Cache extends Facade
 
 ## 七、 缓存（Cache）
 
-本框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范。并且，实现了PHP的ArrayAccess接口，可以当作数组使用。
+框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范。并且，实现了PHP的ArrayAccess接口，可以当作数组使用。由于phpredis拓展不完全兼容PSR-16，所以框架对缓存的PSR规范无硬性约束、仅建议遵守。
 
-由于phpredis拓展不完全兼容PSR-16，所以框架对缓存的PSR规范无硬性约束、仅建议遵守。
-
-框架默认使用无依赖的Memory本地内存缓存，通过文件做持久化储存，每次GC最多回收10条。在常驻内存模式下，由于该缓存只在关闭、启动服务的时候执行文件持久化，所以性能开销较小。
+框架默认使用无依赖的 Memory本地内存缓存，通过文件做持久化储存，每次GC最多回收10条。在常驻内存模式下，由于该缓存只在关闭、启动服务的时候执行文件持久化，所以性能开销较小。
 
 框架还提供了基于phpredis拓展实现的Redis缓存，推荐有条件时优先使用。可以在bootstrap目录下的服务启动文件中，替换缓存契约绑定的实体类：
 
@@ -557,12 +556,19 @@ Request::post('key');
 通过契约的依赖注入使用：
 
 ```php
+// 引入契约类
+use Shy\Http\Contract\Request;
 
+// 控制器通过依赖注入使用实体类
+public function test(Request $request)
+{
+    return 'controller echo test ' . json_encode($request->all());
+}
 ```
 
 ## 十一、 中间件（Middleware）
 
-中间件是请求与响应的中间步骤，是流水线（Pipeline）的一种特例。即流水线传入的第一个参数`$next`，是用于运行控制器的闭包。
+中间件是控制器请求与响应的中间步骤，是流水线（Pipeline）的一种特例。流水线传入的第一个参数`$next`，是用于运行控制器的闭包。
 
 ### 11.1 前置中间件
 
@@ -571,11 +577,11 @@ Request::post('key');
 ```php
 namespace Shy\Http\Middleware;
 
-use Shy\Core\Contract\Middleware;
 use Closure;
-use Shy\Http\Exception\HttpException;
+use Shy\Core\Contract\Middleware;
 use Shy\Http\Facade\Request;
 use Shy\Core\Facade\Logger;
+use Shy\Http\Exception\HttpException;
 
 class IpWhitelist implements Middleware
 {
@@ -588,20 +594,22 @@ class IpWhitelist implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        $hit = false;
+        $hit = FALSE;
 
-        $userIps = Request::getClientIps();
-
-        foreach ($userIps as $userIp) {
-            if (in_array($userIp, config('ip_whitelist'))) {
-                $hit = true;
+        $whitelist = config('ip_whitelist');
+        if (is_array($whitelist)) {
+            $userIps = Request::getClientIps();
+            foreach ($userIps as $userIp) {
+                if (in_array($userIp, $whitelist)) {
+                    $hit = TRUE;
+                }
             }
         }
 
         if (!$hit) {
             Logger::info('Ip whitelist block request', Request::all());
 
-            if (Request::ajax()) {
+            if (Request::expectsJson()) {
                 return get_response_json(5000);
             } else {
                 throw new HttpException(403, lang(5000));
@@ -610,7 +618,6 @@ class IpWhitelist implements Middleware
 
         return $next();
     }
-
 }
 ```
 
@@ -658,14 +665,17 @@ return [
 ];
 ```
 
-内置中间件：
+### 11.4 内置中间件
 
-1. IpWhitelist：IP白名单，通过配置文件`ip_whitelist.php`管理白名单；
-2. Throttle：限流阀，默认1分钟内限制单IP访问60次，可在路由中自定义设置。例如1分钟内限制10次、5分钟解禁：`Throttle:10,5`。
+1. CSRF：防止跨站请求伪造，配合内置函数`csrf_token()`使用；
+2. GetOnly：仅限GET请求，其它方式响应404；
+3. PostOnly：仅限POST请求，其它方式响应404；
+4. IpWhitelist：IP白名单，通过配置文件`ip_whitelist.php`管理白名单；
+5. Throttle：限流阀，默认1分钟内限制单IP请求60次，可在路由中自定义设置。例如1分钟内限制10次、5分钟解禁：`Throttle:10,5`。
 
 ## 十二、 响应（Response）
 
-对于控制器，只需要return数据或者模版，Response组件就会输出响应。建议交给框架处理响应，不要手动输出。
+对于控制器，只需要return数据或者模版，Response组件会自动输出响应。建议不要手动输出，而是交给框架去处理响应。
 
 ```php
 /**
@@ -674,7 +684,7 @@ return [
 return 'controller echo';
 
 /**
- * 返回模版
+ * 返回内置模版
  */
 return view('home', compact('title', 'info'))->layout('main');
 
@@ -686,53 +696,69 @@ return smarty('smarty.tpl', $params);
 
 ## 十三、 路由（Router）
 
-路由通过请求（Request）获取请求路径，然后解析出对应控制器和方法，最终通过流水线调度中间件与控制器。
+路由通过请求（Request）组件获取到请求路径，然后解析出对应控制器及其方法，最终调度执行中间件与控制器。
 
-路由支持"配置模式"和"路径模式"，可以在配置文件`app.php`中关闭或启用。配置模式根据请求路径查找配置，得到控制器及其方法，支持中间件、路径前缀。路径模式是直接把请求路径当成控制器及其方法。**两种模式同时启用时，配置模式优先。推荐使用配置模式，以便使用中间件等功能**。
+路由支持"路径模式"和"配置模式"，可以在配置文件`app.php`中关闭或启用。路径模式是直接把请求路径当成控制器及其方法，比较简单；配置模式根据请求路径查找路由配置，得到控制器及其方法，支持中间件、路径前缀、命令空间、指定域名的功能。
+
+**两种模式同时启用时，配置模式优先。推荐使用配置模式，以便使用中间件等功能**。
 
 配置模式的路由配置文件`router.php`示例：
 
 ```php
-<?php
-
 return [
     'group' => [
-        ['middleware' => ['example', 'group_example'], 'path' => [
-            '/test2' => 'test2@test2',//echo string with middleware
-            '/test3' => 'test2@test3'//return string with middleware
+        ['middleware' => ['Example', 'Throttle:10'], 'path' => [
+            '/echo/string/with/middleware' => 'test2@test2',
+            '/return/string/with/middleware' => 'test2@test3',
         ]],
-        ['prefix' => 'route', 'path' => [
-            '/home' => 'home@index',//view home
-            '/test' => 'home@test'//return string
+        ['prefix' => 'test/prefix', 'middleware' => ['Throttle:10,5'], 'path' => [
+            '/home' => 'home@index',
+            '/return/string/with/get/param' => 'home@test',
         ]],
         ['prefix' => 'controller_2', 'namespace' => 'App\\Http\\Controller_2', 'path' => [
-            '/home' => 'home@index',//view home
-            '/test' => 'home@test',//return string
-            '/smarty' => 'home@smarty'
-        ]]
+            '/home' => 'home@index',
+            '/return/string/without/get/param' => 'home@test',
+            '/smarty' => 'home@smarty',
+        ]],
+        ['middleware' => ['GroupExample'], 'path' => [
+            '/test4' => 'test2@test2',//echo string with middleware
+        ]],
+        ['middleware' => ['Stop'], 'path' => [
+            '/middleware_stop/?' => 'test2@test2',//echo string with middleware
+        ]],
+        ['host' => 'www.test.com', 'middleware' => ['Throttle:10,5'], 'path' => [
+            '/home' => 'home@index',
+            '/return/string/with/get/param' => 'home@test',
+        ]],
     ],
     'path' => [
         '/' => 'home@index',//view home
-        '/home2' => 'home@test2',//return string
+        '/test/url/func' => 'home@test2',//return string
+        'test/path/param/?' => 'home@test3',
         '/smarty' => 'home@smarty',
-        '/home3' => 'home@home3',//404
+        '/not/found' => 'home@home3',//404
+        '/test/error/500' => 'home@test4',//500
         '/home/path/test' => 'home@index',//view home
         '/testLang' => 'test2@testLang',//zh-CN
-        '/testLang2' => 'test2@testLang2'//en-US
+        '/testLangUS' => 'test2@testLang2'//en-US
     ]
 ];
 ```
 
-1. path配置了路径对应的控制器及其方法；
-2. middleware是路径使用的中间件，可以配置多个中间件；
-3. prefix是路径的前缀，可以将相同前缀的路径配置在一起；
-4. middleware和prefix必须配置在group中。
+配置的功能点：
 
-路由配置文件在debug关闭的时候（一般是生产环境），会自动缓存路由的索引数据，导致对路由的修改不生效。可以手动删除`cache/app/router.cache`清除缓存。
+1. path：访问路径，绑定对应的控制器及其方法，单独使用时不支持配置中间件等功能；
+2. middleware：路径使用的中间件，支持配置多个中间件，可以直接使用类名，也可以在middleware.php文件中定义简写别名；
+3. prefix：路径前缀，相同前缀的路径可以归组；
+4. namespace：控制器的命名空间，默认为目录app/Http/Controller对应的命名空间；
+5. host：指定域名，路径只在指定域名下存在；
+6. group：配置组，中间件等功能的必须包含在配置组内。
+
+路由配置文件在debug关闭的时候（一般是生产环境），会自动缓存路由的索引，可能导致对路由的修改不生效，建议开启debug，或者手动删除路由缓存文件`cache/app/router.cache`。
 
 ## 十四、 控制器（Controller）
 
-控制器方法中应该返回（return）数据、以便交由框架响应组件输出，不应该直接在控制器内手动输出。
+控制器方法中应该返回（return）数据、以便交由框架响应组件输出，不应该直接在控制器内输出。
 
 在控制器内使用实例，建议通过门面，或者契约的依赖注入。
 
