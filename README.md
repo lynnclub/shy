@@ -277,9 +277,9 @@ shy(Shy\Http::class, new Shy\Http());
 /**
  * 设置类名的别名
  */
-shy()->alias('pipeline', Shy\Core\Contract\Pipeline::class);
+shy()->alias('config', Shy\Core\Contract\Config::class);
 //并且，使用别名
-shy('pipeline');
+shy('config');
 ```
 
 **shy函数是框架的核心函数，代表对容器的操作**。
@@ -468,11 +468,11 @@ throw new HttpException(403, lang(5000));
 
 ## 九、 流水线（Pipeline）
 
-流水线是框架的调度工具，连通了包括路由、中间件、控制器在内的Web框架的运行流程。
+流水线是框架的调度工具，连通了包括中间件、控制器在内的Web框架的运行流程。
 
 **通过流水线调度，也可以享受容器的依赖注入服务**。
 
-Pipeline类的方法讲解：
+Pipeline类的方法：
 
 1. send：设置传入参数，参数数量没有限制；
 2. through：设置流水线的处理对象；
@@ -483,6 +483,8 @@ Pipeline类的方法讲解：
 开发者可使用流水线来执行自己的调度，使用代码实例如下：
 
 ```php
+use Shy\Core\Contract\Pipeline;
+
 /**
  * 路由，带回调执行
  */

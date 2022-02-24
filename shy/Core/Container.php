@@ -441,7 +441,7 @@ class Container implements ContainerContract
      *
      * @return mixed Entry.
      */
-    public function get($id)
+    public function get(string $id)
     {
         if (isset($this->instances[$id])) {
             $this->intelligentScheduling && $this->record($id, 'use');

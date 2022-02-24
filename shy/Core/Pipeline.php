@@ -95,14 +95,10 @@ class Pipeline implements PipelineContract
             array_reverse($this->pipes), $this->carry(), $this->prepareDestination($destination)
         );
 
-        $return = $pipeline();
-
-        /**
-         * Initialize pipeline after execute
-         */
+        // initialize after reduce
         $this->initialize();
 
-        return $return;
+        return $pipeline();
     }
 
     /**
@@ -116,14 +112,10 @@ class Pipeline implements PipelineContract
             array_reverse($this->pipes), $this->carry()
         );
 
-        $return = $pipeline();
-
-        /**
-         * Initialize pipeline after execute
-         */
+        // initialize after reduce
         $this->initialize();
 
-        return $return;
+        return $pipeline();
     }
 
     /**
@@ -147,20 +139,18 @@ class Pipeline implements PipelineContract
     protected function carry()
     {
         return function ($next, $pipe) {
-            return function () use ($next, $pipe) {
-                $container = Container::getContainer();
+            $passable = $this->passable;
+            $method = $this->method;
 
+            return function () use ($next, $pipe, $passable, $method) {
                 if (empty($next)) {
                     $next = [];
                 } else {
                     $next = is_array($next) ? $next : [$next];
                 }
 
-                $passable = array_merge($next, $this->passable);
-
-                if (is_callable($pipe)) {
-                    return $container->runFunctionWithDependencyInjection($pipe, ...$passable);
-                }
+                $passable = array_merge($next, $passable);
+                $container = Container::getContainer();
 
                 if (is_string($pipe)) {
                     list($name, $parameters) = $this->parsePipeString($pipe);
@@ -170,14 +160,15 @@ class Pipeline implements PipelineContract
                     }
 
                     $passable = array_merge($passable, $parameters);
+                } elseif (is_callable($pipe)) {
+                    return $container->runFunctionWithDependencyInjection($pipe, ...$passable);
                 }
 
-                if (method_exists($pipe, $this->method)) {
-                    $reflector = new ReflectionMethod($pipe, $this->method);
+                if (method_exists($pipe, $method)) {
+                    $reflector = new ReflectionMethod($pipe, $method);
                     $passable = $container->handleDependencies($reflector->getParameters(), $passable);
-                    $method = $this->method;
                 } else {
-                    throw new RuntimeException('Method ' . $this->method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
+                    throw new RuntimeException('Method ' . $method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
                 }
 
                 return $pipe->{$method}(...$passable);
