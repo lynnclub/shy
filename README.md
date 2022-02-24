@@ -290,9 +290,9 @@ shy(Shy\Http::class, new Shy\Http());
 /**
  * 设置类名的别名
  */
-shy()->alias('pipeline', Shy\Core\Contract\Pipeline::class);
+shy()->alias('config', Shy\Core\Contract\Config::class);
 // 使用别名获取实例
-shy('pipeline');
+shy('config');
 ```
 
 **shy函数是框架的核心函数，代表对容器的操作**。
@@ -499,7 +499,7 @@ $container->bind(Shy\Core\Contract\Logger::class, Shy\Core\Logger\Aliyun::class)
 
 流水线是一种连贯的流程调度工具，**使用流水线执行的对象或函数，可以享受容器的依赖注入服务**。流水线连通了包括中间件、控制器在内的运行流程。
 
-Pipeline类的方法讲解：
+Pipeline类的方法：
 
 1. send：设置传入参数，参数数量没有限制；
 2. through：设置流水线的处理对象，可以是一个或者多个；
@@ -510,6 +510,8 @@ Pipeline类的方法讲解：
 开发者可使用流水线来执行自己的调度，代码实例如下：
 
 ```php
+use Shy\Core\Contract\Pipeline;
+
 /**
  * 执行一组中间件，带回调执行
  */
