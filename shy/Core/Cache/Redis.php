@@ -127,6 +127,18 @@ class Redis extends PhpRedis implements CacheContracts, DataBase
     }
 
     /**
+     * Function Redis::delete() is deprecated in PhpRedis 5
+     *
+     * @param $key
+     * @param array ...$other_keys
+     * @return int
+     */
+    public function delete($key, ...$other_keys)
+    {
+        return $this->del($key, ...$other_keys);
+    }
+
+    /**
      * Wipes clean the entire cache's keys.
      *
      * @return bool True on success and FALSE on failure.
