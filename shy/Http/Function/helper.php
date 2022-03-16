@@ -48,7 +48,6 @@ if (!function_exists('url')) {
     function url(string $path = '', string $base_url = '')
     {
         $path = trim($path, " \/\t\n\r\0\x0B");
-        $base_url = trim($base_url, " \/\t\n\r\0\x0B");
 
         if (empty($base_url)) {
             if (empty($base_url = config('app.base_url'))) {
@@ -60,6 +59,7 @@ if (!function_exists('url')) {
                 }
             }
         }
+        $base_url = trim($base_url, " \/\t\n\r\0\x0B");
 
         if (preg_match("/^(\/\/|http:\/\/|https:\/\/){1}([^\/]+)/i", $base_url, $matches) && !empty($matches[2])) {
             $host = $matches[2];
