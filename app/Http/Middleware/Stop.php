@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use Shy\Core\Contract\Middleware;
+use Shy\Contract\Middleware;
 use Closure;
 
 class Stop implements Middleware

@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Shy\Core\Container;
+use Shy\Container;
 
 class containerTest extends TestCase
 {

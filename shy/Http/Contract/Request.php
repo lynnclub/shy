@@ -21,21 +21,6 @@ use Symfony\Component\HttpFoundation\ServerBag;
 interface Request
 {
     /**
-     * Sets the parameters for this request.
-     *
-     * This method also re-initializes all properties.
-     *
-     * @param array $query The GET parameters
-     * @param array $request The POST parameters
-     * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-     * @param array $cookies The COOKIE parameters
-     * @param array $files The FILES parameters
-     * @param array $server The SERVER parameters
-     * @param string|resource|null $content The raw body data
-     */
-    public function initialize(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null);
-
-    /**
      * @return bool
      */
     public function isInitialized();

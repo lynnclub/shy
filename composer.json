@@ -32,8 +32,8 @@
     },
     "autoload": {
         "files": [
-            "shy/Core/Function/core.php",
-            "shy/Core/Function/helper.php",
+            "shy/Function/core.php",
+            "shy/Function/helper.php",
             "shy/Http/Function/helper.php"
         ],
         "psr-4": {

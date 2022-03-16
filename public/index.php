@@ -1,14 +1,20 @@
 <?php
 
 /**
- * @var $container \Shy\Core\Container
+ * 执行启动器，返回容器
+ *
+ * @var $container \Shy\Container
  */
 $container = require __DIR__ . '/../bootstrap/http.php';
 
-// Hook
-\Shy\Core\Facade\Hook::run('request_before');
+// 钩子
+\Shy\Facade\Hook::run('request_before');
 
-$container['request']->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+// 组装请求
+$container['request']::createFromGlobals();
+dd($container['request']->getSchemeAndHttpHost() . $container['request']->getBaseUrl(), $container['request']->getUriForPath($container['request']->getPathInfo()));
+
+// 启动会话
 $container['session']->sessionStart();
 
 if (!defined('BASE_URL')) {
@@ -30,7 +36,7 @@ if (method_exists($response, 'output')) {
 }
 
 // Hook
-\Shy\Core\Facade\Hook::run('response_after');
+\Shy\Facade\Hook::run('response_after');
 
 // Clear Request
 $container['request']->initialize();

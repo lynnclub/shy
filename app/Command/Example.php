@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Shy\Core\Contract\Pipeline;
+use Shy\Contract\Pipeline;
 use Shy\Http\Contract\Request;
 use Shy\Http\Request as RealRequest;
 use App\Http\Middleware\Example as ExampleMiddleware;

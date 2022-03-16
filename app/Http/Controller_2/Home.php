@@ -6,7 +6,7 @@ use App\Http\Business\TestBusiness;
 use App\Http\Facade\TestBusiness as StaticTestBusiness;
 use Shy\Http\Session;
 use Shy\Http\Contract\Request;
-use Shy\Core\Container;
+use Shy\Container;
 
 class Home
 {

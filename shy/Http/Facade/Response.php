@@ -2,7 +2,7 @@
 
 namespace Shy\Http\Facade;
 
-use Shy\Core\Facade;
+use Shy\Facade;
 use Shy\Http\Contract\Response as ResponseContracts;
 
 /**

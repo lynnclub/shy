@@ -2,7 +2,7 @@
 
 namespace Shy;
 
-use Shy\Core\Contract\Pipeline;
+use Shy\Contract\Pipeline;
 use Exception;
 
 class Command

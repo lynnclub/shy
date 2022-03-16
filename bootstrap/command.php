@@ -3,24 +3,24 @@
 // Composer autoload
 require __DIR__ . '/../vendor/autoload.php';
 
-use Shy\Core\Container;
-use Shy\Core\Exception\HandlerRegister;
+use Shy\Container;
+use Shy\Exception\HandlerRegister;
 
 // Contracts
-use Shy\Core\Contract\Config as ConfigContract;
-use Shy\Core\Contract\Logger as LoggerContract;
-use Shy\Core\Contract\ExceptionHandler as ExceptionHandlerContract;
-use Shy\Core\Contract\Pipeline as PipelineContract;
-use Shy\Core\Contract\Cache as CacheContract;
-use Shy\Core\Contract\DataBase as DataBaseContract;
+use Shy\Contract\Config as ConfigContract;
+use Shy\Contract\Logger as LoggerContract;
+use Shy\Contract\ExceptionHandler as ExceptionHandlerContract;
+use Shy\Contract\Pipeline as PipelineContract;
+use Shy\Contract\Cache as CacheContract;
+use Shy\Contract\DataBase as DataBaseContract;
 
 // Entry
-use Shy\Core\Config;
-use Shy\Core\Logger\File;
+use Shy\Config;
+use Shy\Logger\File;
 use Shy\Http\Exception\Handler;
-use Shy\Core\Pipeline;
-use Shy\Core\Cache\Memory;
-use Shy\Core\DataBase\Illuminate;
+use Shy\Pipeline;
+use Shy\Cache\Memory;
+use Shy\DataBase\Illuminate;
 
 //Set Environment
 $env = getenv('SHY_ENV');

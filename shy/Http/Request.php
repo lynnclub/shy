@@ -3,52 +3,10 @@
 namespace Shy\Http;
 
 use Shy\Http\Contract\Request as RequestContract;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class Request extends SymfonyRequest implements RequestContract
 {
-    /**
-     * @param array $query The GET parameters
-     * @param array $request The POST parameters
-     * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-     * @param array $cookies The COOKIE parameters
-     * @param array $files The FILES parameters
-     * @param array $server The SERVER parameters
-     * @param string|resource|null $content The raw body data
-     */
-    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {
-        static::enableHttpMethodParameterOverride();
-
-        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
-    }
-
-    /**
-     * Sets the parameters for this request.
-     *
-     * This method also re-initializes all properties.
-     *
-     * @param array $query The GET parameters
-     * @param array $request The POST parameters
-     * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-     * @param array $cookies The COOKIE parameters
-     * @param array $files The FILES parameters
-     * @param array $server The SERVER parameters
-     * @param string|resource|null $content The raw body data
-     */
-    public function initialize(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {
-        parent::initialize($query, $request, $attributes, $cookies, $files, $server, $content);
-
-        if (0 === strpos($this->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-            && \in_array(strtoupper($this->server->get('REQUEST_METHOD', 'GET')), ['PUT', 'DELETE', 'PATCH'])
-        ) {
-            parse_str($this->getContent(), $data);
-            $this->request = new ParameterBag($data);
-        }
-    }
-
     /**
      * @return bool
      */

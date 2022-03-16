@@ -3,8 +3,8 @@
 namespace Shy;
 
 use Exception;
-use Shy\Core\Exception\HandlerRegister;
-use Shy\Core\Facade\Hook;
+use Shy\Exception\HandlerRegister;
+use Shy\Facade\Hook;
 use Throwable;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http;
@@ -34,7 +34,7 @@ class HttpInWorkerMan extends Worker
     protected $_onWorkerStart = null;
 
     /**
-     * @var $container \Shy\Core\Container
+     * @var $container \Shy\Container
      */
     protected $container;
 
