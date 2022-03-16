@@ -143,23 +143,22 @@ class Pipeline implements PipelineContract
             $method = $this->method;
 
             return function () use ($next, $pipe, $passable, $method) {
-                if (empty($next)) {
-                    $next = [];
-                } else {
-                    $next = is_array($next) ? $next : [$next];
-                }
-
-                $passable = array_merge($next, $passable);
                 $container = Container::getContainer();
 
+                if ($next) {
+                    array_unshift($passable, $next);
+                }
+
                 if (is_string($pipe)) {
-                    list($name, $parameters) = $this->parsePipeString($pipe);
-                    $pipe = $container->getOrMake($name);
-                    if (!is_object($pipe)) {
-                        throw new RuntimeException('Class `' . $name . '` cannot make');
+                    list($name, $setting) = $this->parsePipeString($pipe);
+
+                    if (!is_object($pipe = $container->getOrMake($name))) {
+                        throw new RuntimeException('Class `' . $name . '` is not object');
                     }
 
-                    $passable = array_merge($passable, $parameters);
+                    if ($setting) {
+                        $passable = $next ? array_merge([$next], $setting) : $setting;
+                    }
                 } elseif (is_callable($pipe)) {
                     return $container->runFunctionWithDependencyInjection($pipe, ...$passable);
                 }
@@ -184,12 +183,11 @@ class Pipeline implements PipelineContract
      */
     protected function parsePipeString(string $pipe)
     {
-        list($name, $parameters) = array_pad(explode(':', $pipe, 2), 2, []);
-
-        if (is_string($parameters)) {
-            $parameters = explode(',', $parameters);
+        list($name, $setting) = array_pad(explode(':', $pipe, 2), 2, []);
+        if (is_string($setting)) {
+            $setting = explode(',', $setting);
         }
 
-        return [$name, $parameters];
+        return [$name, $setting];
     }
 }
