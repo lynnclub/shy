@@ -16,7 +16,7 @@ The framework is simple, powerful, and comprehensive, Just like her name: **Shy 
 
 ### 1.1 框架兼容
 
-框架全力遵守 [PHP-FIG组织](https://www.php-fig.org/) 制定的PSR（PHP Standards Recommendations 系列规范，与遵守相同规范的框架互相兼容。
+框架全力遵守 [PHP-FIG组织](https://www.php-fig.org/) 制定的PSR（PHP Standards Recommendations）系列规范，与遵守相同规范的框架互相兼容。
 
 1. 基础编码：遵守 [PSR-1: Basic Coding Standard](https://www.php-fig.org/psr/psr-1/) ；
 2. 日志：遵守 [PSR-3: Logger Interface](https://www.php-fig.org/psr/psr-3/)；
@@ -31,7 +31,7 @@ The framework is simple, powerful, and comprehensive, Just like her name: **Shy 
 * 契约（Contract）
 * 容器与依赖注入（Container and Dependency Injection）
 * 配置与环境（Config、SHY_ENV）
-* 异常捕获（Exception Handler）
+* 异常处理（Exception Handler）
 * 日志（Logger）
 * 流水线（Pipeline）
 * 进程管理（Process）
@@ -556,7 +556,7 @@ Request::initialized();
 Request::all();
 
 // 获取数据流 php://input
-Request::content();
+Request::getContent();
 
 // 获取GET请求参数
 Request::get('key');
@@ -875,8 +875,8 @@ push_resource('footer-js', [url() . 'vendor/jquery/dist/jquery.js', ''], 'js');
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
     <p>Running Time: <?php echo microtime(true) - shy()->startTime(); ?> second</p>
     <?php
-    if (shy()->has('SHY_CYCLE_START_TIME')) { ?>
-        <p>Recycling Time: <?php echo microtime(true) - shy()->get('SHY_CYCLE_START_TIME'); ?> second</p>
+    if (shy()->has('HTTP_LOOP_START_TIME')) { ?>
+        <p>Recycling Time: <?php echo microtime(true) - shy()->get('HTTP_LOOP_START_TIME'); ?> second</p>
         <?php
     }
     ?>
@@ -932,8 +932,8 @@ return smarty('smarty.tpl', $params);
     <p>Container Start Id: {$shy->startId()}</p>
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
     <p>Running Time: {microtime(true) - $shy->startTime()} second</p>
-    {if $shy->has('SHY_CYCLE_START_TIME')}
-        <p>Recycling Time: {microtime(true) - $shy->get('SHY_CYCLE_START_TIME')} second</p>
+    {if $shy->has('HTTP_LOOP_START_TIME')}
+        <p>Recycling Time: {microtime(true) - $shy->get('HTTP_LOOP_START_TIME')} second</p>
     {/if}
     <br>
     <p>Loaded instance's abstract: </p>

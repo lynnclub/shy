@@ -13,7 +13,7 @@ use Shy\Http\Contract\Request as RequestContracts;
  * @method static bool isInitialized()
  * @method static mixed get($key, $default = null)
  * @method static array all()
- * @method static string content()
+ * @method static string getContent(bool $asResource = false)
  * @method static string getHost()
  * @method static string getBaseUrl()
  * @method static string getPathInfo()

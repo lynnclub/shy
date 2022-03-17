@@ -8,11 +8,13 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 class Request extends SymfonyRequest implements RequestContract
 {
     /**
+     * 是否初始化
+     *
      * @return bool
      */
     public function isInitialized()
     {
-        return empty($this->server->all()) ? FALSE : TRUE;
+        return empty($this->server->count()) ? FALSE : TRUE;
     }
 
     /**
@@ -30,14 +32,6 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * Get php://input
-     */
-    public function content()
-    {
-        return $this->content;
-    }
-
-    /**
      * Get the URL (no query string) for the request.
      *
      * @return string
@@ -45,22 +39,6 @@ class Request extends SymfonyRequest implements RequestContract
     public function getUrl()
     {
         return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo();
-    }
-
-    /**
-     * Get client IPs
-     *
-     * @return array
-     */
-    public function getClientIps()
-    {
-        $clientIps = array();
-
-        $clientIps[] = $this->server->get('HTTP_X_FORWARDED_FOR');
-        $clientIps[] = $this->server->get('HTTP_CLIENT_IP');
-        $clientIps[] = $this->server->get('REMOTE_ADDR');
-
-        return array_reverse(get_valid_ips($clientIps));
     }
 
     /**

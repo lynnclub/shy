@@ -2,76 +2,97 @@
 
 namespace Shy;
 
+use Closure;
+use Exception;
+use LogicException;
+use ReflectionClass;
+use ReflectionFunction;
 use Shy\Contract\Container as ContainerContract;
 use Shy\Exception\Container\ContainerException;
 use Shy\Exception\Container\NotFoundException;
-use Closure;
-use ReflectionClass;
-use ReflectionFunction;
-use Exception;
-use LogicException;
 
 class Container implements ContainerContract
 {
     /**
+     * 害羞框架版本
+     * The Shy Framework version
+     *
      * @var string
      */
-    protected $shyVersion = '2.0.1';
+    protected $shyVersion = '2.0.0';
 
     /**
+     * 容器实例
+     * Container instance
+     *
      * @var Container
      */
     protected static $container;
 
     /**
+     * 容器启动id
+     * Container start id
+     *
      * @var string
      */
     protected static $startId;
 
     /**
+     * 容器启动时间
+     * Container start time
+     *
      * @var string
      */
     protected static $startTime;
 
     /**
-     * Binding ready to make
+     * 用于制作的材料
+     * Materials for make
      *
      * @var array
      */
     protected $binds;
 
     /**
-     * Alias of instance id
+     * 实例id的别名
+     * Alias for instance id
      *
      * @var array
      */
     protected $aliases;
 
     /**
-     * Instances
+     * 实例池
+     * Instance pool
      *
      * @var array
      */
     protected $instances;
 
     /**
-     * Memory used at make
+     * 制作时的内存消耗记录
+     * Memory consumption record when making
      *
      * @var array
      */
     protected $memoryUsed;
 
     /**
+     * 是否开启实例智能调度
+     * Whether to enable instance intelligent scheduling
+     *
      * @var bool
      */
     protected $intelligentScheduling = FALSE;
 
     private function __construct()
     {
-        //
+        // 禁止外部实例化
+        // disallow external instantiation
     }
 
     /**
+     * 获取容器
      * Get container
      *
      * @return Container
@@ -88,7 +109,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Shy version
+     * 获取害羞框架版本
+     * Get the Shy Framework version
      *
      * @return string
      */
@@ -98,7 +120,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Get start id
+     * 获取容器启动id
+     * Get container start id
      *
      * @return string
      */
@@ -108,7 +131,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Get start time
+     * 获取容器启动时间
+     * Get container start time
      *
      * @return string
      */
@@ -118,22 +142,23 @@ class Container implements ContainerContract
     }
 
     /**
-     * Add fork pid
+     * 更新派生进程的启动信息
+     * Update forked process start information
      *
      * @param int $pid
      */
-    public function addForkPid(int $pid)
+    public function updateForkedProcessStartInfo(int $pid)
     {
         static::$startId .= '_' . $pid;
         static::$startTime = microtime(TRUE);
     }
 
     /**
-     * Set instance
+     * 设置实例到容器池
+     * Set instance to container pool
      *
      * @param string $id
      * @param $instance
-     *
      * @return Container
      */
     public function set(string $id, $instance)
@@ -144,6 +169,9 @@ class Container implements ContainerContract
     }
 
     /**
+     * 批量设置实例到容器池
+     * Batch set instances to container pool
+     *
      * @param array $sets
      */
     public function sets(array $sets)
@@ -154,7 +182,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Handle dependencies injection
+     * 处理依赖注入
+     * Handle dependency injection
      *
      * @param \ReflectionParameter[] $dependencies
      * @param array $parameters
@@ -162,7 +191,7 @@ class Container implements ContainerContract
      * @throws NotFoundException
      * @throws \ReflectionException
      */
-    public function handleDependencies(array $dependencies, array $parameters = [])
+    public function handleDependency(array $dependencies, array $parameters = [])
     {
         $results = [];
 
@@ -179,7 +208,7 @@ class Container implements ContainerContract
 
                     if ($this->has($className)) {
                         $results[$key] = $this->get($className);
-                    } elseif ($this->bound($className) || class_exists($className)) {
+                    } elseif ($this->isBound($className) || class_exists($className)) {
                         $results[$key] = $this->make($className);
                     }
                 } elseif ($dependency->isDefaultValueAvailable()) {
@@ -192,17 +221,16 @@ class Container implements ContainerContract
     }
 
     /**
-     * Make an instance with dependency injection
+     * 通过反射制作实例，支持依赖注入
+     * Make an instance by reflection, support dependency injection
      *
      * @param string $concrete
-     * @param array ...$parameters
-     *
+     * @param mixed ...$parameters
+     * @return object
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \ReflectionException
-     *
-     * @return object
      */
-    public function makeClassWithDependencyInjection(string $concrete, ...$parameters)
+    public function makeInstanceWithDependencyInjection(string $concrete, ...$parameters)
     {
         $reflector = new ReflectionClass($concrete);
         if (!$reflector->isInstantiable()) {
@@ -213,7 +241,7 @@ class Container implements ContainerContract
         if (is_null($constructor)) {
             $instance = $reflector->newInstanceWithoutConstructor();
         } else {
-            $parameters = $this->handleDependencies($constructor->getParameters(), $parameters);
+            $parameters = $this->handleDependency($constructor->getParameters(), $parameters);
 
             $instance = $reflector->newInstance(...$parameters);
         }
@@ -222,40 +250,39 @@ class Container implements ContainerContract
     }
 
     /**
-     * Run function with dependency injection
+     * 执行匿名函数，支持依赖注入
+     * Execute anonymous functions, support dependency injection
      *
      * @param $concrete
-     * @param array ...$parameters
-     *
+     * @param mixed ...$parameters
      * @return mixed
-     *
-     * @throws NotFoundException
+     * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \ReflectionException
      */
-    public function runFunctionWithDependencyInjection($concrete, ...$parameters)
+    public function executeFunctionWithDependencyInjection($concrete, ...$parameters)
     {
         $reflector = new ReflectionFunction($concrete);
-        $parameters = $this->handleDependencies($reflector->getParameters(), $parameters);
+        $parameters = $this->handleDependency($reflector->getParameters(), $parameters);
 
         return $concrete(...$parameters);
     }
 
     /**
+     * 为制作获取闭包
      * Get closure for make
      *
      * @param $concrete
-     *
      * @return Closure
      */
-    protected function getClosure($concrete)
+    protected function getClosureForMake($concrete)
     {
         return function (...$parameters) use ($concrete) {
             $instance = null;
 
             if (is_string($concrete) && class_exists($concrete)) {
-                $instance = $this->makeClassWithDependencyInjection($concrete, ...$parameters);
+                $instance = $this->makeInstanceWithDependencyInjection($concrete, ...$parameters);
             } elseif ($concrete instanceof Closure) {
-                $instance = $this->runFunctionWithDependencyInjection($concrete, ...$parameters);
+                $instance = $this->executeFunctionWithDependencyInjection($concrete, ...$parameters);
             } else {
                 $instance = $concrete;
             }
@@ -265,12 +292,12 @@ class Container implements ContainerContract
     }
 
     /**
-     * Bind ready to make
+     * 绑定用于制作的材料
+     * Bind materials for make
      *
      * @param string $id
      * @param $concrete
-     *
-     * @return Container
+     * @return $this
      */
     public function bind(string $id, $concrete = null)
     {
@@ -278,12 +305,15 @@ class Container implements ContainerContract
             $concrete = $id;
         }
 
-        $this->binds[$id] = $this->getClosure($concrete);
+        $this->binds[$id] = $this->getClosureForMake($concrete);
 
         return $this;
     }
 
     /**
+     * 批量绑定用于制作的材料
+     * Batch bind materials for make
+     *
      * @param array $binds
      * @return $this
      */
@@ -297,13 +327,13 @@ class Container implements ContainerContract
     }
 
     /**
+     * 是否已绑定
      * Is bound
      *
      * @param string $id
-     *
      * @return bool
      */
-    public function bound(string $id)
+    public function isBound(string $id)
     {
         if (isset($this->binds[$id])) {
             return TRUE;
@@ -313,12 +343,12 @@ class Container implements ContainerContract
     }
 
     /**
-     * Make instance and join to container
+     * 制作实例，并加入容器
+     * Make an instance and join to the container
      *
      * @param string $id
-     * @param object|string|null $concrete
-     * @param array ...$parameters
-     *
+     * @param null $concrete
+     * @param mixed ...$parameters
      * @return mixed
      */
     public function make(string $id, $concrete = null, ...$parameters)
@@ -341,13 +371,13 @@ class Container implements ContainerContract
     }
 
     /**
+     * 获取或制作实例
      * Get or make instance
      *
      * @param string $id
-     * @param object|string|null $concrete
-     * @param array ...$parameters
-     *
-     * @return object
+     * @param null $concrete
+     * @param mixed ...$parameters
+     * @return mixed|object
      */
     public function getOrMake(string $id, $concrete = null, ...$parameters)
     {
@@ -363,11 +393,11 @@ class Container implements ContainerContract
     }
 
     /**
-     * Set alias of instance id
+     * 设置实例id的别名
+     * Set alias for instance id
      *
      * @param string $alias
      * @param string $id
-     *
      * @return Container
      */
     public function alias(string $alias, string $id)
@@ -382,6 +412,9 @@ class Container implements ContainerContract
     }
 
     /**
+     * 批量设置实例id的别名
+     * Batch set alias for instance id
+     *
      * @param array $aliases
      * @return $this
      */
@@ -395,7 +428,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Remove bind and instance
+     * 从容器中移除绑定材料与实例
+     * Remove bound materials and instances from the container
      *
      * @param string|array $id
      */
@@ -413,7 +447,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Get the list of instances id
+     * 获取容器中的实例id列表
+     * Get a list of instance ids in the container
      *
      * @return array
      */
@@ -423,7 +458,8 @@ class Container implements ContainerContract
     }
 
     /**
-     * Get the list of instances memory used
+     * 获取制作时的内存消耗记录
+     * Get the memory consumption record when making
      *
      * @return array
      */
@@ -510,8 +546,6 @@ class Container implements ContainerContract
      * </p>
      * @return mixed Can return all value types.
      *
-     * @throws \Psr\Container\NotFoundExceptionInterface  No entry was found for **this** identifier.
-     *
      * @since 5.0.0
      */
     public function offsetGet($offset)
@@ -569,43 +603,44 @@ class Container implements ContainerContract
     }
 
     /**
-     * Intelligent scheduling
+     * 开启实例智能调度
+     * Enable instance intelligent scheduling
      */
-    public function intelligentSchedulingOn()
+    public function enableIntelligentScheduling()
     {
         $this->intelligentScheduling = TRUE;
     }
 
     /**
-     * Record
+     * 实例记录
+     * Instance record
      *
      * @param string $id
      * @param string $operation
      * @param array $params
-     *
-     * @return FALSE
+     * @return bool
      */
     protected function record(string $id, string $operation, array $params = [])
     {
         if (!isset($this->aliases['config']) || !isset($this->instances[$this->aliases['config']])) {
             return FALSE;
         }
-        if (stripos($id, 'Shy\\') === 0) {
-            return FALSE;
-        }
 
         /**
-         * Container ID
-         * Instance ID
-         * Operation
-         * Timestamp
+         * 数据结构
+         * 1. 容器启动id Container start id
+         * 2. 实例id Instance ID
+         * 3. 操作类型 Operation
+         * 4. 时间戳 Timestamp
          */
         $structure = self::$startId . '^' . $id . '^' . $operation . '^' . time() . PHP_EOL;
 
         if (isset($this->aliases['request']) && isset($this->instances[$this->aliases['request']])) {
             $request = $this->instances[$this->aliases['request']];
             if ($request->isInitialized()) {
-                $structure .= 'req^' . $request->getUrl() . '^' . implode(',', $request->getClientIps()) . PHP_EOL;
+                $structure .= 'req^'
+                    . $request->getUrl() . '^'
+                    . implode(',', $request->getClientIps()) . PHP_EOL;
             }
         }
 
@@ -629,6 +664,7 @@ class Container implements ContainerContract
         }
 
         file_put_contents($dir . date('Ymd') . '.log', $structure . PHP_EOL, FILE_APPEND);
-    }
 
+        return TRUE;
+    }
 }

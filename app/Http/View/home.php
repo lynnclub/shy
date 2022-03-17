@@ -15,8 +15,8 @@ push_resource('footer-js', '/vendor/jquery/dist/jquery.js', 'js');
     <p>Memory Peak: <?php echo memory_get_peak_usage() / 1024; ?> kb</p>
     <p>Running Time: <?php echo microtime(true) - shy()->startTime(); ?> second</p>
     <?php
-    if (shy()->has('SHY_CYCLE_START_TIME')) { ?>
-        <p>Recycling Time: <?php echo microtime(true) - shy()->get('SHY_CYCLE_START_TIME'); ?> second</p>
+    if (shy()->has('HTTP_LOOP_START_TIME')) { ?>
+        <p>Recycling Time: <?php echo microtime(true) - shy()->get('HTTP_LOOP_START_TIME'); ?> second</p>
         <?php
     }
     ?>

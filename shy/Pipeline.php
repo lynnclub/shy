@@ -160,12 +160,12 @@ class Pipeline implements PipelineContract
                         $passable = $next ? array_merge([$next], $setting) : $setting;
                     }
                 } elseif (is_callable($pipe)) {
-                    return $container->runFunctionWithDependencyInjection($pipe, ...$passable);
+                    return $container->executeFunctionWithDependencyInjection($pipe, ...$passable);
                 }
 
                 if (method_exists($pipe, $method)) {
                     $reflector = new ReflectionMethod($pipe, $method);
-                    $passable = $container->handleDependencies($reflector->getParameters(), $passable);
+                    $passable = $container->handleDependency($reflector->getParameters(), $passable);
                 } else {
                     throw new RuntimeException('Method ' . $method . ' of ' . ($name ?? get_class($pipe)) . ' not exist');
                 }

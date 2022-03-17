@@ -19,8 +19,8 @@
     <p>Container Start Id: {$shy->startId()}</p>
     <p>Memory Peak:{memory_get_peak_usage()/1024} kb</p>
     <p>Running Time: {microtime(true) - $shy->startTime()} second</p>
-    {if $shy->has('SHY_CYCLE_START_TIME')}
-        <p>Recycling Time: {microtime(true) - $shy->get('SHY_CYCLE_START_TIME')} second</p>
+    {if $shy->has('HTTP_LOOP_START_TIME')}
+        <p>Recycling Time: {microtime(true) - $shy->get('HTTP_LOOP_START_TIME')} second</p>
     {/if}
     <br>
     <h3>Loaded Instance Uses Memory:</h3>

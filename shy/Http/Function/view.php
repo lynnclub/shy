@@ -8,6 +8,7 @@ use Shy\Http\Contract\View;
 
 if (!function_exists('view')) {
     /**
+     * 新建视图
      * New view
      *
      * @param string $view
