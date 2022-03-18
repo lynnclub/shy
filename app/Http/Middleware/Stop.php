@@ -11,6 +11,6 @@ class Stop implements Middleware
     {
         echo 'App\Http\Middleware\Stop path param ';
 
-        var_dump($passable);
+        return $passable;
     }
 }

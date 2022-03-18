@@ -4,7 +4,7 @@
 
 框架实现简洁、功能强大、覆盖全面，正如她的名字：**Shy——纤细身形、不漏内秀**。
 
-The framework is simple, powerful, and comprehensive, Just like her name: **Shy - slender figure, not leaking show**.
+The framework is simple, powerful, and comprehensive, just like her name: **Shy - slender figure, not leaking show**.
 
 ## 一、概述 Overview
 
