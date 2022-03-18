@@ -48,7 +48,7 @@ try {
     }
 
     // 补充http模式缺失的组件 Supplementary components missing from http mode
-    $container[LoggerContract::class]->setRequest($container->make(RequestContract::class));
+    $container[LoggerContract::class]->setRequest($container->get(RequestContract::class));
     $container[HandlerRegister::class]->setView($container->make(ViewContract::class))
         ->setResponse($container->make(ResponseContract::class));
 
