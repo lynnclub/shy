@@ -18,7 +18,8 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * Get all parameters.
+     * 获取所有参数
+     * Get all params.
      *
      * @return array
      */
@@ -32,17 +33,8 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * Get the URL (no query string) for the request.
-     *
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo();
-    }
-
-    /**
-     * Is Pjax
+     * 是否Pjax请求
+     * Is Pjax request
      *
      * @return bool
      */
@@ -52,7 +44,8 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * Expects Json
+     * 是否期望响应json
+     * Is expects response json
      *
      * @return bool
      */
@@ -62,7 +55,8 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * Get Header
+     * 获取请求头信息
+     * Get header info
      *
      * @param string $key
      * @param string|null $default
@@ -74,7 +68,8 @@ class Request extends SymfonyRequest implements RequestContract
     }
 
     /**
-     * Get Server
+     * 获取服务器信息
+     * Get server info
      *
      * @param string $key
      * @param string|null $default
@@ -83,24 +78,5 @@ class Request extends SymfonyRequest implements RequestContract
     public function server($key, $default = null)
     {
         return $this->server->get($key, $default);
-    }
-
-    /**
-     * Prepares the base URL.
-     *
-     * @return string
-     */
-    protected function prepareBaseUrl()
-    {
-        $baseUrl = parent::prepareBaseUrl();
-
-        if (empty($baseUrl)) {
-            $path = $this->server->get('PHP_SELF');
-            if (false !== $pos = stripos($path, '/index.php')) {
-                $baseUrl = substr($path, 0, $pos);
-            }
-        }
-
-        return $baseUrl;
     }
 }

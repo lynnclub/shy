@@ -10,7 +10,7 @@ use Shy\Hook as RealHook;
  * @package Shy\Facade
  *
  * @method static set(string $name, \Closure $closure)
- * @method static run(string $name)
+ * @method static run(string $name, ...$param)
  */
 class Hook extends Facade
 {

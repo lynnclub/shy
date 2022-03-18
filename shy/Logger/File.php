@@ -79,7 +79,7 @@ class File extends AbstractLogger implements LoggerContract
 
         $prefix = '[' . date('Y-m-d H:i:s') . '] [' . strtoupper($level) . ']';
         if (method_exists($this->request, 'isInitialized') && $this->request->isInitialized()) {
-            $prefix .= ' [' . $this->request->getUrl() . ']';
+            $prefix .= ' [' . $this->request->getUri() . ']';
 
             $userIps = $this->request->getClientIps();
             if (!empty($userIps)) {

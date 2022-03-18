@@ -10,9 +10,8 @@ body {
     font-size: 15px;
 }
 
-#hello-world {
-    padding: 10px;
-    margin: 100px auto;
+.hello-world {
+    padding: 25px;
     font-size: 50px;
     text-align: center;
     background: linear-gradient(to right, green, yellow);
@@ -20,17 +19,19 @@ body {
     color: transparent;
 }
 
-#system {
-    margin: 10px auto;
-    text-align: center;
+.params {
+    width: 100%;
+    font-size: 13px;
+    border-spacing: 0 6px;
 }
 
-#system p {
-    padding: 5px;
+.params thead tr td, .params tr td:first-child {
+    font-weight: bold;
 }
 
-#system .var-dump {
-    padding: 40px;
+.params tr td {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(34, 36, 38, 0.15);
 }
 
 footer {
@@ -41,4 +42,20 @@ footer {
 footer > a {
     color: black;
     text-decoration: none;
+}
+
+/*mobile*/
+@media (max-width: 767px) {
+    .system {
+        width: 80%;
+        padding: 10px 10%;
+    }
+}
+
+/*pad、pc*/
+@media (min-width: 768px) {
+    .system {
+        width: 60%;
+        padding: 10px 20%;
+    }
 }

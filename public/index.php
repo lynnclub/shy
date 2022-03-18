@@ -20,7 +20,7 @@ $container['session']->sessionStart();
 // 定义基础地址 Define BASE_URL
 if (!defined('BASE_URL')) {
     if (empty($base_url = config('app.base_url'))) {
-        define('BASE_URL', $container['request']->getSchemeAndHttpHost() . $container['request']->getBaseUrl() . '/');
+        define('BASE_URL', $container['request']->getUriForPath('/'));
     } else {
         define('BASE_URL', rtrim($base_url, '/') . '/');
     }

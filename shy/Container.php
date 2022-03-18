@@ -628,6 +628,7 @@ class Container implements ContainerContract
 
         /**
          * 数据结构
+         *
          * 1. 容器启动id Container start id
          * 2. 实例id Instance ID
          * 3. 操作类型 Operation
@@ -639,7 +640,7 @@ class Container implements ContainerContract
             $request = $this->instances[$this->aliases['request']];
             if ($request->isInitialized()) {
                 $structure .= 'req^'
-                    . $request->getUrl() . '^'
+                    . $request->getUri() . '^'
                     . implode(',', $request->getClientIps()) . PHP_EOL;
             }
         }

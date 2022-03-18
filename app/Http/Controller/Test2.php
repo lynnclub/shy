@@ -6,12 +6,12 @@ use Shy\Http\Facade\Request;
 
 class Test2
 {
-    public function test3()
+    public function returnStringWithRequest()
     {
         return 'controller echo test ' . json_encode(Request::all());
     }
 
-    public function test2()
+    public function echoString()
     {
         echo 'controller echo';
     }

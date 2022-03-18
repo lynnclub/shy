@@ -53,7 +53,7 @@ if (!function_exists('url')) {
             if (empty($base_url = config('app.base_url'))) {
                 $request = shy(Request::class);
                 if (is_object($request)) {
-                    $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+                    $base_url = $request->getUriForPath('/');
                 } else {
                     $base_url = '';
                 }
