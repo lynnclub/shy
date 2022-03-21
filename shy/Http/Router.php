@@ -438,10 +438,10 @@ class Router implements RouterContract
     /**
      * 执行解析当前路径
      *
-     * @param $routeConfig
-     * @param $routeIndex
+     * @param array $routeConfig
+     * @param array $routeIndex
      */
-    protected function parseCurrentPathByConfig($routeConfig, $routeIndex)
+    protected function parseCurrentPathByConfig(array $routeConfig, array $routeIndex)
     {
         if (isset($routeConfig[$this->pathInfo])) {
             $this->makeRouteConfigTakeEffect($routeConfig[$this->pathInfo]);
@@ -471,7 +471,7 @@ class Router implements RouterContract
             }
 
             $matchPath = implode('/', $matchPath);
-            if ($success && empty($routeIndex) && isset($routeConfig[$matchPath])) {
+            if ($success && empty($currentIndex) && isset($routeConfig[$matchPath])) {
                 $this->makeRouteConfigTakeEffect($routeConfig[$matchPath], $matchParam);
             }
         }
