@@ -2,62 +2,60 @@
 
 return [
     /**
-     * Constant BASE_URL
+     * 基础地址，等同于BASE_URL
+     * Equivalent to BASE_URL
      */
 
     'base_url' => '',
 
     /**
-     * Debug
-     *
-     * for error reporting.
+     * 调试开关，开启时输出错误
+     * Debug switch, output error when turned on.
      */
 
     'debug' => true,
 
     /**
-     * Cache config.
+     * 缓存开关，影响配置、路由等
+     * Cache switch, affecting config, router, etc.
      */
 
     'cache' => false,
 
     /**
-     * Time Zone
+     * 设置时区
+     * Time zone
      *
-     * options: PRC, Asia/Shanghai, Asia/Tokyo...
+     * PRC, Asia/Shanghai, Asia/Tokyo...
      */
 
     'timezone' => 'PRC',
 
     /**
+     * 默认语言
      * Default language
      */
 
     'default_lang' => 'zh-CN',
 
     /**
-     * Slow Log Limit (second)
-     *
-     * set 0 means to turn off slow log
-     */
-
-    'slow_log_limit' => 1,
-
-    /**
-     * Route By Config
+     * 通过配置解析路由
+     * Parse route by config
      */
 
     'route_by_config' => true,
 
     /**
-     * Route By Path
+     * 通过路径解析路由
+     * Parse route by path
      */
 
-    'route_by_path' => false,
+    'route_by_path' => true,
 
     /**
-     * Default Controller
+     * 默认控制器，通过路径解析根目录时使用
+     * Default controller, used when parse the root directory by path.
      */
 
-    'default_controller' => 'home'
+    'default_controller' => 'home',
 ];
