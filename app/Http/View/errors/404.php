@@ -11,6 +11,9 @@
 <body>
 <div>
     <h1>404 not found</h1>
+    <br><br>
+    <button type="button" onclick="location.href='<?php echo url(); ?>'">To Home</button>
+    <br><br>
 </div>
 <?php include_view('component/footer') ?>
 </body>
