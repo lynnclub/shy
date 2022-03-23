@@ -50,7 +50,7 @@ return [
      * Parse route by path
      */
 
-    'route_by_path' => true,
+    'route_by_path' => false,
 
     /**
      * 默认控制器，通过路径解析根目录时使用
