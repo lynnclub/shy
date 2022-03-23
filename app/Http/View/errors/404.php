@@ -7,12 +7,11 @@
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
     <meta name="renderer" content="webkit">
     <title>404 not found</title>
-    <script src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8"
-            homePageUrl="<?php url(); ?>" homePageName="Back"></script>
 </head>
 <body>
 <div>
     <h1>404 not found</h1>
 </div>
+<?php include_view('component/footer') ?>
 </body>
 </html>
