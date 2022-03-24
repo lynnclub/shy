@@ -500,19 +500,29 @@ class Router implements RouterContract
      */
     protected function parseRouteByPath()
     {
-        $this->controller = config('app.default_controller');
-        $this->method = 'index';
+        $controller = config('app.default_controller');
+        $method = 'index';
 
-        $path = explode('/', $this->pathInfo);
+        $path = explode('/', $this->pathInfo, 3);
+        $count = count($path);
+        $methodPos = $count >= 3 ? 2 : 1;
         if (!empty($path[0])) {
-            $this->controller = ucfirst($path[0]);
-            if (!empty($path[1])) {
-                $this->method = ucfirst($path[1]);
-                if (isset($path[2])) {
-                    $this->pathParam = array_slice($path, 2);
+            if ($count >= 3) {
+                $controller = ucfirst($path[0]) . '\\' . ucfirst($path[1]);
+            } else {
+                $controller = ucfirst($path[0]);
+            }
+
+            if (!empty($path[$methodPos])) {
+                $method = ucfirst($path[$methodPos]);
+                if (isset($path[$methodPos + 1])) {
+                    $this->pathParam = array_slice($path, $methodPos + 1);
                 }
             }
         }
+
+        $this->controller = $this->defaultNamespace . $controller;
+        $this->method = $method;
 
         $this->parseSuccess = TRUE;
     }
