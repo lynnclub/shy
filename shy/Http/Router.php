@@ -503,7 +503,7 @@ class Router implements RouterContract
         $controller = config('app.default_controller');
         $method = 'index';
 
-        $path = explode('/', $this->pathInfo, 3);
+        $path = explode('/', $this->pathInfo);
         $count = count($path);
         $methodPos = $count >= 3 ? 2 : 1;
         if (!empty($path[0])) {
