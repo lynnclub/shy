@@ -70,7 +70,16 @@ if (!function_exists('url')) {
         $pathArray = explode('/', $path);
         $sectionNum = count($pathArray);
 
-        $routeIndex = shy(Router::class)->getRouteIndex();
+        $router = shy(Router::class);
+        if (!is_object($router)) {
+            throw new \RuntimeException('Router contract is not bound.');
+        }
+
+        $routeIndex = $router->getRouteIndex();
+        if (empty($routeIndex)) {
+            $router->buildRoute();
+            $routeIndex = $router->getRouteIndex();
+        }
 
         if (isset($routeIndex[$host][$sectionNum])) {
             $sectionRouteIndex = $routeIndex[$host][$sectionNum];
@@ -117,7 +126,7 @@ if (!function_exists('url')) {
         if (isset($validPath)) {
             return $base_url . '/' . $validPath;
         } else {
-            throw new \RuntimeException('Path "' . $path . '" not found in router config.');
+            throw new \RuntimeException('Path "' . $path . '" not found in router index.');
         }
     }
 }

@@ -16,7 +16,7 @@ class Router implements RouterContract
      *
      * @var string
      */
-    protected $defaultNamespace;
+    public $defaultNamespace = 'App\\Http\\Controller\\';
 
     /**
      * 被调用控制器
@@ -90,8 +90,6 @@ class Router implements RouterContract
      */
     public function initialize()
     {
-        $this->defaultNamespace = 'App\\Http\\Controller\\';
-
         $this->pathParam = [];
         $this->middleware = [];
         $this->parseSuccess = FALSE;

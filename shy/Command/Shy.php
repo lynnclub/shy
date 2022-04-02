@@ -50,10 +50,7 @@ class Shy
      */
     public function routeIndex()
     {
-        bind(\Shy\Http\Contract\Request::class, \Shy\Http\Request::class);
-
         $router = shy(\Shy\Http\Contract\Router::class, \Shy\Http\Router::class);
-        $router->initialize();
         $router->buildRoute();
 
         return json_encode($router->getRouteIndex());
