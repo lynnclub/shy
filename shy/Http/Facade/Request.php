@@ -3,7 +3,7 @@
 namespace Shy\Http\Facade;
 
 use Shy\Facade;
-use Shy\Http\Contract\Request as RequestContracts;
+use Shy\Http\Contract\Request as RequestContract;
 
 /**
  * Class Request
@@ -36,6 +36,6 @@ class Request extends Facade
      */
     protected static function getInstance()
     {
-        return shy(RequestContracts::class);
+        return shy(RequestContract::class);
     }
 }

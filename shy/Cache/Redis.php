@@ -4,11 +4,11 @@ namespace Shy\Cache;
 
 use Exception;
 use Redis as PhpRedis;
-use Shy\Contract\Cache as CacheContracts;
+use Shy\Contract\Cache as CacheContract;
 use Shy\Contract\DataBase;
 use Shy\Exception\Cache\InvalidArgumentException;
 
-class Redis extends PhpRedis implements CacheContracts, DataBase
+class Redis extends PhpRedis implements CacheContract, DataBase
 {
     /**
      * @var array
