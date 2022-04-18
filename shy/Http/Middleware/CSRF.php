@@ -5,7 +5,6 @@ namespace Shy\Http\Middleware;
 use Closure;
 use Shy\Contract\Middleware;
 use Shy\Http\Facade\Request;
-use Shy\Http\Facade\Session;
 use Shy\Http\Exception\HttpException;
 
 class CSRF implements Middleware
@@ -19,15 +18,15 @@ class CSRF implements Middleware
      */
     public function handle(Closure $next, ...$passable)
     {
-        $token = Request::header('X-CSRF-TOKEN');
+        $token = Request::header('X-CSRF-TOKEN', '');
         if (empty($token)) {
-            $token = Request::get('csrf-token');
+            $token = Request::get('csrf-token', '');
             if (empty($token)) {
-                $token = Request::get('_token');
+                $token = Request::get('_token', '');
             }
         }
 
-        if (empty($token) || $token !== Session::get('csrf-token')) {
+        if (!csrf_verify($token, $passable[0] ?? '')) {
             if (Request::expectsJson()) {
                 return get_response_json(5002);
             } else {

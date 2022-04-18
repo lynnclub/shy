@@ -79,6 +79,6 @@ class Session implements SessionContract
             $name = '__token';
         }
 
-        return $_SESSION[$name] = uniqid();
+        return $_SESSION[$name] = uniqid('', true);
     }
 }
