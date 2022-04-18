@@ -4,7 +4,6 @@ namespace Shy\Logger;
 
 use Shy\Contract\Logger as LoggerContract;
 use Shy\Http\Contract\Request;
-use Shy\Contract\Config;
 use RuntimeException;
 use Aliyun_Log_Client;
 use Aliyun_Log_Models_LogItem;
@@ -16,11 +15,10 @@ class Aliyun extends File implements LoggerContract
      * Logger constructor.
      *
      * @param Request $request
-     * @param Config $config
      */
-    public function __construct(Config $config, Request $request = null)
+    public function __construct(Request $request = null)
     {
-        parent::__construct($config, $request);
+        parent::__construct($request);
     }
 
     /**

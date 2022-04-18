@@ -7,15 +7,9 @@ use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Shy\Contract\Logger as LoggerContract;
 use Shy\Http\Contract\Request;
-use Shy\Contract\Config;
 
 class File extends AbstractLogger implements LoggerContract
 {
-    /**
-     * @var Config
-     */
-    protected $config;
-
     /**
      * @var Request
      */
@@ -30,11 +24,9 @@ class File extends AbstractLogger implements LoggerContract
      * Logger constructor.
      *
      * @param Request $request
-     * @param Config $config
      */
-    public function __construct(Config $config, Request $request = null)
+    public function __construct(Request $request = null)
     {
-        $this->config = $config;
         $this->request = $request;
 
         $this->levels = [LogLevel::EMERGENCY, LogLevel::ALERT, LogLevel::CRITICAL, LogLevel::ERROR, LogLevel::WARNING, LogLevel::NOTICE, LogLevel::INFO, LogLevel::DEBUG];
