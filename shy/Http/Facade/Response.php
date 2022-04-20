@@ -2,8 +2,8 @@
 
 namespace Shy\Http\Facade;
 
-use Shy\Core\Facade;
-use Shy\Http\Contract\Response as ResponseContracts;
+use Shy\Facade;
+use Shy\Http\Contract\Response as ResponseContract;
 
 /**
  * Class Response
@@ -24,6 +24,6 @@ class Response extends Facade
      */
     protected static function getInstance()
     {
-        return shy(ResponseContracts::class);
+        return shy(ResponseContract::class);
     }
 }

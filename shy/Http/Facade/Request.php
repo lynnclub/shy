@@ -2,8 +2,8 @@
 
 namespace Shy\Http\Facade;
 
-use Shy\Core\Facade;
-use Shy\Http\Contract\Request as RequestContracts;
+use Shy\Facade;
+use Shy\Http\Contract\Request as RequestContract;
 
 /**
  * Class Request
@@ -13,7 +13,7 @@ use Shy\Http\Contract\Request as RequestContracts;
  * @method static bool isInitialized()
  * @method static mixed get($key, $default = null)
  * @method static array all()
- * @method static string content()
+ * @method static string getContent(bool $asResource = false)
  * @method static string getHost()
  * @method static string getBaseUrl()
  * @method static string getPathInfo()
@@ -36,6 +36,6 @@ class Request extends Facade
      */
     protected static function getInstance()
     {
-        return shy(RequestContracts::class);
+        return shy(RequestContract::class);
     }
 }

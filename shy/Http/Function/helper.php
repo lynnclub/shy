@@ -53,7 +53,7 @@ if (!function_exists('url')) {
             if (empty($base_url = config('app.base_url'))) {
                 $request = shy(Request::class);
                 if (is_object($request)) {
-                    $base_url = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+                    $base_url = $request->getUriForPath('/');
                 } else {
                     $base_url = '';
                 }
@@ -70,7 +70,16 @@ if (!function_exists('url')) {
         $pathArray = explode('/', $path);
         $sectionNum = count($pathArray);
 
-        $routeIndex = shy(Router::class)->getRouteIndex();
+        $router = shy(Router::class);
+        if (!is_object($router)) {
+            throw new \RuntimeException('Router contract is not bound.');
+        }
+
+        $routeIndex = $router->getRouteIndex();
+        if (empty($routeIndex)) {
+            $router->buildRoute();
+            $routeIndex = $router->getRouteIndex();
+        }
 
         if (isset($routeIndex[$host][$sectionNum])) {
             $sectionRouteIndex = $routeIndex[$host][$sectionNum];
@@ -117,7 +126,7 @@ if (!function_exists('url')) {
         if (isset($validPath)) {
             return $base_url . '/' . $validPath;
         } else {
-            throw new \RuntimeException('Path "' . $path . '" not found in router config.');
+            throw new \RuntimeException('Path "' . $path . '" not found in router index.');
         }
     }
 }
@@ -163,25 +172,27 @@ if (!function_exists('xss_clean')) {
 
 if (!function_exists('csrf_field')) {
     /**
-     * Generate a CSRF token form field.（（Echo here will cause workerman error.）
+     * Generate a CSRF token form field.
      *
+     * @param string $name
      * @return string
      */
-    function csrf_field()
+    function csrf_field(string $name = '')
     {
-        return '<input type="text" hidden="hidden" name="csrf-token" value="' . csrf_token() . '">';
+        return '<input type="text" hidden="hidden" name="csrf-token" value="' . csrf_token($name) . '">';
     }
 }
 
 if (!function_exists('csrf_meta')) {
     /**
-     * Generate a CSRF token meta.（Echo here will cause workerman error.）
+     * Generate a CSRF token meta tag.
      *
+     * @param string $name
      * @return string
      */
-    function csrf_meta()
+    function csrf_meta(string $name = '')
     {
-        return '<meta name="csrf-token" content="' . csrf_token() . '">';
+        return '<meta name="csrf-token" content="' . csrf_token($name) . '">';
     }
 }
 
@@ -189,11 +200,12 @@ if (!function_exists('csrf_token')) {
     /**
      * Get the CSRF token value.
      *
+     * @param string $name
      * @return string
      */
-    function csrf_token()
+    function csrf_token(string $name = '')
     {
-        return shy(Session::class)->token('csrf-token');
+        return shy(Session::class)->token('__csrf_token' . empty_or_splice($name, ':'));
     }
 }
 
@@ -202,12 +214,17 @@ if (!function_exists('csrf_verify')) {
      * Verify CSRF token.
      *
      * @param string $token
+     * @param string $name
      * @return bool
      */
-    function csrf_verify(string $token)
+    function csrf_verify(string $token, string $name = '')
     {
-        $sessionToken = shy(Session::class)->get('csrf-token');
-        if (!empty($token) && $token === $sessionToken) {
+        if (empty($token)) {
+            return FALSE;
+        }
+
+        $sessionToken = shy(Session::class)->get('__csrf_token' . empty_or_splice($name, ':'));
+        if ($token === $sessionToken) {
             return TRUE;
         }
 

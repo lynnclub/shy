@@ -3,10 +3,9 @@
 namespace Shy;
 
 use Exception;
-use Shy\Core\Exception\HandlerRegister;
-use Shy\Core\Facade\Hook;
+use Shy\Exception\HandlerRegister;
+use Shy\Facade\Hook;
 use Throwable;
-use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http;
 use Workerman\Worker;
 
@@ -34,7 +33,7 @@ class HttpInWorkerMan extends Worker
     protected $_onWorkerStart = null;
 
     /**
-     * @var $container \Shy\Core\Container
+     * @var $container \Shy\Container
      */
     protected $container;
 
@@ -112,7 +111,7 @@ class HttpInWorkerMan extends Worker
             }
         }
 
-        $this->container->addForkPid($this->id);
+        $this->container->updateForkedProcessStartInfo($this->id);
     }
 
     /**
@@ -147,8 +146,8 @@ class HttpInWorkerMan extends Worker
     /**
      * Emit when http message coming.
      *
-     * @param TcpConnection $connection
-     * @throws Core\Exception\Container\NotFoundException
+     * @param \Workerman\Connection\TcpConnection $connection
+     * @throws \Shy\Exception\Container\NotFoundException
      */
     public function onMessage($connection)
     {
@@ -204,6 +203,7 @@ class HttpInWorkerMan extends Worker
             self::sendFile($connection, $workerman_file);
         } else {
             ob_start();
+
             // $_SERVER.
             $_SERVER['REMOTE_ADDR'] = $connection->getRemoteIp();
             $_SERVER['REMOTE_PORT'] = $connection->getRemotePort();
@@ -212,26 +212,28 @@ class HttpInWorkerMan extends Worker
              * Run Shy Framework
              */
             try {
-                /**
-                 * Cycle information
-                 */
-                $this->container->set('SHY_CYCLE_COUNT', $this->container->get('SHY_CYCLE_COUNT') + 1);
-                $this->container->set('SHY_CYCLE_START_TIME', microtime(TRUE));
+                // 循环信息 Loop info
+                $this->container->set('HTTP_LOOP_COUNT', $this->container->get('HTTP_LOOP_COUNT') + 1);
+                $this->container->set('HTTP_LOOP_START_TIME', microtime(TRUE));
 
-                $this->container['request']->initialize($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER, file_get_contents('php://input'));
+                // 装载请求 Load the request
+                $this->container['request']->initialize(
+                    $_GET,
+                    $_POST,
+                    [],
+                    $_COOKIE,
+                    $_FILES,
+                    $_SERVER,
+                    file_get_contents('php://input')
+                );
+
+                // 启动会话
                 $this->container['session']->sessionStart();
 
-                if (!defined('BASE_URL')) {
-                    if (empty($base_url = config('app.base_url'))) {
-                        define('BASE_URL', $this->container['request']->getSchemeAndHttpHost() . $this->container['request']->getBaseUrl() . '/');
-                    } else {
-                        define('BASE_URL', rtrim($base_url, '/') . '/');
-                    }
+                // 钩子-请求处理前
+                Hook::run('request_before');
 
-                    unset($base_url);
-                }
-
-                // Run
+                // 处理请求，输出响应 Process the request and output the response
                 $response = $this->container['router']->run($this->container['request']);
                 if (method_exists($response, 'output')) {
                     $response->output();
@@ -239,10 +241,10 @@ class HttpInWorkerMan extends Worker
                     $this->container['response']->output($response);
                 }
 
-                // Hook
+                // 钩子-响应后
                 Hook::run('response_after');
 
-                // Clear Request
+                // 将请求恢复初始状态 Restore the request to original state
                 $this->container['request']->initialize();
             } catch (Throwable $e) {
                 $this->container->get(HandlerRegister::class)->handleException($e);

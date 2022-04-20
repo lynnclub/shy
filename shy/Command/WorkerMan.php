@@ -21,13 +21,15 @@ class WorkerMan
         }
 
         global $argv;
-        $argv[0] = 'command http_workerman';
+        $argv[0] = 'http_workerman';
 
         $web = shy(HttpInWorkerMan::class, null, 'http://0.0.0.0:' . $config['port']);
         $web->count = $config['worker'];
         $web->addRoot('localhost', PUBLIC_PATH);
 
-        Worker::$stdoutFile = CACHE_PATH . 'log/command/' . date('Ymd') . '.log';
+        Worker::$processTitle = 'http_workerman';
+        Worker::$pidFile = CACHE_PATH . 'app/http_workerman.pid';
+        Worker::$logFile = CACHE_PATH . 'log/command/' . date('Ymd') . '.log';
         Worker::runAll();
     }
 
@@ -45,7 +47,7 @@ class WorkerMan
         if (isset($config[$argv[1]])) {
             $config = $config[$argv[1]];
 
-            $argv[0] = 'command workerman ' . $argv[1];
+            $argv[0] = 'workerman ' . $argv[1];
             $argv[1] = $argv[2];
             $argv[2] = $argv[3] ?? '';
         } else {

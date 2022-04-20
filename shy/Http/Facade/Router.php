@@ -2,8 +2,8 @@
 
 namespace Shy\Http\Facade;
 
-use Shy\Core\Facade;
-use Shy\Http\Contract\Router as RouterContracts;
+use Shy\Facade;
+use Shy\Http\Contract\Router as RouterContract;
 
 /**
  * Class Router
@@ -23,6 +23,6 @@ class Router extends Facade
      */
     protected static function getInstance()
     {
-        return shy(RouterContracts::class);
+        return shy(RouterContract::class);
     }
 }

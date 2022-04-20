@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use Shy\Core\Contract\Middleware;
 use Closure;
+use Shy\Contract\Middleware;
 
 class Stop implements Middleware
 {
@@ -11,6 +11,6 @@ class Stop implements Middleware
     {
         echo 'App\Http\Middleware\Stop path param ';
 
-        dd($passable);
+        return $passable;
     }
 }

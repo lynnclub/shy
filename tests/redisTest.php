@@ -1,11 +1,11 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Shy\Core\Facade\Cache;
+use Shy\Facade\Cache;
 
 class redisTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         require __DIR__ . '/../bootstrap/command.php';
     }

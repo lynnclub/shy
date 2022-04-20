@@ -2,7 +2,7 @@
 
 namespace App\Http\Facade;
 
-use Shy\Core\Facade;
+use Shy\Facade;
 use App\Http\Business\TestBusiness as realTestBusiness;
 
 class TestBusiness extends Facade

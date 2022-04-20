@@ -24,5 +24,4 @@ class Example implements WorkerMan
     {
         $connection->send('On Close');
     }
-
 }

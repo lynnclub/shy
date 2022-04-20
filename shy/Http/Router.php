@@ -2,8 +2,8 @@
 
 namespace Shy\Http;
 
-use Shy\Core\Contract\Pipeline;
-use Shy\Core\Facade\Hook;
+use Shy\Contract\Pipeline;
+use Shy\Facade\Hook;
 use Shy\Http\Contract\Router as RouterContract;
 use Shy\Http\Contract\Request as RequestContract;
 use Shy\Http\Exception\HttpException;
@@ -11,82 +11,93 @@ use Shy\Http\Exception\HttpException;
 class Router implements RouterContract
 {
     /**
+     * 控制器默认命名空间
+     * Default namespace of controller
+     *
      * @var string
      */
-    protected $namespace;
+    public $defaultNamespace = 'App\\Http\\Controller\\';
 
     /**
+     * 被调用控制器
+     * Called controller
+     *
      * @var string
      */
     protected $controller;
 
     /**
+     * 被调用控制器方法
+     * Called controller method
+     *
      * @var string
      */
-    protected $method = 'index';
+    protected $method;
 
     /**
-     * @var array
-     */
-    protected $pathParam = [];
-
-    /**
+     * 路径域名
+     *
      * @var string
      */
     protected $host;
 
     /**
+     * 请求路径
+     *
      * @var string
      */
     protected $pathInfo;
 
     /**
+     * 路由配置
+     *
      * @var array
      */
     protected $routeConfig;
 
     /**
+     * 路由索引
+     *
      * @var array
      */
     protected $routeIndex;
 
     /**
+     * 路径参数
+     *
+     * @var array
+     */
+    protected $pathParam = [];
+
+    /**
+     * 中间件
+     *
      * @var array
      */
     protected $middleware;
 
     /**
-     * Is parse route success
+     * 是否解析成功
+     * Is the parse successful
      *
      * @var bool
      */
-    protected $parseRouteSuccess;
+    protected $parseSuccess;
 
     /**
-     * Router constructor.
-     *
-     * @param string $defaultNamespace
-     * @param string $defaultController
-     */
-    public function __construct($defaultNamespace = null, $defaultController = null)
-    {
-        $this->namespace = $defaultNamespace ?? 'App\\Http\\Controller\\';
-        $this->controller = $defaultController ?? config('app.default_controller');
-    }
-
-    /**
-     * Initialize for cycle
+     * 初始化，以便循环复用
+     * Initialize in loop
      */
     public function initialize()
     {
         $this->pathParam = [];
-        $this->routeConfig = [];
-        $this->routeIndex = [];
         $this->middleware = [];
-        $this->parseRouteSuccess = FALSE;
+        $this->parseSuccess = FALSE;
     }
 
     /**
+     * 获取请求路径
+     *
      * @return string
      */
     public function getPathInfo()
@@ -95,6 +106,9 @@ class Router implements RouterContract
     }
 
     /**
+     * 获取被调用控制器
+     * Get the called controller
+     *
      * @return string
      */
     public function getController()
@@ -103,6 +117,9 @@ class Router implements RouterContract
     }
 
     /**
+     * 获取被调用控制器方法
+     * Get the called controller method
+     *
      * @return string
      */
     public function getMethod()
@@ -111,6 +128,8 @@ class Router implements RouterContract
     }
 
     /**
+     * 获取路由配置
+     *
      * @return array
      */
     public function getRouteConfig()
@@ -119,6 +138,8 @@ class Router implements RouterContract
     }
 
     /**
+     * 获取路由索引
+     *
      * @return array
      */
     public function getRouteIndex()
@@ -127,6 +148,8 @@ class Router implements RouterContract
     }
 
     /**
+     * 获取中间件
+     *
      * @return array
      */
     public function getMiddleware()
@@ -135,6 +158,8 @@ class Router implements RouterContract
     }
 
     /**
+     * 获取路径参数
+     *
      * @return array
      */
     public function getPathParam()
@@ -143,7 +168,7 @@ class Router implements RouterContract
     }
 
     /**
-     * Run
+     * 执行
      *
      * @param RequestContract $request
      * @return mixed|View|string
@@ -156,26 +181,26 @@ class Router implements RouterContract
         $this->host = $request->getHttpHost();
         $this->pathInfo = trim($request->getPathInfo(), " \/\t\n\r\0\x0B");
 
-        // Parse Route
+        // 解析路由 Parse route
         if (config('app.route_by_config')) {
             $this->parseRouteByConfig();
         }
-        if (!$this->parseRouteSuccess && config('app.route_by_path')) {
+        if (!$this->parseSuccess && config('app.route_by_path')) {
             $this->parseRouteByPath();
         }
 
-        // Check controller
-        if (!$this->parseRouteSuccess) {
+        // 检查控制器 Check controller
+        if (!$this->parseSuccess) {
             throw new httpException(404, 'Route not found. ' . $this->pathInfo);
         }
         if (!class_exists($this->controller) || !method_exists($this->controller, $this->method)) {
-            throw new httpException(404, 'Controller not found. ' . $this->pathInfo . ' ' . $this->controller . '->' . $this->method);
+            throw new httpException(404, 'Controller not found: ' . $this->pathInfo . ' ' . $this->controller . '->' . $this->method);
         }
 
-        // Hook
+        // 钩子-控制器运行前
         Hook::run('run_controller_before', $this->pathParam);
 
-        // Run controller and middleware
+        // 运行控制器和中间件 Run controller and middleware
         if (empty($this->middleware)) {
             $response = $this->runController();
         } else {
@@ -195,105 +220,56 @@ class Router implements RouterContract
     }
 
     /**
+     * 通过配置解析路由
      * Parse route by config
      */
     protected function parseRouteByConfig()
     {
-        // Read from cache, or build
-        if (empty($this->routeConfig)) {
-            $isCacheOn = config('app.cache');
-            if ($isCacheOn && config()->has('__ROUTE_CONFIG')) {
-                $this->routeConfig = config('__ROUTE_CONFIG');
-                $this->routeIndex = config('__ROUTE_INDEX');
-            } else {
-                $this->buildRouteByConfig();
+        // 读取缓存，或者构建 Read from cache, or build
+        if ($isCache = config('app.cache')) {
+            if (empty($this->routeConfig)) {
+                $config = config();
+                if ($config->has('__SHY_ROUTE_CONFIG')) {
+                    $this->routeConfig = config('__SHY_ROUTE_CONFIG');
+                    $this->routeIndex = config('__SHY_ROUTE_INDEX');
+                } else {
+                    $this->buildRoute();
 
-                if ($isCacheOn) {
-                    config()->set('__ROUTE_CONFIG', $this->routeConfig);
-                    config()->set('__ROUTE_INDEX', $this->routeIndex);
+                    $config->set('__SHY_ROUTE_CONFIG', $this->routeConfig);
+                    $config->set('__SHY_ROUTE_INDEX', $this->routeIndex);
                 }
             }
-        }
-
-        // Parse route with host
-        if (isset($this->routeConfig[$this->host])) {
-            $this->doParseRouteByConfig($this->routeConfig[$this->host], $this->routeIndex[$this->host]);
-        }
-        // Parse route without host
-        if (!$this->parseRouteSuccess && isset($this->routeConfig[''])) {
-            $this->doParseRouteByConfig($this->routeConfig[''], $this->routeIndex['']);
-        }
-    }
-
-    /**
-     * @param $routeConfig
-     * @param $routeIndex
-     */
-    protected function doParseRouteByConfig($routeConfig, $routeIndex)
-    {
-        if (isset($routeConfig[$this->pathInfo])) {
-            $this->useParsedRouteByConfig($routeConfig[$this->pathInfo]);
         } else {
-            $pathArray = explode('/', $this->pathInfo);
-            $count = count($pathArray);
+            $this->buildRoute();
+        }
 
-            if (isset($routeIndex[$count])) {
-                $routeIndex = $routeIndex[$count];
-                $matchSuccess = true;
-                $matchPath = [];
-                $matchParam = [];
-                foreach ($pathArray as $path) {
-                    if (isset($routeIndex[$path])) {
-                        $matchPath[] = $path;
-                        $routeIndex = $routeIndex[$path];
-                    } elseif (isset($routeIndex['?'])) {
-                        $matchPath[] = '?';
-                        $matchParam[] = $path;
-                        $routeIndex = $routeIndex['?'];
-                    } else {
-                        $matchSuccess = false;
-                        break;
-                    }
-                }
-
-                $matchPath = implode('/', $matchPath);
-                if ($matchSuccess && empty($routeIndex) && isset($routeConfig[$matchPath])) {
-                    $this->useParsedRouteByConfig($routeConfig[$matchPath], $matchParam);
-                }
-            }
+        // 解析限域名路由 Parse route with host
+        if (isset($this->routeConfig[$this->host])) {
+            $this->parseCurrentPathByConfig($this->routeConfig[$this->host], $this->routeIndex[$this->host]);
+        }
+        // 解析无域名路由 Parse route without host
+        if (!$this->parseSuccess && isset($this->routeConfig[''])) {
+            $this->parseCurrentPathByConfig($this->routeConfig[''], $this->routeIndex['']);
         }
     }
 
     /**
-     * @param $config
-     * @param array $pathParam
+     * 构建路由，根据配置文件
      */
-    protected function useParsedRouteByConfig($config, $pathParam = [])
+    public function buildRoute()
     {
-        list($this->controller, $this->method) = array_pad(explode('@', $config['hdl']), 2, 'index');
+        $this->routeConfig = $this->routeIndex = [];
 
-        $this->middleware = $config['mdw'] ?? [];
-        $this->pathParam = $pathParam;
-
-        $this->parseRouteSuccess = TRUE;
-    }
-
-    /**
-     * Build route by config
-     */
-    public function buildRouteByConfig()
-    {
-        $this->routeConfig = [];
         $router = config('router');
 
-        // Path route
+        // 简单路径 Simple path
         if (isset($router['path']) && is_array($router['path'])) {
             foreach ($router['path'] as $path => $handle) {
-                $this->doBuildRouteByConfig('', $path, $this->namespace, $handle);
+                $this->assembleRoute('', $path, $this->defaultNamespace, $handle);
             }
         }
 
-        // Group route
+        // 组路径 Group path
         if (isset($router['group']) && is_array($router['group'])) {
             foreach ($router['group'] as $group) {
                 if (!isset($group['path']) || !is_array($group['path'])) {
@@ -301,7 +277,7 @@ class Router implements RouterContract
                 }
 
                 $host = '';
-                if (isset($group['host']) && (is_string($group['host']) || is_array($group['host']))) {
+                if (isset($group['host'])) {
                     $host = $group['host'];
                 }
 
@@ -310,27 +286,28 @@ class Router implements RouterContract
                     $prefix = trim($group['prefix'], " \/\t\n\r\0\x0B") . '/';
                 }
 
-                $namespace = $this->namespace;
-                if (isset($group['namespace']) && is_string($group['namespace']) && !empty($group['namespace'])) {
+                $namespace = $this->defaultNamespace;
+                if (isset($group['namespace']) && is_string($group['namespace'])) {
                     $namespace = trim($group['namespace'], " \\\/\t\n\r\0\x0B") . '\\';
                 }
 
                 $middleware = [];
                 if (isset($group['middleware']) && is_array($group['middleware'])) {
-                    $middleware = $this->getMiddlewareClassInConfig($group['middleware']);
+                    $middleware = $this->getMiddlewareFullNameByConfig($group['middleware']);
                 }
 
                 foreach ($group['path'] as $path => $handle) {
                     $path = $prefix . trim($path, " \/\t\n\r\0\x0B");
 
-                    $this->doBuildRouteByConfig($host, $path, $namespace, $handle, $middleware);
+                    $this->assembleRoute($host, $path, $namespace, $handle, $middleware);
                 }
             }
         }
     }
 
     /**
-     * Do build route by config
+     * 组装路由
+     * Assemble the build route
      *
      * @param string|array $host
      * @param string $path
@@ -338,64 +315,69 @@ class Router implements RouterContract
      * @param string $handle
      * @param array $middleware
      */
-    protected function doBuildRouteByConfig($host, string $path, string $namespace, string $handle, array $middleware = [])
+    protected function assembleRoute($host, string $path, string $namespace, string $handle, array $middleware = [])
     {
         $path = trim($path, " \/\t\n\r\0\x0B");
         $handle = trim($handle, " \\\/\t\n\r\0\x0B");
 
         $routeConfig = [
-            'hdl' => $namespace . ucfirst($handle),
+            'hl' => $namespace . ucfirst($handle),
         ];
 
         if (!empty($middleware)) {
-            $routeConfig['mdw'] = $middleware;
+            $routeConfig['mw'] = $middleware;
         }
 
-        $this->doBuildHostRouteByConfig($host, $path, $routeConfig);
-        $this->doBuildHostRouteIndexByConfig($host, $path);
+        $this->assembleRouteConfig($host, $path, $routeConfig);
+        $this->assembleRouteIndex($host, $path);
     }
 
     /**
+     * 组装路由配置
+     *
      * @param $host
      * @param string $path
      * @param array $routeConfig
      */
-    protected function doBuildHostRouteByConfig($host, string $path, array $routeConfig)
+    protected function assembleRouteConfig($host, string $path, array $routeConfig)
     {
-        if (empty($host)) {
-            $this->routeConfig[''][$path] = $routeConfig;
-        } else {
-            if (is_array($host)) {
-                foreach ($host as $oneHost) {
-                    $this->doBuildHostRouteByConfig($oneHost, $path, $routeConfig);
-                }
-            } elseif (is_string($host) && preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches) && !empty($matches[2])) {
-                $this->routeConfig[$matches[2]][$path] = $routeConfig;
+        if (is_string($host)) {
+            if ($host && preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches)) {
+                $host = $matches[2] ?? '';
+            }
+
+            $this->routeConfig[$host][$path] = $routeConfig;
+            return;
+        }
+
+        if (is_array($host)) {
+            foreach ($host as $oneHost) {
+                $this->assembleRouteConfig($oneHost, $path, $routeConfig);
             }
         }
     }
 
     /**
+     * 组装路由索引
+     *
      * @param $host
      * @param string $path
      */
-    protected function doBuildHostRouteIndexByConfig($host, string $path)
+    protected function assembleRouteIndex($host, string $path)
     {
-        if (is_array($host)) {
-            foreach ($host as $oneHost) {
-                $this->doBuildHostRouteIndexByConfig($oneHost, $path);
-            }
-        } elseif (empty($host) || (preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches) && !empty($matches[2]))) {
-            if (!empty($matches[2])) {
-                $host = $matches[2];
+        if (is_string($host)) {
+            if ($host && preg_match("/^(http:\/\/|https:\/\/)?([^\/]+)/i", $host, $matches)) {
+                $host = $matches[2] ?? '';
             }
 
+            // 路径分节 Path Segmentation
             $paths = explode('/', $path);
             $count = count($paths);
             if (!isset($this->routeIndex[$host][$count])) {
                 $this->routeIndex[$host][$count] = [];
             }
 
+            // 组装层级数组作为索引 Assemble the hierarchical array as index
             $currentIndex = &$this->routeIndex[$host][$count];
             foreach ($paths as $currentPath) {
                 if (!isset($currentIndex[$currentPath])) {
@@ -404,33 +386,47 @@ class Router implements RouterContract
 
                 $currentIndex = &$currentIndex[$currentPath];
             }
+
+            return;
+        }
+
+        if (is_array($host)) {
+            foreach ($host as $oneHost) {
+                $this->assembleRouteIndex($oneHost, $path);
+            }
         }
     }
 
     /**
-     * Get middleware class in config
+     * 获取中间件全名
      *
-     * @param $middlewareNames
+     * @param $shortNames
      * @return array
      */
-    protected function getMiddlewareClassInConfig(array $middlewareNames)
+    protected function getMiddlewareFullNameByConfig(array $shortNames)
     {
-        $middleware = [];
-
         $config = config('middleware');
-        foreach ($middlewareNames as $middlewareName) {
-            list($name, $param) = array_pad(explode(':', $middlewareName, 2), 2, null);
+
+        $middleware = [];
+        foreach ($shortNames as $shortName) {
+            list($name, $param) = array_pad(explode(':', $shortName, 2), 2, null);
+
+            $param = isset($param) ? ':' . $param : '';
 
             if (isset($config[$name])) {
-                $className = $config[$name];
-                if (is_array($className)) {
-                    $middleware = array_merge($middleware, $className);
+                // 支持中间件组 Support middleware group
+                if (is_array($config[$name])) {
+                    $group = array_map(function ($name) use ($param) {
+                        return $name . $param;
+                    }, $config[$name]);
+
+                    $middleware = array_merge($middleware, $group);
                 } else {
-                    $middleware[] = $className . (isset($param) ? ':' . $param : '');
+                    $middleware[] = $config[$name] . $param;
                 }
             } else {
-                // Full class name
-                $middleware[] = $name;
+                // 不存在时视为全名 Treated as full name if not exist
+                $middleware[] = $name . $param;
             }
         }
 
@@ -438,25 +434,99 @@ class Router implements RouterContract
     }
 
     /**
+     * 执行解析当前路径
+     *
+     * @param array $routeConfig
+     * @param array $routeIndex
+     */
+    protected function parseCurrentPathByConfig(array $routeConfig, array $routeIndex)
+    {
+        if (isset($routeConfig[$this->pathInfo])) {
+            $this->makeRouteConfigTakeEffect($routeConfig[$this->pathInfo]);
+            return;
+        }
+
+        $paths = explode('/', $this->pathInfo);
+        $count = count($paths);
+
+        if (isset($routeIndex[$count])) {
+            $currentIndex = $routeIndex[$count];
+            $success = true;
+            $matchPath = [];
+            $matchParam = [];
+            foreach ($paths as $path) {
+                if (isset($currentIndex[$path])) {
+                    $matchPath[] = $path;
+                    $currentIndex = $currentIndex[$path];
+                } elseif (isset($currentIndex['?'])) {
+                    $matchPath[] = '?';
+                    $matchParam[] = $path;
+                    $currentIndex = $currentIndex['?'];
+                } else {
+                    $success = false;
+                    break;
+                }
+            }
+
+            $matchPath = implode('/', $matchPath);
+            if ($success && empty($currentIndex) && isset($routeConfig[$matchPath])) {
+                $this->makeRouteConfigTakeEffect($routeConfig[$matchPath], $matchParam);
+            }
+        }
+    }
+
+    /**
+     * 使配置路由生效
+     * Make the config route take effect
+     *
+     * @param $config
+     * @param array $pathParam
+     */
+    protected function makeRouteConfigTakeEffect($config, array $pathParam = [])
+    {
+        list($this->controller, $this->method) = array_pad(explode('@', $config['hl']), 2, 'index');
+
+        $this->middleware = $config['mw'] ?? [];
+        $this->pathParam = $pathParam;
+
+        $this->parseSuccess = TRUE;
+    }
+
+    /**
+     * 通过路径解析路由
      * Parse route by path
      */
     protected function parseRouteByPath()
     {
+        $controller = config('app.default_controller');
+        $method = 'index';
+
         $path = explode('/', $this->pathInfo);
+        $count = count($path);
+        $methodPos = $count >= 3 ? 2 : 1;
         if (!empty($path[0])) {
-            $this->controller = ucfirst($path[0]);
-            if (!empty($path[1])) {
-                $this->method = ucfirst($path[1]);
-                if (isset($path[2])) {
-                    $this->pathParam = array_slice($path, 2);
+            if ($count >= 3) {
+                $controller = ucfirst($path[0]) . '\\' . ucfirst($path[1]);
+            } else {
+                $controller = ucfirst($path[0]);
+            }
+
+            if (!empty($path[$methodPos])) {
+                $method = ucfirst($path[$methodPos]);
+                if (isset($path[$methodPos + 1])) {
+                    $this->pathParam = array_slice($path, $methodPos + 1);
                 }
             }
         }
 
-        $this->parseRouteSuccess = TRUE;
+        $this->controller = $this->defaultNamespace . $controller;
+        $this->method = $method;
+
+        $this->parseSuccess = TRUE;
     }
 
     /**
+     * 运行控制器
      * Run controller
      *
      * @return mixed

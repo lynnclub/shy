@@ -17,5 +17,5 @@ return [
      */
 
     'test' => [App\Command\Example::class => 'test'],
-    'test2' => [App\Command\Example::class => 'test'],
+    'test2' => [App\Command\Example::class => 'test2'],
 ];

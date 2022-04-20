@@ -1,15 +1,20 @@
 #!/usr/bin/env php
 <?php
 
+use Shy\Command;
+use Shy\Facade\Hook;
+
 /**
- * @var $container \Shy\Core\Container
+ * 执行启动器，得到容器
+ *
+ * @var $container \Shy\Container
  */
 $container = require __DIR__ . '/bootstrap/command.php';
 
-// Hook
-\Shy\Core\Facade\Hook::run('command_before');
+// 钩子-命令处理前
+Hook::run('command_before');
 
-$container->make(\Shy\Command::class)->run();
+$container->make(Command::class)->run();
 
-// Hook
-\Shy\Core\Facade\Hook::run('command_after');
+// 钩子-命令处理后
+Hook::run('command_after');

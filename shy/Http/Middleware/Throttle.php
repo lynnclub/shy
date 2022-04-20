@@ -3,10 +3,10 @@
 namespace Shy\Http\Middleware;
 
 use Closure;
-use Shy\Core\Contract\Middleware;
+use Shy\Contract\Middleware;
 use Shy\Http\Facade\Request;
-use Shy\Core\Facade\Cache;
-use Shy\Core\Facade\Logger;
+use Shy\Facade\Cache;
+use Shy\Facade\Logger;
 use Shy\Http\Facade\Response;
 use Shy\Http\Facade\Router;
 use Shy\Http\Exception\HttpException;

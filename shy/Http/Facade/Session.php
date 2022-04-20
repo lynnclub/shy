@@ -2,8 +2,8 @@
 
 namespace Shy\Http\Facade;
 
-use Shy\Core\Facade;
-use Shy\Http\Contract\Session as SessionContracts;
+use Shy\Facade;
+use Shy\Http\Contract\Session as SessionContract;
 
 /**
  * Class Session
@@ -26,6 +26,6 @@ class Session extends Facade
      */
     protected static function getInstance()
     {
-        return shy(SessionContracts::class);
+        return shy(SessionContract::class);
     }
 }
