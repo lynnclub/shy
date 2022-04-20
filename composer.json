@@ -59,6 +59,5 @@
         "illuminate/database": "Required to use the database. Support version <= 5.5.44",
         "aliyunlog/aliyun-log-php-sdk": "Required to use the Aliyun log. Support version <= 0.6.1"
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }
