@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport"
-          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
-    <meta name="renderer" content="webkit">
-    <title>Http Error</title>
-    <link rel="stylesheet" href="<?php url() ?>vendor/font-awesome-4.7.0/css/font-awesome.min.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="applicable-device" content="pc,mobile">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Oops~</title>
+    <link rel="stylesheet" href="<?php param('BASE_URL') ?>vendor/font-awesome/css/font-awesome.min.css">
     <style>
         html, body, h1, div, li, p, input {
             margin: 0;
@@ -69,7 +69,6 @@
             border-radius: 4px;
             text-decoration: none;
         }
-
     </style>
 </head>
 <body>
@@ -78,9 +77,9 @@
         <i class="fa fa-anchor" aria-hidden="true"></i>
     </div>
     <p class="error-message"><?php echo $e->getMessage() ?></p>
-    <a class="return" href="<?php url() ?>">
+    <a class="return" href="<?php param('BASE_URL') ?>">
         <i class="fa fa-reply" aria-hidden="true"></i>
-        &nbsp;Back Home
+        &nbsp;Home
     </a>
 </div>
 </body>
