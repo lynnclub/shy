@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="applicable-device" content="pc,mobile">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Http Error</title>
-    <link rel="stylesheet" href="<?php url() ?>vendor/font-awesome-4.7.0/css/font-awesome.min.css">
+    <title>Oops~</title>
+    <link rel="stylesheet" href="<?php param('BASE_URL') ?>vendor/font-awesome/css/font-awesome.min.css">
     <style>
         html, body, h1, div, li, p, input {
             margin: 0;
@@ -77,9 +77,9 @@
         <i class="fa fa-anchor" aria-hidden="true"></i>
     </div>
     <p class="error-message"><?php echo $e->getMessage() ?></p>
-    <a class="return" href="<?php url() ?>">
+    <a class="return" href="<?php param('BASE_URL') ?>">
         <i class="fa fa-reply" aria-hidden="true"></i>
-        &nbsp;Back Home
+        &nbsp;Home
     </a>
 </div>
 </body>
