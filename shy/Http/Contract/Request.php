@@ -22,6 +22,7 @@ interface Request
 {
     /**
      * 获取参数值
+     * Get param
      *
      * @param string $key
      * @param null $default

@@ -1,5 +1,6 @@
 <?php
 
+use Shy\Container;
 use Shy\Facade\Hook;
 use Shy\Http\Contract\Request as RequestContract;
 use Shy\Http\Request;
@@ -7,7 +8,7 @@ use Shy\Http\Request;
 /**
  * 执行启动器，得到容器
  *
- * @var $container \Shy\Container
+ * @var $container Container
  */
 $container = require __DIR__ . '/../bootstrap/http.php';
 

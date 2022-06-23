@@ -10,6 +10,7 @@ class Hook
     protected $hooks = [];
 
     /**
+     * 设置钩子
      * Set hook
      *
      * @param string $name
@@ -21,6 +22,7 @@ class Hook
     }
 
     /**
+     * 执行
      * Run
      *
      * @param string $name
