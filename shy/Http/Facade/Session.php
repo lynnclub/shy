@@ -22,6 +22,7 @@ use Shy\Http\Contract\Session as SessionContract;
 class Session extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

@@ -42,6 +42,7 @@ if (!function_exists('view')) {
 
 if (!function_exists('include_view')) {
     /**
+     * 引入视图
      * Include view
      *
      * @param string $filename
@@ -71,6 +72,7 @@ if (!function_exists('include_view')) {
 
 if (!function_exists('get_param')) {
     /**
+     * 获取参数
      * get param
      *
      * @param string $key
@@ -100,6 +102,7 @@ if (!function_exists('get_param')) {
 
 if (!function_exists('param')) {
     /**
+     * 输出参数
      * Echo param
      *
      * @param string $key
@@ -113,6 +116,7 @@ if (!function_exists('param')) {
 
 if (!function_exists('push_resource')) {
     /**
+     * 推送资源
      * Push resource
      *
      * type support js, css
@@ -151,12 +155,12 @@ if (!function_exists('push_resource')) {
             if (!is_array($old)) {
                 throw new \InvalidArgumentException($id . ' value type error.');
             }
-            array_push($old, $resource);
+            $old[] = $resource;
             $old = array_unique($old);
 
             $config->set('__PUSH__RESOURCE_' . $id, $old);
 
-            if (empty($resource) && is_array($old) && !empty($old)) {
+            if (empty($resource) && !empty($old)) {
                 $config->delete('__PUSH__RESOURCE_' . $id);
 
                 echo implode('', $old);

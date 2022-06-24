@@ -2,6 +2,7 @@
 
 namespace Shy\Logger;
 
+use Exception;
 use Psr\Log\AbstractLogger;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
@@ -11,11 +12,15 @@ use Shy\Http\Contract\Request;
 class File extends AbstractLogger implements LoggerContract
 {
     /**
+     * 请求
+     *
      * @var Request
      */
     protected $request;
 
     /**
+     * 日志级别
+     *
      * @var array
      */
     protected $levels;
@@ -23,7 +28,7 @@ class File extends AbstractLogger implements LoggerContract
     /**
      * Logger constructor.
      *
-     * @param Request $request
+     * @param Request|null $request
      */
     public function __construct(Request $request = null)
     {
@@ -33,9 +38,10 @@ class File extends AbstractLogger implements LoggerContract
     }
 
     /**
+     * 设置请求
      * Set request
      *
-     * @param Request $request
+     * @param Request|null $request
      */
     public function setRequest(Request $request = null)
     {
@@ -43,13 +49,13 @@ class File extends AbstractLogger implements LoggerContract
     }
 
     /**
-     * Logs with an arbitrary level.
+     * 记录日志
+     * Log with an arbitrary level.
      *
      * @param mixed $level
      * @param string $message
      * @param array $context
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function log($level, $message, array $context = array())
     {

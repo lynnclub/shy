@@ -10,14 +10,15 @@ interface Logger extends LoggerInterface
     /**
      * Logger constructor.
      *
-     * @param Request $request
+     * @param Request|null $request
      */
     public function __construct(Request $request = null);
 
     /**
+     * 设置请求
      * Set request
      *
-     * @param Request $request
+     * @param Request|null $request
      */
-    public function setRequest(Request $request);
+    public function setRequest(Request $request = null);
 }

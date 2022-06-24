@@ -2,6 +2,7 @@
 
 namespace Shy\Http;
 
+use InvalidArgumentException;
 use Shy\Http\Contract\Response as ResponseContract;
 use Shy\Http\Contract\View;
 use Psr\Http\Message\StreamInterface;
@@ -9,6 +10,7 @@ use Psr\Http\Message\StreamInterface;
 class Response implements ResponseContract
 {
     /**
+     * HTTP协议版本
      * HTTP protocol version
      *
      * @var string
@@ -16,15 +18,23 @@ class Response implements ResponseContract
     protected $protocolVersion = '1.1';
 
     /**
+     * 状态码
      * The response status code.
      *
-     * @var int $code
+     * @var int
      */
     protected $statusCode = 200;
 
+    /**
+     * 状态码对应原因短语
+     * Reason phrase corresponding to the status code.
+     *
+     * @var string
+     */
     protected $reasonPhrase = null;
 
     /**
+     * 响应头
      * Headers
      *
      * @var array $headers
@@ -32,6 +42,7 @@ class Response implements ResponseContract
     protected $headers = [];
 
     /**
+     * 响应体
      * Response body.
      *
      * @var StreamInterface $body
@@ -113,7 +124,7 @@ class Response implements ResponseContract
      *     provided status code; if none is provided, implementations MAY
      *     use the defaults as suggested in the HTTP specification.
      * @return static
-     * @throws \InvalidArgumentException For invalid status code arguments.
+     * @throws InvalidArgumentException For invalid status code arguments.
      */
     public function withStatus($code, $reasonPhrase = '')
     {
@@ -306,12 +317,12 @@ class Response implements ResponseContract
      * @param string $name Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value = '')
     {
         if (!is_string($name) || empty($name)) {
-            throw new \InvalidArgumentException('Invalid header names.');
+            throw new InvalidArgumentException('Invalid header names.');
         }
 
         if (empty($value)) {
@@ -351,7 +362,7 @@ class Response implements ResponseContract
      * @param string $name Case-insensitive header field name to add.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withAddedHeader($name, $value)
     {
@@ -412,7 +423,7 @@ class Response implements ResponseContract
      *
      * @param StreamInterface $body Body.
      * @return static
-     * @throws \InvalidArgumentException When the body is not valid.
+     * @throws InvalidArgumentException When the body is not valid.
      */
     public function withBody(StreamInterface $body)
     {
@@ -422,6 +433,7 @@ class Response implements ResponseContract
     }
 
     /**
+     * 发送响应头
      * Send header.
      */
     public function sendHeader()
@@ -433,7 +445,7 @@ class Response implements ResponseContract
         header($this->reasonPhrase);
 
         if (is_array($this->headers)) {
-            foreach ($this->headers as $lowerKey => $value) {
+            foreach ($this->headers as $value) {
                 if (is_string($value)) {
                     header($value);
                 } else {
@@ -444,7 +456,8 @@ class Response implements ResponseContract
     }
 
     /**
-     * Output
+     * 输出响应
+     * Output response
      *
      * @param view|string $view
      */
@@ -461,18 +474,15 @@ class Response implements ResponseContract
         $this->sendHeader();
 
         if (isset($this->body)) {
-            if (method_exists($this->body, '__toString')) {
-                echo (string)$this->body;
-            } else {
-                echo $this->body;
-            }
+            echo $this->body;
         }
 
         $this->initialize();
     }
 
     /**
-     * Initialize in cycle
+     * 循环初始化
+     * Loop initialize
      */
     public function initialize()
     {

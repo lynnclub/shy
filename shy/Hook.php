@@ -2,6 +2,8 @@
 
 namespace Shy;
 
+use Closure;
+
 class Hook
 {
     /**
@@ -14,9 +16,9 @@ class Hook
      * Set hook
      *
      * @param string $name
-     * @param \Closure $closure
+     * @param Closure $closure
      */
-    public function set(string $name, \Closure $closure)
+    public function set(string $name, Closure $closure)
     {
         $this->hooks[$name][] = $closure;
     }
@@ -26,7 +28,7 @@ class Hook
      * Run
      *
      * @param string $name
-     * @param $param
+     * @param ...$param
      */
     public function run(string $name, ...$param)
     {

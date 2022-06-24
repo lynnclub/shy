@@ -14,7 +14,7 @@ class IpWhitelist implements Middleware
      * Handle
      *
      * @param Closure $next
-     * @param array ...$passable
+     * @param ...$passable
      * @return mixed|string
      */
     public function handle(Closure $next, ...$passable)

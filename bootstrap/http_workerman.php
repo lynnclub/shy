@@ -65,7 +65,7 @@ try {
     require __DIR__ . '/../shy/Http/Function/view.php';
 
     return $container;
-} catch (\Throwable $throwable) {
+} catch (Throwable $throwable) {
     echo implode(PHP_EOL, get_throwable_array($throwable));
     exit(1);
 }

@@ -168,9 +168,8 @@ php command http_workerman start
 
 1. 容器实例调度
 2. 单元测试覆盖率100%
-3. 会话重构
-4. Swoole socket 
-5. Api便捷开发框架
+3. Swoole socket 
+4. Api便捷开发框架
 
 ## 二、 契约 Contract
 
@@ -439,6 +438,7 @@ use Shy\Contract\Cache as CacheContract;
 class Cache extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

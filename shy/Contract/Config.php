@@ -2,6 +2,9 @@
 
 namespace Shy\Contract;
 
+use Exception;
+use Shy\Exception\Cache\InvalidArgumentException;
+
 interface Config extends Cache
 {
     /**
@@ -9,8 +12,8 @@ interface Config extends Cache
      *
      * @param string $file
      *
-     * @throws \Shy\Exception\Cache\InvalidArgumentException
-     * @throws \Exception
+     * @throws InvalidArgumentException
+     * @throws Exception
      *
      * @return array|false
      */
@@ -20,10 +23,9 @@ interface Config extends Cache
      * Find key in config file cache
      *
      * @param string $key
-     *
-     * @throws \Shy\Exception\Cache\InvalidArgumentException
-     *
      * @return string|array|null
+     *
+     * @throws InvalidArgumentException
      */
     public function find(string $key);
 }

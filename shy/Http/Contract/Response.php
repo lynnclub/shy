@@ -2,6 +2,7 @@
 
 namespace Shy\Http\Contract;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 
 interface Response extends ResponseInterface
@@ -19,26 +20,29 @@ interface Response extends ResponseInterface
      * @param string $name Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value = '');
 
     public function withHeaders(array $headers);
 
     /**
+     * 发送响应头
      * Send header.
      */
     public function sendHeader();
 
     /**
-     * Output
+     * 输出响应
+     * Output response
      *
      * @param view|string $view
      */
     public function output($view = null);
 
     /**
-     * Initialize in cycle
+     * 循环初始化
+     * Loop initialize
      */
     public function initialize();
 }

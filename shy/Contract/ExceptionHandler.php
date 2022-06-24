@@ -2,13 +2,15 @@
 
 namespace Shy\Contract;
 
-use Throwable;
+use Shy\Exception\Cache\InvalidArgumentException;
 use Shy\Http\Contract\Response;
 use Shy\Http\Contract\View;
+use Throwable;
 
 interface ExceptionHandler
 {
     /**
+     * 设置可抛出错误
      * Set Throwable
      *
      * @param Throwable $throwable
@@ -16,24 +18,28 @@ interface ExceptionHandler
     public function set(Throwable $throwable);
 
     /**
-     * Logging.
+     * 处理日志
+     * Logging
      *
      * @param Logger $logger
      */
     public function logging(Logger $logger);
 
     /**
-     * Report.
+     * 处理报告
+     * Report
      */
     public function report();
 
     /**
-     * Response.
+     * 处理响应
+     * Response
      *
-     * @param Config $config
-     * @param Response $response
-     * @param View $view
+     * @param Config|null $config
+     * @param Response|null $response
+     * @param View|null $view
+     *
+     * @throws InvalidArgumentException
      */
     public function response(Config $config = null, Response $response = null, View $view = null);
-
 }

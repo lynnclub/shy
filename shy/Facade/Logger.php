@@ -21,6 +21,7 @@ use Shy\Contract\Logger as LoggerContract;
 class Logger extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

@@ -14,6 +14,7 @@ class Session extends HttpSession implements SessionContract
      *
      * @param array $config
      * @return $this
+     *
      * @throws Exception
      */
     public function init(array $config = [])

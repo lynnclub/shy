@@ -17,6 +17,7 @@ use Shy\Http\Contract\Router as RouterContract;
 class Router extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

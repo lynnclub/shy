@@ -4,7 +4,10 @@ namespace Shy\Contract;
 
 use ArrayAccess;
 use Countable;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use ReflectionException;
+use ReflectionParameter;
 
 interface Container extends ContainerInterface, ArrayAccess, Countable
 {
@@ -70,37 +73,40 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      * 处理依赖注入
      * Handle dependency injection
      *
-     * @param \ReflectionParameter[] $dependencies
+     * @param ReflectionParameter[] $dependencies
      * @param array $parameters
      * @return array
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
+     *
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
      */
-    public function handleDependency(array $dependencies, array $parameters = []);
+    public function handleDI(array $dependencies, array $parameters = []);
 
     /**
      * 通过反射制作实例，支持依赖注入
      * Make an instance by reflection, support dependency injection
      *
      * @param string $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return object
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
+     *
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
      */
-    public function makeInstanceWithDependencyInjection(string $concrete, ...$parameters);
+    public function makeInstanceWithDI(string $concrete, ...$parameters);
 
     /**
      * 执行匿名函数，支持依赖注入
      * Execute anonymous functions, support dependency injection
      *
      * @param $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return mixed
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
+     *
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
      */
-    public function executeFunctionWithDependencyInjection($concrete, ...$parameters);
+    public function executeFunctionWithDI($concrete, ...$parameters);
 
     /**
      * 绑定用于制作的材料
@@ -136,7 +142,7 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      *
      * @param string $id
      * @param null $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return mixed
      */
     public function make(string $id, $concrete = null, ...$parameters);
@@ -147,7 +153,7 @@ interface Container extends ContainerInterface, ArrayAccess, Countable
      *
      * @param string $id
      * @param null $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return mixed|object
      */
     public function getOrMake(string $id, $concrete = null, ...$parameters);

@@ -2,39 +2,45 @@
 
 namespace Shy\Http;
 
-use Shy\Http\Contract\View as ViewContract;
-use Shy\Contract\Config;
 use RuntimeException;
+use Shy\Http\Contract\View as ViewContract;
 
 class View implements ViewContract
 {
     /**
+     * 视图路径
+     * View path
+     *
      * @var string
      */
     protected $viewPath;
 
     /**
-     * View file
+     * 视图文件名
+     * View filename
      *
      * @var string
      */
     protected $view;
 
     /**
-     * Subview file
+     * 子视图文件名
+     * Subview filename
      *
      * @var string
      */
     protected $subView;
 
     /**
-     * Layout file
+     * 布局文件名
+     * Layout filename
      *
      * @var string
      */
     protected $layout;
 
     /**
+     * 控制器传递的参数
      * Params pass by controller
      *
      * @var array
@@ -42,6 +48,7 @@ class View implements ViewContract
     protected $params = [];
 
     /**
+     * 错误消息
      * Error message
      *
      * @var string
@@ -63,18 +70,7 @@ class View implements ViewContract
     }
 
     /**
-     * Initialize in cycle
-     */
-    public function initialize()
-    {
-        $this->view = null;
-        $this->subView = null;
-        $this->layout = null;
-        $this->params = [];
-        $this->errorMsg = '';
-    }
-
-    /**
+     * 设置视图文件
      * Set view file
      *
      * @param string $view
@@ -97,6 +93,7 @@ class View implements ViewContract
     }
 
     /**
+     * 设置布局文件
      * Set layout file
      *
      * @param string $layout
@@ -117,7 +114,8 @@ class View implements ViewContract
     }
 
     /**
-     * Params pass by controller
+     * 设置控制器传递的参数
+     * Set params pass by controller
      *
      * @param array $params
      * @return $this
@@ -130,6 +128,7 @@ class View implements ViewContract
     }
 
     /**
+     * 渲染视图
      * Render view
      *
      * @return string
@@ -144,7 +143,8 @@ class View implements ViewContract
         extract($this->params);
 
         /**
-         * Layout or single View
+         * 带布局或单视图
+         * With layout or single view
          */
         if (isset($this->layout)) {
             $this->subView = $this->view;
@@ -156,7 +156,7 @@ class View implements ViewContract
         $viewContent = ob_get_contents();
 
         /**
-         * Can not ob_get_clean() or ob_end_clean(), WorkerMan will no output
+         * Can not use ob_get_clean() or ob_end_clean(), WorkerMan will no output
          */
         ob_clean();
 
@@ -170,6 +170,7 @@ class View implements ViewContract
     }
 
     /**
+     * 获取子视图内容
      * Get subview content
      *
      * @return string
@@ -180,6 +181,7 @@ class View implements ViewContract
     }
 
     /**
+     * 获取布局文件名
      * Get layout filename
      *
      * @return string
@@ -190,6 +192,7 @@ class View implements ViewContract
     }
 
     /**
+     * 获取视图文件名
      * Get view filename
      *
      * @return string
@@ -200,6 +203,7 @@ class View implements ViewContract
     }
 
     /**
+     * 获取控制器传递的参数
      * Get params pass by controller
      *
      * @return array
@@ -219,4 +223,16 @@ class View implements ViewContract
         $this->errorMsg = $msg;
     }
 
+    /**
+     * 循环初始化
+     * Loop initialize
+     */
+    public function initialize()
+    {
+        $this->view = null;
+        $this->subView = null;
+        $this->layout = null;
+        $this->params = [];
+        $this->errorMsg = '';
+    }
 }

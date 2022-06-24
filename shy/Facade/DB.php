@@ -15,6 +15,7 @@ use Shy\Contract\DataBase;
 class DB extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

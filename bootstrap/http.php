@@ -101,7 +101,7 @@ try {
     require __DIR__ . '/../app/Function/common.php';
 
     return $container;
-} catch (\Throwable $throwable) {
+} catch (Throwable $throwable) {
     echo implode('<br>', get_throwable_array($throwable));
     exit(1);
 }

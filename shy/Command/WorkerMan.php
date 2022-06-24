@@ -2,6 +2,7 @@
 
 namespace Shy\Command;
 
+use Exception;
 use Shy\SocketInWorkerMan;
 use Shy\HttpInWorkerMan;
 use Workerman\Worker;
@@ -9,9 +10,10 @@ use Workerman\Worker;
 class WorkerMan
 {
     /**
+     * Http服务
      * WorkerMan http service
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function httpWorkerMan()
     {
@@ -34,7 +36,8 @@ class WorkerMan
     }
 
     /**
-     * WorkerMan socket
+     * Socket服务
+     * WorkerMan socket service
      */
     public function workerMan()
     {

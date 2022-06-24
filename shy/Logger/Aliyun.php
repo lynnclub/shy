@@ -2,19 +2,20 @@
 
 namespace Shy\Logger;
 
-use Shy\Contract\Logger as LoggerContract;
-use Shy\Http\Contract\Request;
-use RuntimeException;
 use Aliyun_Log_Client;
 use Aliyun_Log_Models_LogItem;
 use Aliyun_Log_Models_PutLogsRequest;
+use Exception;
+use RuntimeException;
+use Shy\Contract\Logger as LoggerContract;
+use Shy\Http\Contract\Request;
 
 class Aliyun extends File implements LoggerContract
 {
     /**
      * Logger constructor.
      *
-     * @param Request $request
+     * @param Request|null $request
      */
     public function __construct(Request $request = null)
     {
@@ -22,13 +23,13 @@ class Aliyun extends File implements LoggerContract
     }
 
     /**
-     * Logs with an arbitrary level.
+     * 记录日志
+     * Log with an arbitrary level.
      *
      * @param mixed $level
      * @param string $message
      * @param array $context
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function log($level, $message, array $context = array())
     {

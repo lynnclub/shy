@@ -31,7 +31,8 @@ class Response extends HttpResponse implements ResponseContract
     }
 
     /**
-     * Initialize in cycle
+     * 循环初始化
+     * Loop initialize
      */
     public function initialize()
     {

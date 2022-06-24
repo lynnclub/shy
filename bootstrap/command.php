@@ -79,7 +79,7 @@ try {
     require __DIR__ . '/../app/Function/common.php';
 
     return $container;
-} catch (\Throwable $throwable) {
+} catch (Throwable $throwable) {
     echo implode(PHP_EOL, get_throwable_array($throwable));
     exit(1);
 }

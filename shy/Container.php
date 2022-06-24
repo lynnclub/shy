@@ -5,8 +5,11 @@ namespace Shy;
 use Closure;
 use Exception;
 use LogicException;
+use Psr\Container\ContainerExceptionInterface;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
+use ReflectionParameter;
 use Shy\Contract\Container as ContainerContract;
 use Shy\Exception\Container\ContainerException;
 use Shy\Exception\Container\NotFoundException;
@@ -185,13 +188,13 @@ class Container implements ContainerContract
      * 处理依赖注入
      * Handle dependency injection
      *
-     * @param \ReflectionParameter[] $dependencies
+     * @param ReflectionParameter[] $dependencies
      * @param array $parameters
      * @return array
+     *
      * @throws NotFoundException
-     * @throws \ReflectionException
      */
-    public function handleDependency(array $dependencies, array $parameters = [])
+    public function handleDI(array $dependencies, array $parameters = [])
     {
         $results = [];
 
@@ -225,12 +228,13 @@ class Container implements ContainerContract
      * Make an instance by reflection, support dependency injection
      *
      * @param string $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return object
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
+     *
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
      */
-    public function makeInstanceWithDependencyInjection(string $concrete, ...$parameters)
+    public function makeInstanceWithDI(string $concrete, ...$parameters)
     {
         $reflector = new ReflectionClass($concrete);
         if (!$reflector->isInstantiable()) {
@@ -241,7 +245,7 @@ class Container implements ContainerContract
         if (is_null($constructor)) {
             $instance = $reflector->newInstanceWithoutConstructor();
         } else {
-            $parameters = $this->handleDependency($constructor->getParameters(), $parameters);
+            $parameters = $this->handleDI($constructor->getParameters(), $parameters);
 
             $instance = $reflector->newInstance(...$parameters);
         }
@@ -254,15 +258,16 @@ class Container implements ContainerContract
      * Execute anonymous functions, support dependency injection
      *
      * @param $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return mixed
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \ReflectionException
+     *
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
      */
-    public function executeFunctionWithDependencyInjection($concrete, ...$parameters)
+    public function executeFunctionWithDI($concrete, ...$parameters)
     {
         $reflector = new ReflectionFunction($concrete);
-        $parameters = $this->handleDependency($reflector->getParameters(), $parameters);
+        $parameters = $this->handleDI($reflector->getParameters(), $parameters);
 
         return $concrete(...$parameters);
     }
@@ -277,12 +282,10 @@ class Container implements ContainerContract
     protected function getClosureForMake($concrete)
     {
         return function (...$parameters) use ($concrete) {
-            $instance = null;
-
             if (is_string($concrete) && class_exists($concrete)) {
-                $instance = $this->makeInstanceWithDependencyInjection($concrete, ...$parameters);
+                $instance = $this->makeInstanceWithDI($concrete, ...$parameters);
             } elseif ($concrete instanceof Closure) {
-                $instance = $this->executeFunctionWithDependencyInjection($concrete, ...$parameters);
+                $instance = $this->executeFunctionWithDI($concrete, ...$parameters);
             } else {
                 $instance = $concrete;
             }
@@ -348,7 +351,7 @@ class Container implements ContainerContract
      *
      * @param string $id
      * @param null $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return mixed
      */
     public function make(string $id, $concrete = null, ...$parameters)
@@ -376,7 +379,7 @@ class Container implements ContainerContract
      *
      * @param string $id
      * @param null $concrete
-     * @param mixed ...$parameters
+     * @param ...$parameters
      * @return mixed|object
      */
     public function getOrMake(string $id, $concrete = null, ...$parameters)
@@ -472,10 +475,8 @@ class Container implements ContainerContract
      * Finds an entry of the container by its identifier and returns it.
      *
      * @param string $id Identifier of the entry to look for.
-     *
-     * @throws NotFoundException  No entry was found for **this** identifier.
-     *
      * @return mixed Entry.
+     * @throws NotFoundException  No entry was found for **this** identifier.
      */
     public function get(string $id)
     {

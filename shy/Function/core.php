@@ -64,13 +64,13 @@ if (!function_exists('shy')) {
     /**
      * Get or make instance
      *
-     * @param string $id
+     * @param string|null $id
      * @param object|string|null $concrete
-     * @param array ...$parameters
+     * @param ...$parameters
      *
      * @return object
      */
-    function shy($id = null, $concrete = null, ...$parameters)
+    function shy(string $id = null, $concrete = null, ...$parameters)
     {
         if (is_null($id)) {
             return Container::getContainer();

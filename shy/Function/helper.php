@@ -7,7 +7,7 @@ if (!function_exists('dd')) {
     /**
      * Development output
      *
-     * @param mixed $msg
+     * @param ...$msg
      */
     function dd(...$msg)
     {

@@ -7,7 +7,7 @@ return [
     'use_trans_sid' => 0,
     'use_cookies' => true,
     'only_cookies' => true,
-    'expire' => 1440,
+    'expire' => 3600,
     'domain' => '',
     'secure' => false,
     'httponly' => false,

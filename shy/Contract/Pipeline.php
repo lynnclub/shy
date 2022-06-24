@@ -7,42 +7,46 @@ use Closure;
 interface Pipeline
 {
     /**
-     * Set the object being sent through the pipeline.
+     * 设置管道内传递的数据
+     * Set the data passed in the pipeline.
      *
-     * @param  array|mixed ...$passable
+     * @param ...$passable
      * @return $this
      */
     public function send(...$passable);
 
     /**
-     * Set the array of pipes.
+     * 设置管道对象数组
+     * Set the array of class pipes.
      *
-     * @param  array|mixed ...$pipes
+     * @param ...$pipes
      * @return $this
      */
     public function through(...$pipes);
 
     /**
+     * 设置管道调用方法
      * Set the method to call on the pipes.
      *
-     * @param  string $method
+     * @param string $method
      * @return $this
      */
-    public function via($method);
+    public function via(string $method);
 
     /**
+     * 带回调执行管道
      * Run the pipeline with a final destination callback.
      *
-     * @param  Closure $destination
+     * @param Closure $destination
      * @return mixed
      */
     public function then(Closure $destination);
 
     /**
+     * 不带回调执行管道
      * Run the pipeline without callback.
      *
      * @return mixed
      */
     public function run();
-
 }

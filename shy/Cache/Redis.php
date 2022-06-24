@@ -24,6 +24,7 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * Redis constructor.
      *
      * @param string $config_name
+     *
      * @throws Exception
      */
     public function __construct(string $config_name = 'default')
@@ -50,9 +51,10 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      *
      * @param string $config_name
      * @return Redis
+     *
      * @throws Exception
      */
-    public function connection($config_name = 'default')
+    public function connection(string $config_name = 'default')
     {
         if (isset($this->connections[$config_name])) {
             try {
@@ -130,7 +132,7 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * Function Redis::delete() is deprecated in PhpRedis 5
      *
      * @param $key
-     * @param array ...$other_keys
+     * @param ...$other_keys
      * @return int
      */
     public function delete($key, ...$other_keys)

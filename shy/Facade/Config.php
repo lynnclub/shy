@@ -18,6 +18,7 @@ use Shy\Contract\Config as ConfigContract;
 class Config extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

@@ -29,8 +29,9 @@ class Command
     /**
      * Parse Command
      *
-     * @throws Exception
      * @return string Error Message
+     *
+     * @throws Exception
      */
     protected function parse()
     {

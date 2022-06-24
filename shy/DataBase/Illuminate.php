@@ -2,8 +2,8 @@
 
 namespace Shy\DataBase;
 
-use Illuminate\Database\Capsule\Manager;
 use Exception;
+use Illuminate\Database\Capsule\Manager;
 
 class Illuminate extends Manager
 {
@@ -18,7 +18,10 @@ class Illuminate extends Manager
 
         $configs = config('database');
         foreach ($configs as $name => $item) {
-            if (!isset($item['driver'], $item['host'], $item['database'], $item['username'], $item['password'])) {
+            if (!isset(
+                $item['driver'], $item['host'], $item['database'],
+                $item['username'], $item['password']
+            )) {
                 throw new Exception('Database config error.');
             }
 

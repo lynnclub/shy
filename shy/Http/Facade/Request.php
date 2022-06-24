@@ -30,6 +30,7 @@ use Shy\Http\Contract\Request as RequestContract;
 class Request extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

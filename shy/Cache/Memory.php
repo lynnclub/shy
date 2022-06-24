@@ -9,41 +9,49 @@ use Shy\Exception\Cache\InvalidArgumentException;
 class Memory implements CacheInterface, CacheContract
 {
     /**
+     * 缓存
+     *
      * @var mixed
      */
     protected $cache = [];
 
     /**
+     * 生命周期
+     *
      * @var array
      */
     protected $ttl;
 
     /**
+     * 缓存文件
+     *
      * @var string
      */
     protected $cacheFile;
 
     /**
+     * 是否持久化
+     *
      * @var bool
      */
-    protected $persistent;
+    protected $isPersist;
 
     /**
      * Memory constructor.
      *
      * @param string $cacheFile
-     * @param bool $persistent
+     * @param bool $isPersist
      */
-    public function __construct(string $cacheFile = '', $persistent = TRUE)
+    public function __construct(string $cacheFile = '', bool $isPersist = TRUE)
     {
         if (empty($cacheFile)) {
             $cacheFile = CACHE_PATH . 'app/memory.cache';
         }
 
-        $this->persistent = $persistent;
+        $this->isPersist = $isPersist;
         $this->cacheFile = $cacheFile;
 
-        if ($persistent) {
+        if ($isPersist) {
             $cache = @json_decode(file_get_contents($cacheFile), TRUE);
             if (isset($cache['cache'], $cache['ttl'])) {
                 $this->cache = $cache['cache'];
@@ -86,6 +94,7 @@ class Memory implements CacheInterface, CacheContract
     }
 
     /**
+     * 垃圾回收
      * Garbage Collection
      *
      * @throws InvalidArgumentException
@@ -368,7 +377,7 @@ class Memory implements CacheInterface, CacheContract
      */
     public function __destruct()
     {
-        if ($this->persistent) {
+        if ($this->isPersist) {
             file_put_contents($this->cacheFile, json_encode(['cache' => $this->cache, 'ttl' => $this->ttl]));
         }
     }
