@@ -5,8 +5,9 @@ namespace Shy\Http\Session;
 use BadFunctionCallException;
 use Exception;
 use Predis\Client as Predis;
-use Shy\Cache\Redis as CacheRedis;
 use SessionHandlerInterface;
+use Shy\Cache\Redis as CacheRedis;
+use Shy\Exception\Cache\InvalidArgumentException;
 
 class Redis implements SessionHandlerInterface
 {
@@ -17,12 +18,9 @@ class Redis implements SessionHandlerInterface
 
     protected $config;
 
-    protected $sessionConfig;
-
     public function __construct($config = [])
     {
-        $this->sessionConfig = $config;
-        $this->config = config('cache.redis.' . $config['cache_redis']);
+        $this->config = $config;
     }
 
     /**
@@ -36,16 +34,18 @@ class Redis implements SessionHandlerInterface
     public function open($path, $name)
     {
         if (extension_loaded('redis')) {
-            $this->handler = new CacheRedis($this->config);
+            $this->handler = new CacheRedis($this->config['cache_redis']);
         } elseif (class_exists('\Predis\Client')) {
+            $config = config('cache.redis.' . $this->config['cache_redis']);
+
             $params = [];
-            foreach ($this->config as $key => $val) {
+            foreach ($config as $key => $val) {
                 if (in_array($key, ['aggregate', 'cluster', 'connections', 'exceptions', 'prefix', 'profile', 'replication'])) {
                     $params[$key] = $val;
-                    unset($this->config[$key]);
+                    unset($config[$key]);
                 }
             }
-            $this->handler = new Predis($this->config, $params);
+            $this->handler = new Predis($config, $params);
         } else {
             throw new BadFunctionCallException('not support: redis');
         }
@@ -69,12 +69,13 @@ class Redis implements SessionHandlerInterface
      *
      * @param string $key
      * @return string
+     * @throws InvalidArgumentException
      */
     public function read($key)
     {
         $this->lock($key);
 
-        $content = (string)$this->handler->get($this->sessionConfig['name'] . $key);
+        $content = (string)$this->handler->get($this->config['name'] . ':' . $key);
 
         $this->unlock($key);
 
@@ -87,20 +88,21 @@ class Redis implements SessionHandlerInterface
      * @param string $id
      * @param mixed $data
      * @return bool
+     * @throws Exception
      */
     public function write($id, $data)
     {
         $this->lock($id);
 
-        if ($this->sessionConfig['expire'] > 0) {
+        if ($this->config['expire'] > 0) {
             $result = $this->handler->setex(
-                $this->sessionConfig['name'] . $id,
-                $this->sessionConfig['expire'],
+                $this->config['name'] . ':' . $id,
+                $this->config['expire'],
                 $data
             );
         } else {
             $result = $this->handler->set(
-                $this->sessionConfig['name'] . $id,
+                $this->config['name'] . ':' . $id,
                 $data
             );
         }
@@ -118,7 +120,7 @@ class Redis implements SessionHandlerInterface
      */
     public function destroy($id)
     {
-        return $this->handler->del($this->sessionConfig['name'] . $id) > 0;
+        return $this->handler->del($this->config['name'] . ':' . $id) > 0;
     }
 
     /**
@@ -165,7 +167,7 @@ class Redis implements SessionHandlerInterface
             $this->open('', '');
         }
 
-        $lockKey = $this->sessionConfig['name'] . 'LOCK_PREFIX_' . $id;
+        $lockKey = $this->config['name'] . ':lock:' . $id;
         $isLock = $this->handler->setnx($lockKey, 1);
         if ($isLock) {
             // 设置过期时间，防止死锁
@@ -188,6 +190,6 @@ class Redis implements SessionHandlerInterface
             $this->open('', '');
         }
 
-        $this->handler->del($this->sessionConfig['name'] . 'LOCK_PREFIX_' . $id);
+        $this->handler->del($this->config['name'] . ':lock:' . $id);
     }
 }
