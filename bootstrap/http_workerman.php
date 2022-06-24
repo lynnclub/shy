@@ -35,6 +35,9 @@ try {
         'view' => ViewContract::class,
     ]);
 
+    // 会话初始化
+    $container['session']->init(config('session'));
+
     // 装载请求，并加入到容器 Load the request and join to the container
     $container->set(RequestContract::class, Request::createFromGlobals());
 

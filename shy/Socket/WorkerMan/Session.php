@@ -40,47 +40,6 @@ class Session extends HttpSession implements SessionContract
             Http::sessionSavePath($config['save_path']);
         }
 
-        if (isset($config['use_trans_sid'])) {
-            ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);
-        }
-
-        if (isset($config['use_cookies'])) {
-            ini_set('session.use_cookies', $config['use_cookies'] ? 1 : 0);
-        }
-
-        if (isset($config['only_cookies'])) {
-            ini_set('session.use_only_cookies', $config['only_cookies'] ? 1 : 0);
-        }
-
-        if (isset($config['domain'])) {
-            ini_set('session.cookie_domain', $config['domain']);
-        }
-
-        if (isset($config['expire'])) {
-            ini_set('session.gc_maxlifetime', $config['expire']);
-            ini_set('session.cookie_lifetime', $config['expire']);
-        }
-
-        if (isset($config['secure'])) {
-            ini_set('session.cookie_secure', $config['secure']);
-        }
-
-        if (isset($config['samesite'])) {
-            ini_set('session.cookie_samesite', $config['samesite']);
-        }
-
-        if (isset($config['httponly'])) {
-            ini_set('session.cookie_httponly', $config['httponly']);
-        }
-
-        if (isset($config['cache_limiter'])) {
-            session_cache_limiter($config['cache_limiter']);
-        }
-
-        if (isset($config['cache_expire'])) {
-            session_cache_expire($config['cache_expire']);
-        }
-
         // 自动启动
         if (!empty($config['auto_start']) && !$this->isStart()) {
             ini_set('session.auto_start', 0);

@@ -10,7 +10,7 @@ use Shy\Contract\DataBase;
  * @package Shy\Facade
  *
  * @method static DB connection($config_name = 'default')
- * @method static DB table($config_name = 'default')
+ * @method static DB table($name)
  */
 class DB extends Facade
 {

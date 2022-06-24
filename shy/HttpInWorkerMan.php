@@ -227,9 +227,6 @@ class HttpInWorkerMan extends Worker
                     file_get_contents('php://input')
                 );
 
-                // 启动会话
-                $this->container['session']->init(config('session'));
-
                 // 钩子-请求处理前
                 Hook::run('request_before');
 
