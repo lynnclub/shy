@@ -56,6 +56,6 @@ footer > a {
 @media (min-width: 768px) {
     .system {
         width: 60%;
-        padding: 10px 20%;
+        padding: 20px 20%;
     }
 }

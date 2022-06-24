@@ -11,7 +11,7 @@ push_resource('footer-js', '/vendor/jquery/dist/jquery.js', 'js');
     <?php param('infoEng') ?>
     <?php param('not_exist_param', true) ?>
 </div>
-<div class="system">
+<div class="system" style="margin-top: 60px">
     <h2>基础信息 Basic Information</h2>
     <br>
     <table class="params">
