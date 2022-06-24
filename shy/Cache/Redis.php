@@ -16,7 +16,7 @@ class Redis extends PhpRedis implements CacheContract, DataBase
     protected $configs = [];
 
     /**
-     * @var Redis []
+     * @var Redis[]
      */
     protected $connections = [];
 
@@ -26,7 +26,7 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * @param string $config_name
      * @throws Exception
      */
-    public function __construct($config_name = 'default')
+    public function __construct(string $config_name = 'default')
     {
         parent::__construct();
 
@@ -49,8 +49,8 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * Connection
      *
      * @param string $config_name
-     * @throws Exception
      * @return Redis
+     * @throws Exception
      */
     public function connection($config_name = 'default')
     {
@@ -160,13 +160,10 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      *   MUST be thrown if $keys is neither an array nor a Traversable,
      *   or if any of the $keys are not a legal value.
      */
-    public function getMultiple(array $keys = null, $default = null)
+    public function getMultiple(array $keys = [], $default = null)
     {
         if (empty($keys)) {
             throw new InvalidArgumentException('Keys is empty.');
-        }
-        if (!is_array($keys)) {
-            throw new InvalidArgumentException('keys is not a array.');
         }
 
         if ($values = parent::getMultiple($keys)) {

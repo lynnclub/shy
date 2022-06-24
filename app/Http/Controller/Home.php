@@ -20,7 +20,7 @@ class Home
             $infoEng = 'Hello World';
         }
 
-        if ($session->exist('user')) {
+        if ($session->has('user')) {
             if ($business->isMobile()) {
                 $info = '你好，移动端，又见面了！';
                 $infoEng = 'Hello Mobile, Again!';
@@ -51,7 +51,7 @@ class Home
             $params['infoEng'] = 'Hello World';
         }
 
-        if ($session->exist('user')) {
+        if ($session->has('user')) {
             if (StaticTestBusiness::isMobile()) {
                 $params['info'] = '再次！你好，移动端';
                 $params['infoEng'] = 'Hello Mobile, Again!';

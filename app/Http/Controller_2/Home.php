@@ -18,7 +18,7 @@ class Home
             $info = 'Hello World';
         }
 
-        if ($session->exist('user')) {
+        if ($session->has('user')) {
             $info .= ' Again';
         } else {
             $session->set('user', 1);
@@ -37,7 +37,7 @@ class Home
             $params['info'] = 'Hello World';
         }
 
-        if ($session->exist('user')) {
+        if ($session->has('user')) {
             $params['info'] .= ' Again';
         } else {
             $session->set('user', 1);

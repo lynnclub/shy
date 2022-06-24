@@ -9,13 +9,15 @@ use Shy\Http\Contract\Session as SessionContract;
  * Class Session
  * @package Shy\Http\Facade
  *
- * @method static bool sessionStart()
- * @method static string sessionId()
- * @method static bool exist(string $key)
- * @method static bool|mixed get(string $key)
- * @method static set(string $key, $val)
+ * @method static SessionContract init(array $config = [])
+ * @method static string sessionId(string $id = '')
+ * @method static bool has(string $key)
+ * @method static mixed|false get(string $key)
+ * @method static bool set(string $key, $data)
+ * @method static string token(string $key)
  * @method static delete(string $key)
- * @method static string token(string $name)
+ * @method static bool close()
+ * @method static bool destroy()
  */
 class Session extends Facade
 {
