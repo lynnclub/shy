@@ -1,10 +1,12 @@
 <?php
 /**
- * Helpers functions
+ * 帮助函数
+ * Helper function
  */
 
 if (!function_exists('dd')) {
     /**
+     * 开发输出
      * Development output
      *
      * @param ...$msg
@@ -21,6 +23,7 @@ if (!function_exists('dd')) {
 
 if (!function_exists('get_array_key')) {
     /**
+     * 从数组中获取健值
      * Get key in array
      *
      * @param array $key_levels
@@ -47,6 +50,7 @@ if (!function_exists('get_array_key')) {
 
 if (!function_exists('empty_or_splice')) {
     /**
+     * 留空或者拼接
      * Empty or splice
      *
      * @param string $string
@@ -70,6 +74,7 @@ if (!function_exists('empty_or_splice')) {
 
 if (!function_exists('random_code')) {
     /**
+     * 随机码
      * Random code
      *
      * @param int $length
@@ -95,7 +100,7 @@ if (!function_exists('random_code')) {
         }
 
         $chars = str_shuffle($chars);
-        $number = $length > strlen($chars) - 1 ? strlen($chars) - 1 : $length;
+        $number = min($length, strlen($chars) - 1);
 
         return substr($chars, 0, $number);
     }
@@ -103,6 +108,7 @@ if (!function_exists('random_code')) {
 
 if (!function_exists('mime')) {
     /**
+     * 获取mime类型
      * Get mime
      *
      * @param string $type

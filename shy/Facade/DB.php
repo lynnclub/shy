@@ -2,8 +2,8 @@
 
 namespace Shy\Facade;
 
-use Shy\Facade;
 use Shy\Contract\DataBase;
+use Shy\Facade;
 
 /**
  * Class DB

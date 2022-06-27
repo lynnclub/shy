@@ -2,8 +2,8 @@
 
 namespace Shy\Facade;
 
-use Shy\Facade;
 use Shy\Contract\Logger as LoggerContract;
+use Shy\Facade;
 
 /**
  * Class Logger

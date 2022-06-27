@@ -7,6 +7,8 @@ use Closure;
 class Hook
 {
     /**
+     * 钩子池
+     *
      * @var array
      */
     protected $hooks = [];

@@ -2,8 +2,8 @@
 
 namespace Shy\Facade;
 
-use Shy\Facade;
 use Shy\Contract\Cache as CacheContract;
+use Shy\Facade;
 
 /**
  * Class Cache

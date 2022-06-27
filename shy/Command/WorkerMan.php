@@ -3,8 +3,8 @@
 namespace Shy\Command;
 
 use Exception;
-use Shy\SocketInWorkerMan;
 use Shy\HttpInWorkerMan;
+use Shy\SocketInWorkerMan;
 use Workerman\Worker;
 
 class WorkerMan

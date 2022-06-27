@@ -7,6 +7,7 @@ use Shy\Http\Contract\Session;
 
 if (!function_exists('smarty')) {
     /**
+     * 创建smarty视图
      * Smarty new view
      *
      * @param string $view
@@ -39,6 +40,7 @@ if (!function_exists('smarty')) {
 
 if (!function_exists('url')) {
     /**
+     * 获取url
      * Get url
      *
      * @param string $path
@@ -133,12 +135,13 @@ if (!function_exists('url')) {
 
 if (!function_exists('redirect')) {
     /**
+     * 跳转
      * Redirect
      *
      * @param string $url
      * @return Response
      */
-    function redirect($url = '')
+    function redirect(string $url = '')
     {
         if (empty($url)) {
             $url = url();
@@ -150,6 +153,7 @@ if (!function_exists('redirect')) {
 
 if (!function_exists('xss_clean')) {
     /**
+     * 清除XSS
      * XSS Clean
      *
      * @param string|array $data
@@ -172,6 +176,7 @@ if (!function_exists('xss_clean')) {
 
 if (!function_exists('csrf_field')) {
     /**
+     * 生成CSRF口令表单域
      * Generate a CSRF token form field.
      *
      * @param string $name
@@ -185,6 +190,7 @@ if (!function_exists('csrf_field')) {
 
 if (!function_exists('csrf_meta')) {
     /**
+     * 生成CSRF口令meta标签
      * Generate a CSRF token meta tag.
      *
      * @param string $name
@@ -198,6 +204,7 @@ if (!function_exists('csrf_meta')) {
 
 if (!function_exists('csrf_token')) {
     /**
+     * 生成CSRF口令
      * Get the CSRF token value.
      *
      * @param string $name
@@ -211,6 +218,7 @@ if (!function_exists('csrf_token')) {
 
 if (!function_exists('csrf_verify')) {
     /**
+     * 验证CSRF口令
      * Verify CSRF token.
      *
      * @param string $token
@@ -234,6 +242,7 @@ if (!function_exists('csrf_verify')) {
 
 if (!function_exists('is_valid_ip')) {
     /**
+     * 验证ip
      * Is valid ip
      *
      * @param string $ip
@@ -251,6 +260,7 @@ if (!function_exists('is_valid_ip')) {
 
 if (!function_exists('get_valid_ips')) {
     /**
+     * 过滤非法IP
      * Get valid ips
      *
      * @param array $ips
@@ -278,6 +288,7 @@ if (!function_exists('get_valid_ips')) {
 
 if (!function_exists('get_response_json')) {
     /**
+     * 获取响应json
      * Get response json
      *
      * @param int $code
@@ -285,7 +296,7 @@ if (!function_exists('get_response_json')) {
      * @param array $data
      * @return string
      */
-    function get_response_json(int $code, $msg = null, $data = array())
+    function get_response_json(int $code, $msg = null, array $data = array())
     {
         if ($msg === null) {
             $msg = lang($code);
@@ -297,9 +308,10 @@ if (!function_exists('get_response_json')) {
 
 if (!function_exists('url_chinese_encode')) {
     /**
+     * 中文url编码
      * Url chinese encode
      *
-     * @param $url
+     * @param string $url
      * @return string
      */
     function url_chinese_encode(string $url)
@@ -318,6 +330,7 @@ if (!function_exists('url_chinese_encode')) {
 
 if (!function_exists('is_mobile')) {
     /**
+     * 是否移动设备
      * Is mobile
      *
      * @return bool

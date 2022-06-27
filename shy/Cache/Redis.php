@@ -11,11 +11,15 @@ use Shy\Exception\Cache\InvalidArgumentException;
 class Redis extends PhpRedis implements CacheContract, DataBase
 {
     /**
+     * 配置组
+     *
      * @var array
      */
     protected $configs = [];
 
     /**
+     * 链接池
+     *
      * @var Redis[]
      */
     protected $connections = [];

@@ -2,8 +2,8 @@
 
 namespace Shy\Facade;
 
-use Shy\Facade;
 use Shy\Contract\Config as ConfigContract;
+use Shy\Facade;
 
 /**
  * Class Config

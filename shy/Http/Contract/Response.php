@@ -28,7 +28,7 @@ interface Response extends ResponseInterface
 
     /**
      * 发送响应头
-     * Send header.
+     * Send header
      */
     public function sendHeader();
 
