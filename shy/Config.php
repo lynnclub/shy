@@ -10,11 +10,15 @@ use Exception;
 class Config extends Memory implements ConfigContract
 {
     /**
+     * 配置目录
+     *
      * @var string
      */
     protected $dir;
 
     /**
+     * 环境配置目录
+     *
      * @var string
      */
     protected $envDir;
@@ -25,6 +29,7 @@ class Config extends Memory implements ConfigContract
      * @param string $dir
      * @param string $env
      * @param string $cacheDir
+     *
      * @throws Exception
      */
     public function __construct(string $dir, string $env, string $cacheDir)
@@ -42,13 +47,14 @@ class Config extends Memory implements ConfigContract
     }
 
     /**
-     * Load config file to cache
+     * 加载配置文件并缓存
+     * Load config file and cache
      *
      * @param string $file
      * @return array|false
      *
-     * @throws \Shy\Exception\Cache\InvalidArgumentException
-     * @throws \Exception
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function load(string $file)
     {
@@ -68,13 +74,13 @@ class Config extends Memory implements ConfigContract
     }
 
     /**
+     * 从配置文件缓存中查找键值
      * Find key in config file cache
      *
      * @param string $key
-     * @return string|array|null
+     * @return array|string|null
      *
-     * @throws Exception\Cache\InvalidArgumentException
-     * @throws \Exception
+     * @throws InvalidArgumentException
      */
     public function find(string $key)
     {

@@ -2,13 +2,13 @@
 
 namespace Shy\Http\Exception;
 
-use Shy\Contract\ExceptionHandler;
-use Shy\Exception\Cache\InvalidArgumentException;
-use Throwable;
-use Shy\Contract\Logger;
 use Shy\Contract\Config;
+use Shy\Contract\ExceptionHandler;
+use Shy\Contract\Logger;
+use Shy\Exception\Cache\InvalidArgumentException;
 use Shy\Http\Contract\Response;
 use Shy\Http\Contract\View;
+use Throwable;
 
 class Handler implements ExceptionHandler
 {
@@ -18,6 +18,7 @@ class Handler implements ExceptionHandler
     protected $throwable;
 
     /**
+     * 设置可抛出错误
      * Set Throwable
      *
      * @param Throwable $throwable
@@ -28,7 +29,8 @@ class Handler implements ExceptionHandler
     }
 
     /**
-     * Logging.
+     * 处理日志
+     * Logging
      *
      * @param Logger $logger
      */
@@ -45,7 +47,8 @@ class Handler implements ExceptionHandler
     }
 
     /**
-     * Report.
+     * 处理报告
+     * Report
      */
     public function report()
     {
@@ -55,11 +58,12 @@ class Handler implements ExceptionHandler
     }
 
     /**
-     * Response.
+     * 处理响应
+     * Response
      *
-     * @param Config $config
-     * @param Response $response
-     * @param View $view
+     * @param Config|null $config
+     * @param Response|null $response
+     * @param View|null $view
      *
      * @throws InvalidArgumentException
      */

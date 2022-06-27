@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -12,7 +12,7 @@
 <div>
     <h1>404 not found</h1>
     <br><br>
-    <button type="button" onclick="location.href='<?php echo url(); ?>'">To Home</button>
+    <a href="<?php echo url() ?>">To Home</a>
     <br><br>
 </div>
 <?php include_view('component/footer') ?>

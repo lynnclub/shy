@@ -2,6 +2,7 @@
 
 namespace Shy\Http\Contract;
 
+use Exception;
 use Shy\Http\Contract\Request as RequestContract;
 use Shy\Http\View;
 
@@ -49,7 +50,8 @@ interface Router
      *
      * @param RequestContract $request
      * @return mixed|View|string
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function run(RequestContract $request);
 }

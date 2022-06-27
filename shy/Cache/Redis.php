@@ -11,12 +11,16 @@ use Shy\Exception\Cache\InvalidArgumentException;
 class Redis extends PhpRedis implements CacheContract, DataBase
 {
     /**
+     * 配置组
+     *
      * @var array
      */
     protected $configs = [];
 
     /**
-     * @var Redis []
+     * 链接池
+     *
+     * @var Redis[]
      */
     protected $connections = [];
 
@@ -24,9 +28,10 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * Redis constructor.
      *
      * @param string $config_name
+     *
      * @throws Exception
      */
-    public function __construct($config_name = 'default')
+    public function __construct(string $config_name = 'default')
     {
         parent::__construct();
 
@@ -49,10 +54,11 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * Connection
      *
      * @param string $config_name
-     * @throws Exception
      * @return Redis
+     *
+     * @throws Exception
      */
-    public function connection($config_name = 'default')
+    public function connection(string $config_name = 'default')
     {
         if (isset($this->connections[$config_name])) {
             try {
@@ -130,7 +136,7 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      * Function Redis::delete() is deprecated in PhpRedis 5
      *
      * @param $key
-     * @param array ...$other_keys
+     * @param ...$other_keys
      * @return int
      */
     public function delete($key, ...$other_keys)
@@ -160,13 +166,10 @@ class Redis extends PhpRedis implements CacheContract, DataBase
      *   MUST be thrown if $keys is neither an array nor a Traversable,
      *   or if any of the $keys are not a legal value.
      */
-    public function getMultiple(array $keys = null, $default = null)
+    public function getMultiple(array $keys = [], $default = null)
     {
         if (empty($keys)) {
             throw new InvalidArgumentException('Keys is empty.');
-        }
-        if (!is_array($keys)) {
-            throw new InvalidArgumentException('keys is not a array.');
         }
 
         if ($values = parent::getMultiple($keys)) {

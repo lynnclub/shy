@@ -9,7 +9,7 @@ use Exception;
 class Pdo extends PhpPdo implements DataBase
 {
     /**
-     * @var $this []
+     * @var Pdo[]
      */
     protected $connections;
 
@@ -30,13 +30,14 @@ class Pdo extends PhpPdo implements DataBase
     }
 
     /**
+     * Connection
+     *
      * @param string $config_name
+     * @return $this
      *
      * @throws Exception
-     *
-     * @return $this
      */
-    public function connection($config_name = 'default')
+    public function connection(string $config_name = 'default')
     {
         if (isset($this->connections[$config_name])) {
             return $this->connections[$config_name];
@@ -75,5 +76,4 @@ class Pdo extends PhpPdo implements DataBase
 
         return $this;
     }
-
 }

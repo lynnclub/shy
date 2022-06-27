@@ -4,8 +4,8 @@ namespace Shy\Http;
 
 use Shy\Contract\Pipeline;
 use Shy\Facade\Hook;
-use Shy\Http\Contract\Router as RouterContract;
 use Shy\Http\Contract\Request as RequestContract;
+use Shy\Http\Contract\Router as RouterContract;
 use Shy\Http\Exception\HttpException;
 
 class Router implements RouterContract
@@ -400,7 +400,7 @@ class Router implements RouterContract
     /**
      * 获取中间件全名
      *
-     * @param $shortNames
+     * @param array $shortNames
      * @return array
      */
     protected function getMiddlewareFullNameByConfig(array $shortNames)

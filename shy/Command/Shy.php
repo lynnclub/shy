@@ -2,9 +2,13 @@
 
 namespace Shy\Command;
 
+use Shy\Http\Contract\Request;
+use Shy\Http\Contract\Router;
+
 class Shy
 {
     /**
+     * 命令列表
      * The List of Command
      *
      * @return string
@@ -18,9 +22,10 @@ class Shy
     }
 
     /**
+     * 环境变量
      * SHY_ENV
      *
-     * @return mixed
+     * @return string
      */
     public function env()
     {
@@ -28,15 +33,16 @@ class Shy
     }
 
     /**
+     * 路由配置
      * Route config
      *
      * @return string
      */
     public function routeConfig()
     {
-        bind(\Shy\Http\Contract\Request::class, \Shy\Http\Request::class);
+        bind(Request::class, \Shy\Http\Request::class);
 
-        $router = shy(\Shy\Http\Contract\Router::class, \Shy\Http\Router::class);
+        $router = shy(Router::class, \Shy\Http\Router::class);
         $router->initialize();
         $router->buildRoute();
 
@@ -44,13 +50,14 @@ class Shy
     }
 
     /**
+     * 路由索引
      * Route index
      *
      * @return string
      */
     public function routeIndex()
     {
-        $router = shy(\Shy\Http\Contract\Router::class, \Shy\Http\Router::class);
+        $router = shy(Router::class, \Shy\Http\Router::class);
         $router->buildRoute();
 
         return json_encode($router->getRouteIndex());

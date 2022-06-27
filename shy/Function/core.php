@@ -1,13 +1,17 @@
 <?php
 /**
- * Core functions
+ * 核心函数
+ * Core function
  */
 
+use Psr\Http\Message\StreamInterface;
 use Shy\Container;
 use Shy\Contract\Config;
+use Shy\Library\Stream;
 
 if (!function_exists('get_throwable_array')) {
     /**
+     * 获取可抛出数组
      * Get throwable array
      *
      * @param Throwable $throwable
@@ -62,15 +66,16 @@ if (!function_exists('get_throwable_array')) {
 
 if (!function_exists('shy')) {
     /**
+     * 获取或创建实例
      * Get or make instance
      *
-     * @param string $id
+     * @param string|null $id
      * @param object|string|null $concrete
-     * @param array ...$parameters
+     * @param ...$parameters
      *
      * @return object
      */
-    function shy($id = null, $concrete = null, ...$parameters)
+    function shy(string $id = null, $concrete = null, ...$parameters)
     {
         if (is_null($id)) {
             return Container::getContainer();
@@ -82,6 +87,7 @@ if (!function_exists('shy')) {
 
 if (!function_exists('bind')) {
     /**
+     * 绑定待创建
      * Bind ready to make
      *
      * @param string $id
@@ -97,9 +103,10 @@ if (!function_exists('bind')) {
 
 if (!function_exists('config')) {
     /**
+     * 获取配置
      * Get config
      *
-     * @param string $key
+     * @param string|null $key
      * @return mixed
      */
     function config(string $key = null)
@@ -114,6 +121,7 @@ if (!function_exists('config')) {
 
 if (!function_exists('lang')) {
     /**
+     * 多语言
      * lang
      *
      * @param int $code
@@ -132,6 +140,7 @@ if (!function_exists('lang')) {
 
 if (!function_exists('is_cli')) {
     /**
+     * 是否运行在cli模式
      * Determine if running in cli.
      *
      * @return bool
@@ -144,6 +153,7 @@ if (!function_exists('is_cli')) {
 
 if (!function_exists('stream_for')) {
     /**
+     * 基于输入类型创建stream流
      * Create a new stream based on the input type.
      *
      * Options is an associative array that can contain the following keys:
@@ -153,8 +163,8 @@ if (!function_exists('stream_for')) {
      * @param mixed $resource
      * @param array $options Additional options
      *
-     * @return \Psr\Http\Message\StreamInterface
-     * @throws \InvalidArgumentException if the $resource arg is not valid.
+     * @return StreamInterface
+     * @throws InvalidArgumentException if the $resource arg is not valid.
      */
     function stream_for($resource = '', array $options = [])
     {
@@ -164,27 +174,27 @@ if (!function_exists('stream_for')) {
                 fwrite($stream, $resource);
                 fseek($stream, 0);
             }
-            return new \Shy\Library\Stream($stream, $options);
+
+            return new Stream($stream, $options);
         }
 
         switch (gettype($resource)) {
             case 'resource':
-                return new \Shy\Library\Stream($resource, $options);
+                return new Stream($resource, $options);
             case 'object':
-                if ($resource instanceof \Psr\Http\Message\StreamInterface) {
+                if ($resource instanceof StreamInterface) {
                     return $resource;
                 } elseif (method_exists($resource, '__toString')) {
                     return stream_for((string)$resource, $options);
                 } else {
                     return stream_for(json_encode($resource), $options);
                 }
-                break;
             case 'array':
                 return stream_for(json_encode($resource), $options);
             case 'NULL':
-                return new \Shy\Library\Stream(fopen('php://temp', 'r+'), $options);
+                return new Stream(fopen('php://temp', 'r+'), $options);
         }
 
-        throw new \InvalidArgumentException('Invalid resource type: ' . gettype($resource));
+        throw new InvalidArgumentException('Invalid resource type: ' . gettype($resource));
     }
 }

@@ -2,14 +2,15 @@
 
 namespace Shy\Exception;
 
-use Shy\Contract\ExceptionHandler;
+use ErrorException;
+use Exception;
+use ReflectionException;
 use Shy\Contract\Config;
+use Shy\Contract\ExceptionHandler;
 use Shy\Contract\Logger;
 use Shy\Http\Contract\Response;
 use Shy\Http\Contract\View;
-use Exception;
 use Throwable;
-use ErrorException;
 
 class HandlerRegister
 {
@@ -44,8 +45,8 @@ class HandlerRegister
      * @param ExceptionHandler $exceptionHandler
      * @param Config $config
      * @param Logger $logger
-     * @param Response $response
-     * @param View $view
+     * @param Response|null $response
+     * @param View|null $view
      *
      * @throws Cache\InvalidArgumentException
      */
@@ -68,9 +69,10 @@ class HandlerRegister
     }
 
     /**
+     * 设置响应
      * Set response
      *
-     * @param Response $response
+     * @param Response|null $response
      * @return $this
      */
     public function setResponse(Response $response = null)
@@ -81,9 +83,10 @@ class HandlerRegister
     }
 
     /**
+     * 设置视图
      * Set view
      *
-     * @param View $view
+     * @param View|null $view
      * @return $this
      */
     public function setView(View $view = null)
@@ -94,6 +97,7 @@ class HandlerRegister
     }
 
     /**
+     * 将错误转换为异常
      * Convert PHP errors to ErrorException instances.
      *
      * @param $level
@@ -104,7 +108,7 @@ class HandlerRegister
      *
      * @throws ErrorException
      */
-    public function handleError($level, $message, $file = '', $line = 0, $context = [])
+    public function handleError($level, $message, string $file = '', int $line = 0, array $context = [])
     {
         if (error_reporting() & $level) {
             throw new ErrorException($message, 0, $level, $file, $line);
@@ -112,6 +116,7 @@ class HandlerRegister
     }
 
     /**
+     * 处理未捕获异常
      * Handle an uncaught exception from the application.
      *
      * Note: Most exceptions can be handled via the try / catch block in
@@ -120,8 +125,6 @@ class HandlerRegister
      *
      * @param Throwable $e
      * @return void
-     *
-     * @throws \ReflectionException
      */
     public function handleException($e)
     {
@@ -140,9 +143,8 @@ class HandlerRegister
     }
 
     /**
+     * 处理php shutdown事件
      * Handle the PHP shutdown event.
-     *
-     * @throws \ReflectionException
      */
     public function handleShutdown()
     {
@@ -152,12 +154,14 @@ class HandlerRegister
     }
 
     /**
+     * 从错误数组中创建新的致命异常
      * Create a new fatal exception instance from an error array.
      *
      * @param array $error
      * @param null $traceOffset
      * @return FatalErrorException
-     * @throws
+     *
+     * @throws ReflectionException
      */
     protected function fatalExceptionFromError(array $error, $traceOffset = null)
     {
@@ -167,14 +171,14 @@ class HandlerRegister
     }
 
     /**
+     * 判断错误类型是否致命
      * Determine if the error type is fatal.
      *
-     * @param  int $type
+     * @param int $type
      * @return bool
      */
     protected function isFatal($type)
     {
         return in_array($type, [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE]);
     }
-
 }

@@ -7,31 +7,34 @@ use RuntimeException;
 abstract class Facade
 {
     /**
-     * Get Instance.
+     * 获取实例
+     * Get the instance.
      *
-     * @return mixed
+     * @return object
+     *
      * @throws RuntimeException
      */
     protected static function getInstance()
     {
-        throw new RuntimeException('Facade does not implement getInstance method.');
+        throw new RuntimeException('getInstance() not implement.');
     }
 
     /**
-     * Handle dynamic, static calls to the object.
+     * 动态调用代理对象方法
+     * Dynamically call proxy object methods.
      *
-     * @param  string $method
-     * @param  array $args
+     * @param string $method
+     * @param array $args
      * @return mixed
      *
      * @throws RuntimeException
      */
-    public static function __callStatic($method, $args)
+    public static function __callStatic(string $method, array $args)
     {
         $instance = static::getInstance();
 
         if (!$instance) {
-            throw new RuntimeException('Can not get facade object.');
+            throw new RuntimeException('Can not get object.');
         }
 
         if (method_exists($instance, $method)) {

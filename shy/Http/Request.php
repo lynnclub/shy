@@ -14,7 +14,7 @@ class Request extends SymfonyRequest implements RequestContract
      */
     public function isInitialized()
     {
-        return empty($this->server->count()) ? FALSE : TRUE;
+        return !empty($this->server->count());
     }
 
     /**
@@ -62,7 +62,7 @@ class Request extends SymfonyRequest implements RequestContract
      * @param string|null $default
      * @return string|null
      */
-    public function header($key, $default = null)
+    public function header(string $key, string $default = null)
     {
         return $this->headers->get($key, $default);
     }
@@ -75,7 +75,7 @@ class Request extends SymfonyRequest implements RequestContract
      * @param string|null $default
      * @return string|null
      */
-    public function server($key, $default = null)
+    public function server(string $key, string $default = null)
     {
         return $this->server->get($key, $default);
     }

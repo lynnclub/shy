@@ -22,6 +22,7 @@ interface Request
 {
     /**
      * 获取参数值
+     * Get param
      *
      * @param string $key
      * @param null $default
@@ -255,7 +256,7 @@ interface Request
      * @param string|null $default
      * @return string|null
      */
-    public function header($key, $default = null);
+    public function header(string $key, string $default = null);
 
     /**
      * 获取服务器信息
@@ -265,5 +266,5 @@ interface Request
      * @param string|null $default
      * @return string|null
      */
-    public function server($key, $default = null);
+    public function server(string $key, string $default = null);
 }

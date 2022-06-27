@@ -15,6 +15,7 @@ use Shy\Hook as RealHook;
 class Hook extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

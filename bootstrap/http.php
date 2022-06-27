@@ -93,12 +93,15 @@ try {
      */
     $container->make(HandlerRegister::class);
 
+    // 会话初始化
+    $container['session']->init($container['config']->find('session'));
+
     // 加载文件 Loading files
     require __DIR__ . '/../shy/Http/Function/view.php';
     require __DIR__ . '/../app/Function/common.php';
 
     return $container;
-} catch (\Throwable $throwable) {
+} catch (Throwable $throwable) {
     echo implode('<br>', get_throwable_array($throwable));
     exit(1);
 }

@@ -2,8 +2,8 @@
 
 namespace Shy\Facade;
 
-use Shy\Facade;
 use Shy\Contract\Cache as CacheContract;
+use Shy\Facade;
 
 /**
  * Class Cache
@@ -18,6 +18,7 @@ use Shy\Contract\Cache as CacheContract;
 class Cache extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

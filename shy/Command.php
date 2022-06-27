@@ -8,11 +8,14 @@ use Exception;
 class Command
 {
     /**
+     * 参数
+     *
      * @var array $params
      */
     protected $params = [];
 
     /**
+     * 处理类
      * Handle class
      *
      * @var string $class
@@ -20,6 +23,7 @@ class Command
     protected $class;
 
     /**
+     * 处理方法
      * Handle method
      *
      * @var $method
@@ -27,14 +31,17 @@ class Command
     protected $method;
 
     /**
+     * 解析命令
      * Parse Command
      *
-     * @throws Exception
      * @return string Error Message
+     *
+     * @throws Exception
      */
     protected function parse()
     {
         /**
+         * 参数
          * Params
          */
         global $argv;
@@ -43,6 +50,7 @@ class Command
         $command = array_shift($params);
 
         /**
+         * 配置
          * Config
          */
         $config = config('command');
@@ -52,7 +60,9 @@ class Command
         if (!is_array($config[$command])) {
             throw new Exception('Command ' . $command . ' config error.');
         }
+
         /**
+         * 解析路由
          * Parse router
          */
         $class = key($config[$command]);
@@ -74,6 +84,7 @@ class Command
     }
 
     /**
+     * 运行命令
      * Run command
      *
      * @throws Exception
@@ -96,10 +107,12 @@ class Command
     }
 
     /**
+     * 命令未找到
+     *
      * @param string $command
      * @return string
      */
-    protected function commandNotFound($command = '')
+    protected function commandNotFound(string $command = '')
     {
         return "Command '{$command}' not found. See 'php command list'.";
     }

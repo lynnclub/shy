@@ -11,6 +11,7 @@
 
 namespace Shy\Exception;
 
+use ReflectionException;
 use Throwable;
 use ErrorException;
 use ReflectionProperty;
@@ -34,7 +35,8 @@ class FatalErrorException extends ErrorException
      * @param bool $traceArgs
      * @param array|null $trace
      * @param Throwable|null $previous
-     * @throws \ReflectionException
+     *
+     * @throws ReflectionException
      */
     public function __construct(string $message, int $code, int $severity, string $filename, int $lineno, int $traceOffset = null, bool $traceArgs = TRUE, array $trace = null, Throwable $previous = null)
     {
@@ -90,7 +92,6 @@ class FatalErrorException extends ErrorException
      * Set trace
      *
      * @param $trace
-     * @throws \ReflectionException
      */
     protected function setTrace($trace)
     {

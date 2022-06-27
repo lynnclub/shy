@@ -29,7 +29,6 @@ class FatalThrowableError extends FatalErrorException
      * fatalThrowableError constructor.
      *
      * @param Throwable $e
-     * @throws \ReflectionException
      */
     public function __construct(Throwable $e)
     {

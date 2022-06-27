@@ -9,7 +9,7 @@ use Workerman\Protocols\Http;
 class Response extends HttpResponse implements ResponseContract
 {
     /**
-     * Send header.
+     * Send header
      */
     public function sendHeader()
     {
@@ -20,7 +20,7 @@ class Response extends HttpResponse implements ResponseContract
         Http::header($this->reasonPhrase);
 
         if (is_array($this->headers)) {
-            foreach ($this->headers as $lowerKey => $value) {
+            foreach ($this->headers as $value) {
                 if (is_string($value)) {
                     Http::header($value);
                 } else {
@@ -31,7 +31,8 @@ class Response extends HttpResponse implements ResponseContract
     }
 
     /**
-     * Initialize in cycle
+     * 循环初始化
+     * Loop initialize
      */
     public function initialize()
     {

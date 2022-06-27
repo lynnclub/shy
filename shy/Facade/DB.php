@@ -2,19 +2,20 @@
 
 namespace Shy\Facade;
 
-use Shy\Facade;
 use Shy\Contract\DataBase;
+use Shy\Facade;
 
 /**
  * Class DB
  * @package Shy\Facade
  *
  * @method static DB connection($config_name = 'default')
- * @method static DB table($config_name = 'default')
+ * @method static DB table($name)
  */
 class DB extends Facade
 {
     /**
+     * 获取实例
      * Get the instance.
      *
      * @return object

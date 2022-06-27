@@ -2,6 +2,7 @@
 
 namespace Shy\Http;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -102,7 +103,7 @@ class ServerRequest implements ServerRequestInterface
      * empty array.
      *
      * @param string $name Case-insensitive header field name.
-     * @return string[] An array of string values as provided for the given
+     * @return string An array of string values as provided for the given
      *    header. If the header does not appear in the message, this method MUST
      *    return an empty array.
      */
@@ -148,7 +149,7 @@ class ServerRequest implements ServerRequestInterface
      * @param string $name Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value)
     {
@@ -171,7 +172,7 @@ class ServerRequest implements ServerRequestInterface
      * @param string $name Case-insensitive header field name to add.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withAddedHeader($name, $value)
     {
@@ -208,7 +209,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getBody()
     {
-        return stream_for($this->request->content);
+        return stream_for($this->request->getContent());
     }
 
     /**
@@ -222,11 +223,11 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param StreamInterface $body Body.
      * @return static
-     * @throws \InvalidArgumentException When the body is not valid.
+     * @throws InvalidArgumentException When the body is not valid.
      */
     public function withBody(StreamInterface $body)
     {
-        $this->request->content = $body;
+        //$this->request->content = $body;
 
         return $this;
     }
@@ -295,7 +296,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param string $method Case-sensitive method.
      * @return static
-     * @throws \InvalidArgumentException for invalid HTTP methods.
+     * @throws InvalidArgumentException for invalid HTTP methods.
      */
     public function withMethod($method)
     {
@@ -476,7 +477,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param array $uploadedFiles An array tree of UploadedFileInterface instances.
      * @return static
-     * @throws \InvalidArgumentException if an invalid structure is provided.
+     * @throws InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
@@ -527,7 +528,7 @@ class ServerRequest implements ServerRequestInterface
      * @param null|array|object $data The deserialized body data. This will
      *     typically be in an array or object.
      * @return static
-     * @throws \InvalidArgumentException if an unsupported argument type is
+     * @throws InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
     public function withParsedBody($data)
@@ -563,10 +564,10 @@ class ServerRequest implements ServerRequestInterface
      * This method obviates the need for a hasAttribute() method, as it allows
      * specifying a default value to return if the attribute is not found.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
+     * @see getAttributes()
      */
     public function getAttribute($name, $default = null)
     {
@@ -583,10 +584,10 @@ class ServerRequest implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * updated attribute.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $value The value of the attribute.
      * @return static
+     * @see getAttributes()
      */
     public function withAttribute($name, $value)
     {
@@ -605,9 +606,9 @@ class ServerRequest implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that removes
      * the attribute.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @return static
+     * @see getAttributes()
      */
     public function withoutAttribute($name)
     {

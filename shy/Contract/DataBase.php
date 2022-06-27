@@ -10,5 +10,5 @@ interface DataBase
      * @param string $config_name
      * @return object
      */
-    public function connection($config_name = 'default');
+    public function connection(string $config_name = 'default');
 }

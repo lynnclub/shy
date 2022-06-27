@@ -2,8 +2,8 @@
 
 namespace Shy\Http\Exception;
 
-use RuntimeException;
 use Exception;
+use RuntimeException;
 
 /**
  * HttpException.
@@ -12,8 +12,9 @@ use Exception;
  */
 class HttpException extends RuntimeException
 {
-    private $statusCode;
-    private $headers;
+    protected $statusCode;
+
+    protected $headers;
 
     public function __construct(int $statusCode, string $message = null, Exception $previous = null, array $headers = array(), int $code = 0)
     {

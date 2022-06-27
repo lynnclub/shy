@@ -1,7 +1,9 @@
 <?php
 /**
+ * 进程管理
  * Process
  *
+ * 主进程(监视) -> 子进程
  * master(monitor) -> task
  */
 
@@ -14,39 +16,70 @@ use Shy\Facade\Hook;
 class Process
 {
     /**
+     * 任务
+     *
      * @var array
      */
     private $task;
 
     /**
+     * 任务数量
+     *
      * @var array
      */
     private $taskNum;
 
     /**
+     * 主进程pid
+     *
      * @var int
      */
     protected $masterPid = 0;
 
     /**
+     * pid文件路径
+     *
      * @var string
      */
     protected $pidFile = '';
 
+    /**
+     * 状态统计文件路径
+     *
+     * @var string
+     */
     protected $statisticsFile;
 
+    /**
+     * 是否后台常驻
+     *
+     * @var bool
+     */
     protected $daemon = false;
 
+    /**
+     * 是否强制停止
+     *
+     * @var bool
+     */
     protected $forceStop = false;
 
+    /**
+     * 子进程pid地图
+     *
+     * @var array
+     */
     protected $childRunningPidMap = [];
 
     /**
+     * 复制子进程
+     *
      * @var ProcessTask
      */
     protected $forkedTask;
 
     /**
+     * 进程状态
      * Status
      *
      * @var int
@@ -58,16 +91,21 @@ class Process
     protected $status = self::STATUS_STARTING;
 
     /**
+     * 状态加载等待时间
+     *
      * @var int second
      */
     public $statusLoadingTime = 3;
 
     /**
-     * @var int second
+     * 状态刷新时间间隔
+     *
+     * @var int 秒 second
      */
     public $statusShowRefresh = 10;
 
     /**
+     * 设置任务
      * Set task
      *
      * @param string $name
@@ -81,6 +119,7 @@ class Process
     }
 
     /**
+     * 执行
      * Run
      *
      * @return string
@@ -101,28 +140,34 @@ class Process
 
         $this->status = self::STATUS_STARTING;
 
+        // 主进程后台常驻
         // Master daemon
         if ($this->daemon) {
             $this->daemon();
         }
 
+        // 进程间通信
         // Inter Process communication
         $this->installSignal();
 
+        // 保存主进程pid
         // Save master pid
         $this->masterPid = \posix_getpid();
         if (false === \file_put_contents($this->pidFile, $this->masterPid)) {
             throw new Exception('Can not save master pid to ' . $this->pidFile);
         }
 
+        // 复制任务进程
         // Fork task process
         $this->forkAndRunTask();
 
+        // 监控
         // Monitor
         $this->monitorForLinux();
     }
 
     /**
+     * 解析操作
      * Parse operation
      *
      * @return string
@@ -150,11 +195,14 @@ class Process
         }
 
         $command = \trim($argv[1]);
-        $mode = isset($argv[2]) ? $argv[2] : '';
+        $mode = $argv[2] ?? '';
 
-        // Get master process PID.
+        // 获取主进程pid
+        // Get master process pid.
         $master_pid = \is_file($this->pidFile) ? \file_get_contents($this->pidFile) : 0;
         $master_is_alive = $master_pid && \posix_kill($master_pid, 0) && \posix_getpid() !== $master_pid;
+
+        // 主进程是否存活
         // Master is still alive?
         if ($master_is_alive) {
             if ($command === 'start') {
@@ -164,7 +212,7 @@ class Process
             return "[$entryCommand] not run";
         }
 
-        // execute command.
+        // 执行命令 execute command.
         switch ($command) {
             case 'start':
                 if ($mode === '-d') {
@@ -179,13 +227,14 @@ class Process
 
                     echo "\nLoading...\n";
 
+                    // 主进程将发送SIGUSR1信号到所有子进程
                     // Master process will send SIGUSR1 signal to all child processes.
                     \posix_kill($master_pid, SIGUSR1);
-                    // Loading wait.
+                    // 状态加载等待 Loading wait.
                     \sleep($this->statusLoadingTime);
-                    // Clear terminal.
+                    // 清除终端 Clear terminal.
                     \print_r("\033c");
-                    // Echo status data.
+                    // 输出状态数据 Echo status data.
                     if (\is_readable($this->statisticsFile)) {
                         echo file_get_contents($this->statisticsFile, \FILE_IGNORE_NEW_LINES);
                     } else {
@@ -194,10 +243,9 @@ class Process
 
                     echo "\nRefresh every {$this->statusShowRefresh} seconds.\nPress Ctrl+C to quit.\n";
 
-                    // Refresh wait.
+                    // 刷新等待 Refresh wait.
                     \sleep($this->statusShowRefresh);
                 }
-                exit(0);
             case 'restart':
             case 'stop':
                 if ($command === 'stop' && $mode === '-f') {
@@ -209,8 +257,10 @@ class Process
                     $sig = \SIGTERM;
                     echo "[$entryCommand] stopping ...\n";
                 }
+                // 发送停止信号给主进程
                 // Send stop signal to master process.
                 $master_pid && \posix_kill($master_pid, $sig);
+                // 检查主进程是否存活
                 // Check master process is still alive?
                 while (1) {
                     $master_is_alive = $master_pid && \posix_kill($master_pid, 0);
@@ -223,14 +273,14 @@ class Process
 
                     echo "[$entryCommand] stop success\n";
                     if ($command === 'stop') {
-                        // Stop current.
+                        // 停止当前进程 Stop current.
                         exit(0);
                     }
 
                     break;
                 }
 
-                // Restart
+                // 重启 Restart
                 if ($mode === '-d') {
                     $this->daemon = true;
                 }
@@ -241,6 +291,7 @@ class Process
     }
 
     /**
+     * 按后台模式执行
      * Run as daemon mode
      *
      * @throws Exception
@@ -255,6 +306,7 @@ class Process
             exit(0);
         }
 
+        // 启动新会话，离开当前终端
         // Set up a new session leader and leave the terminal.
         if (-1 === \posix_setsid()) {
             throw new Exception("Set sid fail");
@@ -270,40 +322,43 @@ class Process
     }
 
     /**
+     * 安装信号处理
      * Install signal handler
      *
      * @return void
      */
     protected function installSignal()
     {
-        // force stop
+        // 强制停止 force stop
         \pcntl_signal(\SIGINT, array($this, 'signalHandler'), false);
-        // stop
+        // 停止 stop
         \pcntl_signal(\SIGTERM, array($this, 'signalHandler'), false);
-        // status
+        // 状态 status
         \pcntl_signal(\SIGUSR1, array($this, 'signalHandler'), false);
-        // pipe ignore
+        // 忽略 pipe ignore
         \pcntl_signal(\SIGPIPE, \SIG_IGN, false);
     }
 
     /**
+     * 卸载信号处理
      * Uninstall signal handler
      *
      * @return void
      */
     protected function uninstallSignal()
     {
-        // force stop
+        // 强制停止 force stop
         \pcntl_signal(\SIGINT, \SIG_IGN, false);
-        // stop
+        // 停止 stop
         \pcntl_signal(\SIGTERM, \SIG_IGN, false);
-        // status
+        // 状态 status
         \pcntl_signal(\SIGUSR1, \SIG_IGN, false);
-        // pipe ignore
+        // 忽略 pipe ignore
         \pcntl_signal(\SIGPIPE, \SIG_IGN, false);
     }
 
     /**
+     * 信号处理
      * Signal handler
      *
      * @param int $signal
@@ -311,19 +366,19 @@ class Process
     public function signalHandler(int $signal)
     {
         switch ($signal) {
-            // Force stop.
+            // 强制停止 Force stop.
             // Ctrl + C.
             case \SIGINT:
                 $this->forceStop = true;
                 $this->stopAll();
                 break;
-            // Restart.
-            // Stop.
+            // 重启 Restart.
+            // 停止 Stop.
             case \SIGTERM:
                 $this->forceStop = false;
                 $this->stopAll();
                 break;
-            // Show status.
+            // 展示状态 Show status.
             case \SIGUSR1:
                 $this->writeStatisticsFile();
                 break;
@@ -331,6 +386,7 @@ class Process
     }
 
     /**
+     * 复制子进程
      * Fork task
      *
      * @throws Exception
@@ -352,7 +408,8 @@ class Process
     }
 
     /**
-     * Fork process task.
+     * 复制子进程，Linux
+     * Fork process task for Linux.
      *
      * @param string $name
      * @param ProcessTask $task
@@ -362,21 +419,21 @@ class Process
     {
         $pid = \pcntl_fork();
         if ($pid > 0) {
-            // For master process.
+            // 主进程流程 For master process.
 
-            // Save child pid
+            // 保存子进程pid Save child pid
             $this->childRunningPidMap[$name][$pid] = $pid;
         } elseif (0 === $pid) {
-            // For child process.
+            // 子进程流程 For child process.
 
-            // Random seed generator
+            // 伪随机种子生成 Random seed generator
             \srand();
             \mt_srand();
 
-            // User and group
+            // 用户和组 User and group
             $this->setUserAndGroup();
 
-            // Inter Process communication
+            // 进程间通信 Inter Process communication
             $this->uninstallSignal();
             $this->installSignal();
 
@@ -397,6 +454,7 @@ class Process
     }
 
     /**
+     * 为当前进程设置unix用户和组
      * Set unix user and group for current process.
      *
      * @return void
@@ -422,6 +480,7 @@ class Process
     }
 
     /**
+     * 监控所有子进程
      * Monitor all child processes.
      *
      * @throws Exception
@@ -433,6 +492,7 @@ class Process
         while (true) {
             \pcntl_signal_dispatch();
 
+            // 挂起当前进程，直至有子进程退出，或者收到信号
             // Suspends execution of the current process until a child has exited, or until a signal is delivered
             $status = 0;
             $pid = \pcntl_wait($status, \WUNTRACED);
@@ -440,15 +500,16 @@ class Process
             \pcntl_signal_dispatch();
 
             if ($pid > 0) {
+                // 查明哪个进程退出
                 // Find out which process exited.
                 foreach ($this->childRunningPidMap as $name => $pid_array) {
                     if (isset($pid_array[$pid])) {
-                        // Exit status.
+                        // 退出状态 Exit status.
                         if ($status !== 0) {
                             echo "Task {$name} exit with status $status\n";
                         }
 
-                        // Clear child process pid.
+                        // 清除子进程pid Clear child process pid.
                         unset($this->childRunningPidMap[$name][$pid]);
                         if (empty($this->childRunningPidMap[$name])) {
                             unset($this->childRunningPidMap[$name]);
@@ -459,7 +520,7 @@ class Process
                 }
 
                 if ($this->status !== static::STATUS_STOPPING) {
-                    // Fork new process.
+                    // 启动新子进程 Fork new child process.
                     $this->forkAndRunTask();
                 }
             }
@@ -472,6 +533,7 @@ class Process
     }
 
     /**
+     * 停止所有
      * Stop all
      */
     public function stopAll()
@@ -480,8 +542,9 @@ class Process
 
         $currentPid = \posix_getpid();
         if ($this->masterPid === $currentPid) {
-            // For master process.
+            // 主进程流程 For master process.
 
+            // 发送停止信号给所有子进程
             // Send stop signal to all child processes.
             if ($this->forceStop) {
                 $sig = \SIGKILL; // kill -9
@@ -494,7 +557,7 @@ class Process
                 }
             }
         } else {
-            // For child process.
+            // 子进程流程 For child process.
 
             echo "Child process {$currentPid} graceful stop\n";
             exit(0);
@@ -502,12 +565,13 @@ class Process
     }
 
     /**
+     * 写入状态统计
      * Write statistics
      */
     public function writeStatisticsFile()
     {
         if ($this->masterPid === \posix_getpid()) {
-            // For master process.
+            // 主进程流程 For master process.
 
             $status_str = "----------------------------PROCESS STATUS----------------------------\nPHP version:" . \PHP_VERSION . "\n\nTask and Process:\n-----------------------\n";
             foreach ($this->childRunningPidMap as $name => $tasks) {
@@ -520,7 +584,7 @@ class Process
                 $status_str .= "-----------------------\n";
             }
         } else {
-            // For child process.
+            // 子进程流程 For child process.
 
             $status_str = "PID\t" . \posix_getpid() . "\tMemory use\t" . \str_pad(round(memory_get_usage(true) / (1024 * 1024), 2) . "M", 7) . "\n";
         }

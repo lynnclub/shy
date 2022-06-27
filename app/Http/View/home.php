@@ -4,14 +4,14 @@ push_resource('footer-js', '/vendor/jquery/dist/jquery.js', 'js');
 
 ?>
 
-<div class="hello-world">
+<div class="hello-world" style="margin-top: 50px">
     <?php param('info') ?>
 </div>
 <div class="hello-world">
     <?php param('infoEng') ?>
     <?php param('not_exist_param', true) ?>
 </div>
-<div class="system">
+<div class="system" style="margin-top: 50px">
     <h2>基础信息 Basic Information</h2>
     <br>
     <table class="params">
@@ -52,7 +52,7 @@ push_resource('footer-js', '/vendor/jquery/dist/jquery.js', 'js');
     </table>
 </div>
 <div class="system">
-    <h2>实例化时的内存消耗记录 Memory consumption record when making</h2>
+    <h2>实例化内存消耗记录 Memory consumption record when making</h2>
     <br>
     <table class="params">
         <thead>

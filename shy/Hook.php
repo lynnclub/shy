@@ -2,29 +2,35 @@
 
 namespace Shy;
 
+use Closure;
+
 class Hook
 {
     /**
+     * 钩子池
+     *
      * @var array
      */
     protected $hooks = [];
 
     /**
+     * 设置钩子
      * Set hook
      *
      * @param string $name
-     * @param \Closure $closure
+     * @param Closure $closure
      */
-    public function set(string $name, \Closure $closure)
+    public function set(string $name, Closure $closure)
     {
         $this->hooks[$name][] = $closure;
     }
 
     /**
+     * 执行
      * Run
      *
      * @param string $name
-     * @param $param
+     * @param ...$param
      */
     public function run(string $name, ...$param)
     {

@@ -2,12 +2,13 @@
 <?php
 
 use Shy\Command;
+use Shy\Container;
 use Shy\Facade\Hook;
 
 /**
  * 执行启动器，得到容器
  *
- * @var $container \Shy\Container
+ * @var $container Container
  */
 $container = require __DIR__ . '/bootstrap/command.php';
 
