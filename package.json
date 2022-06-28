@@ -5,7 +5,8 @@
     "dependencies": {},
     "devDependencies": {
         "gulp": "^3.9",
-        "jquery": "^3.4"
+        "jquery": "^3.4",
+        "lodash": "^4.17.20"
     },
     "scripts": {}
 }
