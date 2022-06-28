@@ -97,8 +97,8 @@ try {
     $container['session']->init($container['config']->find('session'));
 
     // 加载文件 Loading files
-    require __DIR__ . '/../shy/Http/Function/view.php';
-    require __DIR__ . '/../app/Function/common.php';
+    require BASE_PATH . 'shy/Http/Function/view.php';
+    require APP_PATH . 'Function/common.php';
 
     return $container;
 } catch (Throwable $throwable) {

@@ -76,7 +76,7 @@ try {
     $container->make(HandlerRegister::class);
 
     // 加载文件 Loading files
-    require __DIR__ . '/../app/Function/common.php';
+    require APP_PATH . 'Function/common.php';
 
     return $container;
 } catch (Throwable $throwable) {
