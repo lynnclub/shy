@@ -5,7 +5,7 @@ use Shy\Facade\Cache;
 
 class redisTest extends TestCase
 {
-    protected function setUp(): void
+    protected function setUp()
     {
         require __DIR__ . '/../bootstrap/command.php';
     }

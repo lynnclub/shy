@@ -10,7 +10,7 @@ class containerTest extends TestCase
      */
     protected $container;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->container = Container::getContainer();
     }
