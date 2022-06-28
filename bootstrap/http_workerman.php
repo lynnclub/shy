@@ -62,7 +62,7 @@ try {
     //$container->enableIntelligentScheduling();
 
     // 加载文件 Loading files
-    require __DIR__ . '/../shy/Http/Function/view.php';
+    require BASE_PATH . 'shy/Http/Function/view.php';
 
     return $container;
 } catch (Throwable $throwable) {
