@@ -242,8 +242,8 @@ if (!function_exists('csrf_verify')) {
 
 if (!function_exists('is_valid_ip')) {
     /**
-     * 验证ip
-     * Is valid ip
+     * 验证IP
+     * Is valid IP
      *
      * @param string $ip
      * @return bool

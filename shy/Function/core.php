@@ -11,7 +11,7 @@ use Shy\Library\Stream;
 
 if (!function_exists('get_throwable_array')) {
     /**
-     * 获取可抛出数组
+     * 以数组形式获取可抛出对象
      * Get throwable array
      *
      * @param Throwable $throwable

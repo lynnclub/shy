@@ -6,7 +6,7 @@
 
 if (!function_exists('dd')) {
     /**
-     * 开发输出
+     * 调试输出
      * Development output
      *
      * @param ...$msg
