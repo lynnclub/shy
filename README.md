@@ -34,7 +34,7 @@ composer install
 php command http_workerman start
 ```
 
-## 一、概述 Overview
+## 1、概述 Overview
 
 框架内置了丰富的组件（Component），例如配置、日志、门面、缓存、流水线、进程管理等等。这些组件按照拼积木的方式灵活组合，形成了面向不同使用场景的 Web框架、CLI框架、Socket框架、API框架，并且可以多入口独立运行。
 
@@ -175,7 +175,7 @@ shy 框架根目录
 3. Swoole socket 
 4. Api便捷开发框架
 
-## 二、 契约 Contract
+## 2、契约 Contract
 
 契约是比接口（interface）更广义的概念，意义相似，但是不局限于接口的形式。契约可以是接口、抽象类，甚至是非硬性约束的惯例。
 
@@ -201,7 +201,7 @@ $container->binds([
 ]);
 ```
 
-## 三、 容器与依赖注入 Container and Dependency injection
+## 3、容器与依赖注入 Container and Dependency injection
 
 本框架的容器类，遵守PSR（PHP Standards Recommendations）中的《PSR-11: Container interface》接口规范。并且，实现了PHP的ArrayAccess、Countable接口，可以当作数组使用。
 
@@ -366,7 +366,7 @@ use Shy\Contract\Config;
 
 如上所述，Logger类的构造方法依赖Config和Request契约类参数。容器通过反射感知变量类型，可以自动注入契约绑定的实体类。
 
-## 四、 配置与环境 Config and Environment
+## 4、配置与环境 Config and Environment
 
 配置类继承了内存缓存类`Shy\Cache\Memory::class`，因为该缓存满足需求且无外部依赖。在`cache`开启的时候，配置会被持久化缓存。
 
@@ -408,7 +408,7 @@ export SHY_ENV=production
 
 环境配置可以自由拓展，框架按照配置的环境值，读取config目录下的同名环境目录。
 
-## 五、 异常捕获 Exception Handler
+## 5、异常捕获 Exception Handler
 
 **框架在各个服务的入口处，注册了异常（Exception）与错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误，甚至是Shut Down。错误及Shut Down会被转化成异常，统一按异常处理。**
 
@@ -429,7 +429,7 @@ use Shy\Http\Exception\HttpException;
 throw new HttpException(403, lang(5000));
 ```
 
-## 六、 门面 Facade
+## 6、门面 Facade
 
 门面提供了便捷的静态调用方式。实现**门面类**需要继承框架的**门面抽象类**，并且重写父类的`getInstance()`方法，以便向父类传递**实体类**。实现代码示例如下：
 
@@ -456,7 +456,7 @@ class Cache extends Facade
 
 **门面类**的父类——**门面抽象类**，通过魔术方法`__callStatic()`调用**实体类**中的方法。可参考 容器与依赖注入 章节，以便理解框架如何获取**实体类**的实例。
 
-## 七、 缓存 Cache
+## 7、缓存 Cache
 
 框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范。并且，实现了PHP的ArrayAccess接口，可以当作数组使用。由于phpredis拓展不完全兼容PSR-16，所以框架对缓存的PSR规范无硬性约束、仅建议遵守。
 
@@ -478,7 +478,7 @@ Cache::set('test', 123);
 Cache::get('test');
 ```
 
-## 八、 日志 Logger
+## 8、日志 Logger
 
 本框架的日志类，遵守PSR（PHP Standards Recommendations）中的《PSR-3: Logger Interface》接口规范。
 
@@ -509,7 +509,7 @@ $container->bind(Shy\Contract\Logger::class, Shy\Logger\Aliyun::class);
 
 自定义日志需要实现`Shy\Contract\Logger`接口，并且继承PSR的`Psr\Log\AbstractLogger`。
 
-## 九、 流水线 Pipeline
+## 9、流水线 Pipeline
 
 流水线是一种连贯的流程调度工具，**使用流水线执行的对象或函数，可以享受容器的依赖注入服务**。流水线连通了包括中间件、控制器在内的运行流程。
 
@@ -545,7 +545,7 @@ $response = shy(Pipeline::class)
     ->run();
 ```
 
-## 十、 请求 Request
+## 10、请求 Request
 
 通过门面类使用：
 
@@ -582,7 +582,7 @@ public function test(Request $request)
 }
 ```
 
-## 十一、 中间件 Middleware
+## 11、中间件 Middleware
 
 中间件是控制器请求与响应的中间步骤，是流水线（Pipeline）的一种特例。流水线传入的第一个参数`$next`，是用于运行控制器的闭包。
 
@@ -689,7 +689,7 @@ return [
 4. IpWhitelist：IP白名单，通过配置文件`ip_whitelist.php`管理白名单；
 5. Throttle：限流阀，默认1分钟内限制单IP请求60次，可在路由中自定义设置。例如1分钟内限制10次、5分钟解禁：`Throttle:10,5`。
 
-## 十二、 响应 Response
+## 12、响应 Response
 
 对于控制器，只需要return数据或者模版，Response组件会自动输出响应。建议不要手动输出，而是交给框架去处理响应。
 
@@ -710,7 +710,7 @@ return view('home', compact('title', 'info'))->layout('main');
 return smarty('smarty.tpl', $params);
 ```
 
-## 十三、 路由 Router
+## 13、路由 Router
 
 路由通过请求（Request）组件获取到请求路径，然后解析出对应控制器及其方法，最终调度执行中间件与控制器。
 
@@ -772,13 +772,13 @@ return [
 
 路由配置文件在debug关闭的时候（一般是生产环境），会自动缓存路由的索引，可能导致对路由的修改不生效，建议开启debug，或者手动删除路由缓存文件`cache/app/router.cache`。
 
-## 十四、 控制器 Controller
+## 14、控制器 Controller
 
 控制器方法中应该返回（return）数据、以便交由框架响应组件输出，不应该直接在控制器内输出。
 
 在控制器内使用实例，建议通过门面，或者契约的依赖注入。
 
-## 十五、 数据库 DataBase
+## 15、数据库 DataBase
 
 可以在bootstrap目录下的服务启动文件中，替换数据库契约绑定的实体类：
 
@@ -809,7 +809,7 @@ DB::table('users')->where('id', 2)->get();
 
 Illuminate Database的更多用法，可以查看[该项目的文档](https://github.com/illuminate/database)
 
-## 十六、 模版 View
+## 16、模版 View
 
 框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。
 
@@ -954,7 +954,7 @@ return smarty('smarty.tpl', $params);
 </html>
 ```
 
-## 十七、 命令模式 Command Mode
+## 17、命令模式 Command Mode
 
 框架支持命令模式。在项目根目录执行下述命令可以查看所有命令：
 
@@ -979,7 +979,7 @@ class Example
 }
 ```
 
-## 十八、 常驻内存模式 PHP-CLI Mode
+## 18、常驻内存模式 PHP-CLI Mode
 
 ### 18.1 简介
 
@@ -1066,7 +1066,7 @@ PHP-CLI + Socket运行环境，相对于传统Web运行环境有根本差异，�
 
 系统会自动判断实例是否可复用、并且基于统计数据动态判断是否自动销毁实例或者预先载入实例。本功能可以简化开发者的操作，同时可以平衡内存与时间占用、提升运行效率。
 
-## 十九、 通信模式 Socket Mode
+## 19、通信模式 Socket Mode
 
 框架封装了基于WorkerMan的Socket服务。你可以在配置文件`workerman.php`中配置服务端口、工作进程数。支持配置多组服务，并且支持同时运行多组服务。
 
@@ -1081,7 +1081,7 @@ php command workerman chat start
 
 上述命令中，chat是服务名。更多操作请查看常驻内存模式章节。
 
-## 二十、 单元测试 Unit Test
+## 20、单元测试 Unit Test
 
 框架可使用phpunit做单元测试。在tests文件夹中编写测试代码，在框架根目录执行下面的命令即可执行测试。
 
@@ -1105,7 +1105,7 @@ mv phpunit-6.5.phar /usr/local/bin/phpunit
 phpunit tests/containerTest
 ```
 
-## 二十一、 常量 Constant
+## 21、常量 Constant
 
 框架提供了一些常量可供使用：
 
@@ -1113,13 +1113,29 @@ phpunit tests/containerTest
 2. BASE_PATH：项目根目录
 3. APP_PATH：app开发目录
 4. CACHE_PATH：缓存文件目录
-5. VIEW_PATH：模版目录
+5. EXTEND_PATH：拓展目录
 6. PUBLIC_PATH：Http服务开放目录
+7. VIEW_PATH：模版目录
 
-## 二十二、 杂项函数 Miscellaneous function
+## 22、杂项函数 Miscellaneous function
 
-1. is_cli：是否处于CLI模式下
-2. dd：调试输出
-3. is\_valid\_ip：IP是否合法
-4. random_code：生成随机码
-5. mime：文件格式与MIME类型
+1. get\_throwable\_array：以数组形式获取可抛出对象
+2. is\_cli：是否处于CLI模式下
+3. stream\_for：基于输入类型创建stream流
+4. dd：调试输出
+5. get\_array\_key：从数组中获取健值
+6. empty\_or\_splice：留空或者拼接
+7. random\_code：随机码
+8. mime：获取mime类型
+9. url：获取url
+10. redirect：跳转
+11. xss\_clean：清除XSS
+12. csrf\_field：生成CSRF口令表单域
+13. csrf\_meta：生成CSRF口令meta标签
+14. csrf\_token：生成CSRF口令
+15. csrf\_verify：验证CSRF口令
+16. is\_valid\_ip：验证IP
+17. get\_valid\_ips：过滤非法IP
+18. get\_response\_json：获取响应json
+19. url\_chinese\_encode：中文url编码
+20. is\_mobile：是否移动设备
