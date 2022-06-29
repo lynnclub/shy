@@ -6,6 +6,34 @@
 
 The framework is simple, powerful, and comprehensive, just like her name: **Shy - slender figure, not leaking show**.
 
+## 运行 Run
+
+#### 第一步：克隆或下载项目 Step one: Clone or Download
+
+```bash
+git clone https://github.com/lynnclub/shy.git MyProjectName
+```
+
+默认克隆master分支，包含最新改动。建议下载稳定的 [发行版本](https://github.com/lynnclub/shy/releases)。
+
+#### 第二步：安装依赖包 Step two: Install dependencies
+
+```bash
+#进入项目目录
+cd MyProjectName
+
+#执行composer依赖包安装
+composer install
+```
+
+恭喜！！！接下来，只需要配置Web站点，或者启动常驻内存模式，就可以运行框架了。
+
+#### 第三步（可选）：常驻内存模式运行 Step three(optional):  Running in resident memory mode
+
+```bash
+php command http_workerman start
+```
+
 ## 一、概述 Overview
 
 框架内置了丰富的组件（Component），例如配置、日志、门面、缓存、流水线、进程管理等等。各个组件按照拼积木的方式灵活组合，形成了面向不同使用场景的 Web框架、CLI框架、Socket框架、API框架，并且可以多入口独立运行。
@@ -117,35 +145,7 @@ shy 框架根目录
 |___vendor composer依赖包安装目录
 ```
 
-### 1.4 运行框架
-
-#### 第一步：克隆或下载项目
-
-```bash
-git clone https://github.com/lynncho/shy.git MyProjectName
-```
-
-默认克隆master分支，包含最新改动。建议下载稳定的 [发行版本](https://github.com/lynncho/shy/releases)。
-
-#### 第二步：安装依赖包
-
-```bash
-#进入项目目录
-cd MyProjectName
-
-#执行composer依赖包安装
-composer install
-```
-
-恭喜！！！接下来，只需要配置Web站点，或者启动常驻内存模式，就可以运行框架了。
-
-#### 第三步（可选）：启动常驻内存模式
-
-```bash
-php command http_workerman start
-```
-
-### 1.5 Http服务的生命周期
+### 1.4 Http服务的生命周期
 
 1. 启动器运行（Bootstrap）
 2. 启动自动加载（Composer）
@@ -164,7 +164,7 @@ php command http_workerman start
 15. 输出响应（Response）
 16. 请求组件恢复初始化状态（Request）
 
-### 1.6 远期规划
+### 1.5 远期规划
 
 1. 容器实例调度
 2. 单元测试覆盖率100%
