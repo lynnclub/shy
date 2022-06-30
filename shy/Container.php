@@ -22,7 +22,7 @@ class Container implements ContainerContract
      *
      * @var string
      */
-    protected $shyVersion = '2.0.0';
+    protected $shyVersion = '2.1.0';
 
     /**
      * 容器实例

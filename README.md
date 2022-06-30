@@ -11,10 +11,14 @@ The framework is simple, powerful, and comprehensive, just like her name: **Shy 
 #### 第一步：克隆或下载项目 Step one: Clone or Download
 
 ```bash
+#默认master分支，包含最新特性，可能不稳定
 git clone https://github.com/lynnclub/shy.git MyProjectName
+
+#获取指定的发行版本
+git clone -b 1.4.0 https://github.com/lynnclub/shy.git MyProjectName
 ```
 
-默认克隆master分支，包含最新改动。建议下载稳定的 [发行版本](https://github.com/lynnclub/shy/releases)。
+推荐使用稳定的 [发行版本](https://github.com/lynnclub/shy/releases)。
 
 #### 第二步：安装依赖包 Step two: Install dependencies
 
@@ -33,6 +37,18 @@ composer install
 ```bash
 php command http_workerman start
 ```
+
+## 版本 Version
+
+分为大中小三级版本号，1.x版本兼容php>=7.0，2.x版本兼容php>=7.4。
+
+#### 2.1.0
+
+完善session，注释翻译为中文，其它优化。
+
+#### 1.4.0
+
+完善session，注释翻译为中文，其它优化。
 
 ## 1、概述 Overview
 
@@ -158,11 +174,11 @@ shy 框架根目录
 5. 启动容器，注册组件（Container）
 6. 启动配置组件（Config）
 7. 设置时区（Timezone）
-8. 注册全局异常处理（ExceptionHandler）
-9. 引入模版函数文件（View）
-10. 引入自定义文件
-11. 装载当前请求（Request）
-12. 开启会话（Session）
+8. 注册异常处理（ExceptionHandler）
+9. 会话初始化（Session）
+10. 引入模版函数文件（View）
+11. 引入自定义文件
+12. 装载请求（Request）
 13. 路由解析（Router）
 14. 执行中间件、控制器（Router、Middleware、Controller）
 15. 输出响应（Response）
@@ -172,7 +188,7 @@ shy 框架根目录
 
 1. 容器实例调度
 2. 单元测试覆盖率100%
-3. Swoole socket 
+3. Swoole socket
 4. Api便捷开发框架
 
 ## 2、契约 Contract
@@ -181,7 +197,7 @@ shy 框架根目录
 
 各种组件都按照契约的规范实现，比如容器、缓存、配置、日志、门面等，部分组件的契约还兼容PSR规范。
 
-契约在容器中的使用方式：**在容器中注册契约类名，绑定实现了该契约的对应实体类。遵守同一契约的实体类，可以在容器中替换。**
+契约在容器中的使用方式：**在容器中注册契约类名，绑定实现了该契约的实体类。遵守同一契约的实体类，可以在容器中替换。**
 
 bootstrap程序中，契约类与实体类的绑定：
 
@@ -192,8 +208,7 @@ $container->binds([
     ExceptionHandlerContract::class => Handler::class,
     PipelineContract::class => Pipeline::class,
     CacheContract::class => Memory::class,
-    DataBaseContract::class => Pdo::class,
-    RequestContract::class => Request::class,
+    DataBaseContract::class => Illuminate::class,
     ResponseContract::class => Response::class,
     SessionContract::class => Session::class,
     RouterContract::class => Router::class,
@@ -203,9 +218,11 @@ $container->binds([
 
 ## 3、容器与依赖注入 Container and Dependency injection
 
-本框架的容器类，遵守PSR（PHP Standards Recommendations）中的《PSR-11: Container interface》接口规范。并且，实现了PHP的ArrayAccess、Countable接口，可以当作数组使用。
+框架的容器类，遵守PSR（PHP Standards Recommendations）中的《PSR-11: Container interface》接口规范。并且，实现了PHP的ArrayAccess、Countable接口，可以当作数组使用。
 
-容器是对实例集中管理的实例池，可以创建、绑定、使用、替换或者移除实例。此外，框架拓展了容器的概念，支持把字符、数组等任意内容当作实例管理。即**容器是实例与数据的集中管理池**。
+容器是对实例集中管理的实例池，可以创建、绑定、使用、替换或者移除实例。
+
+此外，框架拓展了容器的概念，支持把字符、数组等任意内容当作实例管理。即**容器是实例与数据的集中管理池**。
 
 注意事项：
 
@@ -259,7 +276,9 @@ bind(Shy\Http::class, function ($param1, $param2) {
 })->getOrMake(Shy\Http::class, $param1, $param2)->run();
 ```
 
-如上所述，bind函数是对容器类的封装，会返回容器实例以便链式调用。**它的功能只是绑定实例，并没有将实例加入到容器的实例池**。将实例加入容器、获取容器中实例，是shy函数的功能。
+如上所述，bind函数是对容器类的封装，会返回容器实例以便链式调用。
+
+**bind函数的功能只是绑定实例，并没有将实例加入到容器的实例池**。将实例加入容器、获取容器中实例，是shy函数的功能。
 
 ### 3.2 加入容器与获取实例
 
@@ -368,7 +387,7 @@ use Shy\Contract\Config;
 
 ## 4、配置与环境 Config and Environment
 
-配置类继承了内存缓存类`Shy\Cache\Memory::class`，因为该缓存满足需求且无外部依赖。在`cache`开启的时候，配置会被持久化缓存。
+配置类继承了内存缓存类`Shy\Cache\Memory::class`，无依赖。在app.cache开启时，配置会被持久化缓存到本地文件。
 
 ```php
 /**
@@ -391,7 +410,7 @@ $socketConfig = config('workerman.socket');
 
 框架预设了三种环境，develop开发环境、testing测试环境、production生产环境。如果未设置环境值，默认为develop开发环境。
 
-**配置组件将优先使用环境目录下的配置文件，当环境目录下不存在该文件时，将使用通用的配置文件**。
+**将优先使用环境目录下的配置文件，当环境目录下不存在该文件时，使用通用的配置文件**。
 
 Nginx fastcgi配置环境值：
 
@@ -410,7 +429,9 @@ export SHY_ENV=production
 
 ## 5、异常捕获 Exception Handler
 
-**框架在各个服务的入口处，注册了异常（Exception）与错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误，甚至是Shut Down。错误及Shut Down会被转化成异常，统一按异常处理。**
+**框架在各个服务的入口处，注册了异常（Exception）与错误（Error）捕获，能够捕获并处理所有未被捕获的异常、错误，甚至是Shut Down**。
+
+错误与Shut Down会被转化成异常，统一按异常处理。
 
 框架为每个服务提供了异常处理类（Handler）。你也可以实现Handler接口来自定义异常处理，在启动器的服务入口中替换绑定关系，使其生效。
 
@@ -458,9 +479,11 @@ class Cache extends Facade
 
 ## 7、缓存 Cache
 
-框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范。并且，实现了PHP的ArrayAccess接口，可以当作数组使用。由于phpredis拓展不完全兼容PSR-16，所以框架对缓存的PSR规范无硬性约束、仅建议遵守。
+框架的缓存类，遵守PSR（PHP Standards Recommendations）中的《PSR-16: Common Interface for Caching Libraries》接口规范。
 
-框架默认使用无依赖的 Memory本地内存缓存，通过文件做持久化储存，每次GC最多回收10条。在常驻内存模式下，由于该缓存只在关闭、启动服务的时候执行文件持久化，所以性能开销较小。
+并且，实现了PHP的ArrayAccess接口，可以当作数组使用。由于phpredis拓展不完全兼容PSR-16，所以框架对缓存的PSR规范无硬性约束、仅建议遵守。
+
+框架默认使用无依赖的 Memory 内存缓存，通过文件做持久化储存，每次GC最多回收10条。在常驻内存模式下，由于该缓存只在关闭、启动服务的时候执行文件持久化，所以性能开销较小。
 
 框架还提供了基于phpredis拓展实现的Redis缓存，推荐有条件时优先使用。可以在bootstrap目录下的服务启动文件中，替换缓存契约绑定的实体类：
 
@@ -480,7 +503,7 @@ Cache::get('test');
 
 ## 8、日志 Logger
 
-本框架的日志类，遵守PSR（PHP Standards Recommendations）中的《PSR-3: Logger Interface》接口规范。
+框架的日志类，遵守PSR（PHP Standards Recommendations）中的《PSR-3: Logger Interface》接口规范。
 
 ### 8.1 简介
 
@@ -813,7 +836,7 @@ Illuminate Database的更多用法，可以查看[该项目的文档](https://gi
 
 框架自带模版没有采用字符解析这种复杂的设计，因为这种方式不仅实现复杂、还制定了一套模版规则需要用户学习。
 
-本框架的模版需要使用原生PHP语法开发，并且只提供了必须少量函数，学习成本较低。
+框架的模版需要使用原生PHP语法开发，并且只提供了必须少量函数，学习成本较低。
 
 但是，要求开发者做好`isset()`、`empty()`、`is_array()`等预防报错处理。
 
@@ -1012,7 +1035,7 @@ composer require workerman/workerman
 
 由于常驻内存模式不依赖nginx、apache等服务器程序，框架本身可作为服务器，port端口可以直接占用80端口。
 
-如果你希望本框架配合nginx、apache等使用，也可以使用其它端口运行本框架、然后配置服务器程序的端口代理。
+如果你希望框架配合nginx、apache等使用，也可以使用其它端口运行框架、然后配置服务器程序的端口代理。
 
 nginx转发配置：
 
