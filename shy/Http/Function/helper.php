@@ -293,10 +293,10 @@ if (!function_exists('get_response_json')) {
      *
      * @param int $code
      * @param string|array $msg
-     * @param array $data
+     * @param mixed $data
      * @return string
      */
-    function get_response_json(int $code, $msg = null, array $data = array())
+    function get_response_json(int $code, $msg = null, $data = array())
     {
         if ($msg === null) {
             $msg = lang($code);
