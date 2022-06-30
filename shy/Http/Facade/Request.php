@@ -18,7 +18,6 @@ use Shy\Http\Contract\Request as RequestContract;
  * @method static string getBaseUrl()
  * @method static string getPathInfo()
  * @method static string getUri()
- * @method static string getUrl()
  * @method static array getClientIps()
  * @method static string getMethod()
  * @method static bool isXmlHttpRequest()
