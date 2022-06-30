@@ -41,15 +41,15 @@ if (!defined('SHY_ENV')) {
     define('SHY_ENV', $env);
 }
 
-try {
-    // 定义常量 Constant
-    defined('BASE_PATH') or define('BASE_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
-    defined('APP_PATH') or define('APP_PATH', BASE_PATH . 'app' . DIRECTORY_SEPARATOR);
-    defined('CACHE_PATH') or define('CACHE_PATH', BASE_PATH . 'cache' . DIRECTORY_SEPARATOR);
-    defined('EXTEND_PATH') or define('EXTEND_PATH', BASE_PATH . 'extend' . DIRECTORY_SEPARATOR);
-    defined('PUBLIC_PATH') or define('PUBLIC_PATH', BASE_PATH . 'public' . DIRECTORY_SEPARATOR);
-    defined('VIEW_PATH') or define('VIEW_PATH', APP_PATH . 'Http' . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR);
+// 定义常量 Constant
+defined('BASE_PATH') or define('BASE_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
+defined('APP_PATH') or define('APP_PATH', BASE_PATH . 'app' . DIRECTORY_SEPARATOR);
+defined('CACHE_PATH') or define('CACHE_PATH', BASE_PATH . 'cache' . DIRECTORY_SEPARATOR);
+defined('EXTEND_PATH') or define('EXTEND_PATH', BASE_PATH . 'extend' . DIRECTORY_SEPARATOR);
+defined('PUBLIC_PATH') or define('PUBLIC_PATH', BASE_PATH . 'public' . DIRECTORY_SEPARATOR);
+defined('VIEW_PATH') or define('VIEW_PATH', APP_PATH . 'Http' . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR);
 
+try {
     // 容器初始化 Container initialization
     $container = Container::getContainer();
     $container->binds([
@@ -65,6 +65,7 @@ try {
         ViewContract::class => View::class,
     ])->aliases([
         'config' => ConfigContract::class,
+        'logger' => LoggerContract::class,
         'session' => SessionContract::class,
         'router' => RouterContract::class,
         'request' => RequestContract::class,

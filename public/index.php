@@ -14,6 +14,8 @@ $container = require __DIR__ . '/../bootstrap/http.php';
 
 // 装载请求，并加入到容器 Load the request and join to the container
 $container->set(RequestContract::class, Request::createFromGlobals());
+// 日志引入请求类
+$container['logger']->setRequest($container['request']);
 
 // 定义基础地址 Define BASE_URL
 if (!defined('BASE_URL')) {
