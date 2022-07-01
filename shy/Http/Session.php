@@ -196,6 +196,8 @@ class Session implements SessionContract
      */
     public function delete(string $key)
     {
+        !$this->isStart() && $this->start();
+
         unset($_SESSION[$key]);
     }
 
