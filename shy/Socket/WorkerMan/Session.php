@@ -21,16 +21,7 @@ class Session extends HttpSession implements SessionContract
     {
         // session驱动
         if (!empty($config['driver'])) {
-            $class = false !== strpos($config['driver'], '\\')
-                ? $config['driver']
-                : '\\Shy\\Http\\Session\\' . ucwords($config['driver']);
-
-            // 检查驱动类
-            if (!class_exists($class)
-                || !session_set_save_handler(new $class($config))
-            ) {
-                throw new Exception('error session handler:' . $class);
-            }
+            throw new Exception('WorkerMan not support session driver ' . $config['driver']);
         }
 
         if (isset($config['name'])) {

@@ -9,6 +9,7 @@ use Workerman\Protocols\Http;
 class Response extends HttpResponse implements ResponseContract
 {
     /**
+     * 发送响应头
      * Send header
      */
     public function sendHeader()
