@@ -32,12 +32,10 @@ if (!function_exists('get_throwable_array')) {
             if (isset($trace['args'])) {
                 foreach ($trace['args'] as $argKey => $arg) {
                     if (is_object($arg)) {
-                        $arg = '(object)' . get_class($arg);
+                        $trace['args'][$argKey] = '(object)' . get_class($arg);
                     } elseif (is_array($arg)) {
-                        $arg = '(array)' . json_encode($arg, JSON_UNESCAPED_UNICODE);
+                        $trace['args'][$argKey] = '(array)' . json_encode($arg, JSON_UNESCAPED_UNICODE);
                     }
-
-                    $trace['args'][$argKey] = $arg;
                 }
 
                 $argString = implode(', ', $trace['args']);
