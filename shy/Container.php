@@ -22,7 +22,7 @@ class Container implements ContainerContract
      *
      * @var string
      */
-    protected $shyVersion = '1.4.0';
+    protected $shyVersion = '1.4.1';
 
     /**
      * 容器实例
@@ -206,8 +206,8 @@ class Container implements ContainerContract
 
                 if (isset($parameters[$key])) {
                     $results[$key] = $parameters[$key];
-                } elseif (is_object($ReflectionClass = $dependency->getClass())) {
-                    $className = $ReflectionClass->name;
+                } elseif (is_object($reflectionType = $dependency->getType())) {
+                    $className = $reflectionType->getName();
 
                     if ($this->has($className)) {
                         $results[$key] = $this->get($className);

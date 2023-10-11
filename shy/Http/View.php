@@ -58,9 +58,9 @@ class View implements ViewContract
     /**
      * View constructor.
      *
-     * @param string $viewPath
+     * @param string|null $viewPath
      */
-    public function __construct(string $viewPath = '')
+    public function __construct(string $viewPath = null)
     {
         if (empty($viewPath)) {
             $this->viewPath = VIEW_PATH;
