@@ -30,32 +30,34 @@ if (!function_exists('get_throwable_array')) {
         foreach ($throwable->getTrace() as $key => $trace) {
             $argString = '';
             if (isset($trace['args'])) {
-                foreach ($trace['args'] as $argKey => $arg) {
+                $args = [];
+                foreach ($trace['args'] as $arg) {
                     if (is_object($arg)) {
-                        $trace['args'][$argKey] = '(object)' . get_class($arg);
+                        $args[] = '(object)' . get_class($arg);
                     } elseif (is_array($arg)) {
-                        $trace['args'][$argKey] = '(array)' . json_encode($arg, JSON_UNESCAPED_UNICODE);
+                        $args[] = '(array)' . json_encode($arg, JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $args[] = $arg;
                     }
                 }
-
-                $argString = implode(', ', $trace['args']);
+                $argString = implode(', ', $args);
             }
-
-            // call
-            $traceString = '[' . $key . '] ';
-            if (isset($trace['class'])) {
-                $traceString .= $trace['class'] . '->';
-            }
-            $array[] = $traceString . $trace['function'] . '(' . $argString . ')' . PHP_EOL;
 
             // file
-            $traceString = '';
+            $indexString = '[' . $key . '] ';
             if (isset($trace['file'], $trace['line'])) {
-                $traceString .= $trace['file'] . ' line ' . $trace['line'];
+                $file = $trace['file'] . ' line ' . $trace['line'];
             } else {
-                $traceString .= '{anonymous}';
+                $file = '{anonymous}';
             }
-            $array[] = $traceString;
+            $array[] = $indexString . $file;
+
+            // call
+            $classString = '';
+            if (isset($trace['class'])) {
+                $classString = $trace['class'] . '->';
+            }
+            $array[] = $classString . $trace['function'] . '(' . $argString . ')';
         }
 
         return $array;
